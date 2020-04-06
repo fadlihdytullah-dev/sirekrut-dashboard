@@ -1,5 +1,8 @@
 // @flow
 import * as React from 'react';
+
+import {Link, useLocation} from 'react-router-dom';
+
 import {Layout, Menu} from 'antd';
 import {
   GoldOutlined,
@@ -26,27 +29,27 @@ const styles = {
 
 const MENUS: Array<SideMenu> = [
   {
-    key: 'timelines',
+    key: 'timeline',
     label: 'Periode',
     icon: <CalendarOutlined style={styles.customMenuIcon} />,
   },
   {
-    key: 'study-programs',
+    key: 'study_program',
     label: 'Program Study',
     icon: <GoldOutlined style={styles.customMenuIcon} />,
   },
   {
-    key: 'positions',
+    key: 'position',
     label: 'Posisi',
     icon: <SolutionOutlined style={styles.customMenuIcon} />,
   },
   {
-    key: 'forms',
+    key: 'form',
     label: 'Formulir',
     icon: <FileTextOutlined style={styles.customMenuIcon} />,
   },
   {
-    key: 'applicants',
+    key: 'applicant',
     label: 'Pelamar',
     icon: <FileSearchOutlined style={styles.customMenuIcon} />,
   },
@@ -57,7 +60,13 @@ const MENUS: Array<SideMenu> = [
   },
 ];
 
+const getPathName = (value: string) => value.split('/')[1];
+
 function Sidebar() {
+  const location = useLocation();
+
+  const {pathname} = location;
+
   return (
     <Sider
       theme="light"
@@ -70,11 +79,17 @@ function Sidebar() {
         background: '#f7f7f7',
         paddingTop: 70,
       }}>
-      <Menu theme="light" mode="inline" style={{background: '#f7f7f7'}}>
+      <Menu
+        theme="light"
+        mode="inline"
+        style={{background: '#f7f7f7'}}
+        selectedKeys={[getPathName(pathname)]}>
         {MENUS.map(({key, label, icon}) => (
           <Menu.Item key={key}>
-            {icon}
-            <span style={{fontSize: '1.4rem'}}>{label}</span>
+            <Link to={`/${key}`}>
+              {icon}
+              <span style={{fontSize: '1.4rem'}}>{label}</span>
+            </Link>
           </Menu.Item>
         ))}
       </Menu>

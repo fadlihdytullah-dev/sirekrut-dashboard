@@ -11,16 +11,13 @@ type Props = {
   children: React$Node,
 };
 
-const styles = {
-  content: {minHeight: '90vh'},
-};
+const styles = {};
 
 function ContentWrapper(props: Props) {
   return (
     <Content>
       <View
-        marginX={24}
-        padding={24}
+        padding={32}
         background="#fff"
         style={styles.content}
         flexJustifyContent={props.isCenter ? 'center' : undefined}

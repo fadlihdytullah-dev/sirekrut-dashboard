@@ -7,10 +7,13 @@ import './index.css';
 import 'antd/dist/antd.css';
 
 import App from './App';
+import AppContextProvider from './contexts/AppContext';
 
 ReactDOM.render(
-  <Router>
-    <App />
-  </Router>,
+  <AppContextProvider>
+    <Router>
+      <App />
+    </Router>
+  </AppContextProvider>,
   document.getElementById('root')
 );

@@ -1,7 +1,7 @@
 // @flow
 import * as React from 'react';
 
-import ContentWrapper from '../../components/commons/ContentWrapper';
+import ContentWrapper from '../../components/layouts/ContentWrapper';
 import {Typography} from 'antd';
 import {AppstoreOutlined} from '@ant-design/icons';
 import View from '../../components/shared/View';
@@ -11,9 +11,9 @@ function Home() {
   return (
     <ContentWrapper isCenter>
       <View textAlign="center">
-        <Icons icon={<AppstoreOutlined />} size="ultraBig" />
+        <Icons icon={<AppstoreOutlined />} size="ultraBig" color="red" />
         <Typography.Title level={2}>
-          Selamat Datang di SiRekrut
+          <Typography.Text type="warning">SiRekrut</Typography.Text> Dashboard
         </Typography.Title>
       </View>
     </ContentWrapper>
