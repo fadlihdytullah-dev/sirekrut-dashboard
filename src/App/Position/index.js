@@ -22,7 +22,7 @@ import Highlighter from 'react-highlight-words';
 import axios from 'axios';
 import {POSITIONS_API, STUDY_PROGRAMS_API, config} from './../config';
 
-import {getColumnSortProps} from './../Utils';
+import {getColumnSortProps, capitalize} from './../Utils';
 
 type Props = {};
 
@@ -48,7 +48,7 @@ function Position(props: Props) {
   const [searchText, setSearchText] = React.useState('');
   const [searchedColumn, setSearchedColumn] = React.useState('');
 
-  const handleFetch = async () => {
+  const handleFetchPositions = async () => {
     dispatchApp({type: 'FETCH_POSITIONS_INIT'});
 
     try {
@@ -64,6 +64,8 @@ function Position(props: Props) {
         throw new Error(result.errors);
       }
     } catch (error) {
+      message.error(error.message);
+
       dispatchApp({
         type: 'FETCH_POSITIONS_FAILURE',
         payload: {error: error.message},
@@ -85,6 +87,8 @@ function Position(props: Props) {
         throw new Error(result.errors);
       }
     } catch (error) {
+      message.error(error.message);
+
       dispatchApp({
         type: 'FETCH_STUDY_PROGRAMS_FAILURE',
         payload: {error: error.message},
@@ -94,7 +98,7 @@ function Position(props: Props) {
 
   React.useEffect(
     () => {
-      handleFetch();
+      handleFetchPositions();
       handleFetchStudyPrograms();
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -120,7 +124,7 @@ function Position(props: Props) {
         message.success(
           `Data telah berhasil ${isEdit ? 'diperbarui' : 'ditambahkan'}`
         );
-        handleFetch();
+        handleFetchPositions();
       } else {
         throw new Error(result.errors);
       }
@@ -159,7 +163,7 @@ function Position(props: Props) {
 
         if (result.success) {
           message.success({content: 'Data telah berhasil dihapus', key});
-          handleFetch();
+          handleFetchPositions();
         } else {
           throw new Error(result.errors);
         }
@@ -284,6 +288,9 @@ function Position(props: Props) {
         dataIndex: 'minimumGraduate',
         key: 'minimumGraduate',
         ...getColumnSortProps('minimumGraduate', true),
+        render: (minimumGraduate) => {
+          return <span>{capitalize(minimumGraduate)}</span>;
+        },
       },
       {
         title: 'Program Studi',

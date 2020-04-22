@@ -1,10 +1,6 @@
 // @flow
 import * as React from 'react';
-import type {
-  PositionType,
-  PositionInputType,
-  GraduateType,
-} from './../../../types/App.flow';
+import type {GraduateType} from './../../../types/App.flow';
 import FormInput from './../../../components/shared/FormInput';
 import FormInputSelect from './../../../components/shared/FormInputSelect';
 import View from '../../../components/shared/View';
@@ -178,7 +174,7 @@ function AddModal({visible, position, isSubmitting, onSubmit, onClose}: Props) {
     onClose();
   };
 
-  React.useEffect(() => resetState, [visible]);
+  React.useEffect(() => resetState, [position]);
 
   const resetState = () => {
     setFormState(initState());

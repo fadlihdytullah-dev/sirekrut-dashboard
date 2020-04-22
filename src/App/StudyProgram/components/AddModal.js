@@ -7,52 +7,48 @@ import {Modal, Button} from 'antd';
 import FormInput from '../../../components/shared/FormInput';
 import FormInputSelect from '../../../components/shared/FormInputSelect';
 import View from '../../../components/shared/View';
+import {config} from '../../config';
+import {isEmpty} from '../../Utils';
 
 type Props = {
-  selected?: ?StudyProgramType,
+  visible: boolean,
+  studyProgram: any,
+  isSubmitting: boolean,
+  onSubmit: (studyProgram: any, isEdit: boolean) => Promise<void>,
   onClose: () => void,
 };
 
-const STRATA_OPTIONS = [
-  {
-    key: 'D3',
-    label: 'Diploma',
-    value: 'D3',
-  },
-  {
-    key: 'S1',
-    label: 'Sarjana',
-    value: 'S1',
-  },
-  {
-    key: 'S2',
-    label: 'Magister',
-    value: 'S2',
-  },
-  {
-    key: 'S3',
-    label: 'Doktor',
-    value: 'S3',
-  },
-];
+// const buildStudyProgram = (
+//   studyProgram: StudyProgramType
+// ): {degree: string, name: string} => {
+//   // S1 Teknik Informatika
+//   const chunks = studyProgram.name.split(' '); // [S1, Teknik, Informatika]
+//   let degree = chunks[0];
+//   const name = chunks.splice(1).join(' ');
 
-const buildStudyProgram = (
-  studyProgram: StudyProgramType
-): {degree: string, name: string} => {
-  // S1 Teknik Informatika
-  const chunks = studyProgram.name.split(' '); // [S1, Teknik, Informatika]
-  const degree = chunks[0];
-  const name = chunks.splice(1).join(' ');
+//   if (degree === 'D3') {
+//     degree = 'DIPLOMA';
+//   } else if (degree === 'S1') {
+//     degree = 'SARJANA';
+//   } else if (degree === 'S2') {
+//     degree = 'MAGISTER';
+//   } else if (degree === 'S3') {
+//     degree = 'DOKTOR';
+//   }
 
-  return {
-    degree,
-    name,
-  };
-};
+//   return {
+//     degree,
+//     name,
+//   };
+// };
 
-function AddModal({selected, onClose}: Props) {
-  const studyProgram = (selected && buildStudyProgram(selected)) || null;
-
+function AddModal({
+  visible,
+  studyProgram,
+  isSubmitting,
+  onSubmit,
+  onClose,
+}: Props) {
   const [name, setName] = React.useState('');
   const [errorName, setErrorName] = React.useState('');
 
@@ -60,13 +56,16 @@ function AddModal({selected, onClose}: Props) {
   const [errorDegree, setErrorDegree] = React.useState('');
 
   React.useEffect(() => {
+    resetError();
+    resetState();
+  }, [studyProgram]);
+
+  React.useEffect(() => {
     if (studyProgram) {
       setName(studyProgram.name);
       setDegree(studyProgram.degree);
     }
   }, [studyProgram]);
-
-  const [confirmLoading, setConfirmLoading] = React.useState(false);
 
   const handleChangeName = (event: SyntheticInputEvent<>) => {
     setName(event && event.target.value);
@@ -76,16 +75,20 @@ function AddModal({selected, onClose}: Props) {
     setDegree(value);
   };
 
-  const validateInput = () => {
+  const validation = () => {
     let isValid = true;
 
-    if (name.trim().length === 0) {
+    resetError();
+
+    if (isEmpty(name)) {
       setErrorName('Nama tidak boleh kosong');
+
       isValid = false;
     }
 
-    if (!degree) {
-      setErrorDegree('Strata tidak boleh kosong');
+    if (isEmpty(degree)) {
+      setErrorDegree('Degree tidak boleh kosong');
+
       isValid = false;
     }
 
@@ -97,44 +100,54 @@ function AddModal({selected, onClose}: Props) {
     setErrorDegree('');
   };
 
+  const resetState = () => {
+    setName('');
+    setDegree('');
+  };
+
   const handleSubmit = () => {
-    if (!validateInput()) {
+    if (!validation()) {
       return;
     }
 
-    resetError();
-    setConfirmLoading(true);
+    const isEdit = !!studyProgram;
 
-    setTimeout(() => {
-      setConfirmLoading(false);
-      onClose();
-    }, 2000);
+    const data = {
+      name,
+      degree,
+    };
+
+    if (studyProgram) {
+      data.id = studyProgram.id;
+    }
+
+    onSubmit(data, isEdit);
   };
 
   const handleClose = () => onClose();
 
   return (
     <Modal
-      visible={true}
+      visible={visible}
       title="Tambah Program Studi"
       okText="Submit"
       footer={[
         <Button
           key="submit"
           type="primary"
-          loading={confirmLoading}
+          loading={isSubmitting}
           onClick={handleSubmit}>
           {studyProgram ? 'Update' : 'Submit'}
         </Button>,
       ]}
-      closable={!confirmLoading}
+      closable={!isSubmitting}
       onCancel={handleClose}
-      confirmLoading={confirmLoading}>
+      confirmLoading={isSubmitting}>
       <View marginBottom={16}>
         <FormInputSelect
           isRequired
           label="Strata"
-          options={STRATA_OPTIONS}
+          options={config.app.strataOptions}
           value={degree}
           error={errorDegree}
           onChange={handleChangeDegree}
@@ -153,9 +166,5 @@ function AddModal({selected, onClose}: Props) {
     </Modal>
   );
 }
-
-AddModal.defaultProps = {
-  isVisible: false,
-};
 
 export default AddModal;

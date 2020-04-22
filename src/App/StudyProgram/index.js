@@ -1,93 +1,23 @@
 // @flow
 import * as React from 'react';
-
 import {type StudyProgramType} from './../../types/App.flow';
 import {AppContext} from '../../contexts/AppContext';
-
 import AddModal from './components/AddModal';
 import Header from '../../components/commons/Header';
 import View from '../../components/shared/View';
 import Highlighter from 'react-highlight-words';
 import {Table, Input, Button, Skeleton, Empty, Popconfirm, message} from 'antd';
 import {SearchOutlined} from '@ant-design/icons';
-import {getColumnSortProps} from './../Utils';
+import {getColumnSortProps, capitalize} from './../Utils';
+import {STUDY_PROGRAMS_API, config} from '../config';
+import axios from 'axios';
 
 type Props = {};
 
-const DATA_SOURCE = [
-  {
-    id: '1',
-    name: 'D3 Teknik Informatika',
-  },
-  {
-    id: '2',
-    name: 'S1 Sistem Komputer',
-  },
-  {
-    id: '4',
-    name: 'S2 Magister Informatika',
-  },
-  {
-    id: '5',
-    name: 'S1 Manajemen Bisnis dan Teknologi Informasi',
-  },
-  {
-    id: '6',
-    name: 'D3 Perhotelan',
-  },
-  {
-    id: '7',
-    name: 'D3 Sistem Informasi',
-  },
-  {
-    id: '8',
-    name: 'D3 Perhotelan',
-  },
-  {
-    id: '9',
-    name: 'S3 Manajemen',
-  },
-  {
-    id: '10',
-    name: 'S2 Bioteknologi dan Kimia',
-  },
-];
-
-const getStudyPrograms = () => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(DATA_SOURCE);
-    }, 2000);
-  });
-};
-
 function StudyProgram(props: Props) {
   const {appState, dispatchApp} = React.useContext(AppContext);
-  const [selected, setSelected] = React.useState(null);
-
-  const handleFetch = async () => {
-    try {
-      const result = await getStudyPrograms();
-      dispatchApp({
-        type: 'FETCH_STUDY_PROGRAMS_SUCCESS',
-        payload: {studyPrograms: result},
-      });
-    } catch (error) {
-      dispatchApp({
-        type: 'FETCH_POSITIONS_FAILURE',
-        payload: {error: error.message},
-      });
-    }
-  };
-
-  React.useEffect(
-    () => {
-      dispatchApp({type: 'FETCH_STUDY_PROGRAMS_INIT'});
-      handleFetch();
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  );
+  const [selectedStudyProgram, setSelectedStudyProgram] = React.useState(null);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const [showModal, setShowModal] = React.useState(false);
 
@@ -95,24 +25,113 @@ function StudyProgram(props: Props) {
   const [searchedColumn, setSearchedColumn] = React.useState('');
   const searchInput = React.useRef(null);
 
-  React.useEffect(() => {
-    setTimeout(() => {}, 2000);
-  }, []);
-
-  const handleConfirmDelete = async () => {
+  const handleFetchStudyPrograms = async () => {
     try {
-      await message.loading('Sedang menghapus', 1);
-      message.success('Data telah berhasil dihapus');
+      dispatchApp({type: 'FETCH_STUDY_PROGRAMS_INIT'});
+
+      const response = await axios.get(STUDY_PROGRAMS_API.getAll);
+      const result = response.data;
+
+      if (result.success) {
+        dispatchApp({
+          type: 'FETCH_STUDY_PROGRAMS_SUCCESS',
+          payload: {studyPrograms: result.data},
+        });
+      } else {
+        throw new Error(result.errors);
+      }
     } catch (error) {
-      console.log('❌ error:=', error);
-      message.error('Gagal menghapus');
+      message.error(error.message);
+
+      dispatchApp({
+        type: 'FETCH_STUDY_PROGRAMS_FAILURE',
+        payload: {error: error.message},
+      });
     }
   };
 
+  React.useEffect(
+    () => {
+      handleFetchStudyPrograms();
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+
+  const handleConfirmDelete = React.useCallback(
+    async (id: string) => {
+      const key = 'loading';
+
+      try {
+        message.loading({
+          content: 'Menghapus data...',
+          key,
+        });
+
+        const response = await axios.delete(STUDY_PROGRAMS_API.delete(id), {
+          headers: config.headerConfig,
+        });
+
+        const result = response.data;
+
+        if (result.success) {
+          message.success({content: 'Data telah berhasil dihapus', key});
+          handleFetchStudyPrograms();
+        } else {
+          throw new Error(result.errors);
+        }
+      } catch (error) {
+        if (error.response) {
+          message.error({content: error.response.data.errors, key});
+        } else {
+          message.error({content: error.message, key});
+        }
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+
   const handleCancelDelete = () => {};
+
+  const handleSubmit = async (studyProgram: any, isEdit: boolean) => {
+    try {
+      setIsSubmitting(true);
+
+      const URL = isEdit
+        ? STUDY_PROGRAMS_API.update(studyProgram.id)
+        : STUDY_PROGRAMS_API.post;
+      const method = isEdit ? 'put' : 'post';
+
+      const response = await axios[method](URL, studyProgram, {
+        headers: config.headerConfig,
+      });
+
+      const result = response.data;
+
+      if (result.success) {
+        message.success(
+          `Data telah berhasil ${isEdit ? 'diperbarui' : 'ditambahkan'}`
+        );
+        handleFetchStudyPrograms();
+      } else {
+        throw new Error(result.errors);
+      }
+    } catch (error) {
+      if (error.response) {
+        message.error(error.response.data.errors);
+      } else {
+        message.error(error.message);
+      }
+    } finally {
+      setIsSubmitting(false);
+      setShowModal(false);
+    }
+  };
 
   const handleAddNew = () => {
     setShowModal(true);
+    setSelectedStudyProgram(null);
   };
 
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
@@ -129,7 +148,7 @@ function StudyProgram(props: Props) {
   const getColumnSearchProps = React.useCallback(
     (dataIndex) => ({
       filterDropdown: ({
-        setSelectedKeys,
+        setSelectedStudyProgramKeys,
         selectedKeys,
         confirm,
         clearFilters,
@@ -142,7 +161,9 @@ function StudyProgram(props: Props) {
             placeholder={`Pencarian`}
             value={selectedKeys[0]}
             onChange={(e) =>
-              setSelectedKeys(e.target.value ? [e.target.value] : [])
+              setSelectedStudyProgramKeys(
+                e.target.value ? [e.target.value] : []
+              )
             }
             onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
             style={{width: 188, marginBottom: 8, display: 'block'}}
@@ -192,8 +213,8 @@ function StudyProgram(props: Props) {
   );
 
   const handleSelectedStudyProgram = React.useCallback(
-    (value: StudyProgramType) => {
-      setSelected(value);
+    (data: StudyProgramType) => {
+      setSelectedStudyProgram(data);
       setShowModal(true);
     },
     []
@@ -205,9 +226,18 @@ function StudyProgram(props: Props) {
         title: 'Nama',
         dataIndex: 'name',
         key: 'name',
-        width: '75%',
+        width: '40%',
         ...getColumnSearchProps('name'),
         ...getColumnSortProps('name'),
+      },
+      {
+        title: 'Strata',
+        dataIndex: 'degree',
+        key: 'degree',
+        ...getColumnSortProps('degree', true),
+        render: (degree) => {
+          return <span>{capitalize(degree)}</span>;
+        },
       },
       {
         title: 'Aksi',
@@ -223,7 +253,7 @@ function StudyProgram(props: Props) {
               </Button>
               <Popconfirm
                 title="Apakah Anda yakin ingin menghapus data ini?"
-                onConfirm={handleConfirmDelete}
+                onConfirm={() => handleConfirmDelete(record.id)}
                 onCancel={handleCancelDelete}
                 okText="Iya"
                 cancelText="Tidak">
@@ -236,11 +266,11 @@ function StudyProgram(props: Props) {
         },
       },
     ],
-    [getColumnSearchProps, handleSelectedStudyProgram]
+    [getColumnSearchProps, handleConfirmDelete, handleSelectedStudyProgram]
   );
 
   const handleCloseModal = () => {
-    setSelected(null);
+    setSelectedStudyProgram(null);
     setShowModal(false);
   };
 
@@ -250,19 +280,23 @@ function StudyProgram(props: Props) {
         title="Program Studi"
         subtitle={`Total data: ${appState.studyPrograms.length}`}
         rightContent={
-          <Button type="primary" size="large" onClick={handleAddNew}>
+          <Button
+            type="primary"
+            size="large"
+            onClick={handleAddNew}
+            disabled={appState.loading}>
             Tambah Program Studi
           </Button>
         }
       />
 
-      {showModal && (
-        <AddModal
-          isVisible={showModal}
-          onClose={handleCloseModal}
-          selected={selected}
-        />
-      )}
+      <AddModal
+        visible={showModal}
+        studyProgram={selectedStudyProgram}
+        isSubmitting={isSubmitting}
+        onSubmit={handleSubmit}
+        onClose={handleCloseModal}
+      />
 
       <View marginTop={16}>
         {appState.loading ? (
