@@ -4,8 +4,8 @@ import * as React from 'react';
 import type {StudyProgramType} from './../../../types/App.flow';
 
 import {Modal, Button} from 'antd';
-import FormInput from '../../../components/commons/FormInput';
-import FormInputSelect from '../../../components/commons/FormInputSelect';
+import FormInput from '../../../components/shared/FormInput';
+import FormInputSelect from '../../../components/shared/FormInputSelect';
 import View from '../../../components/shared/View';
 
 type Props = {

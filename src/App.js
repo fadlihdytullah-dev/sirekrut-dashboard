@@ -1,5 +1,8 @@
 import React from 'react';
 
+import Home from './App/Home';
+import StudyProgram from './App/StudyProgram';
+import Position from './App/Position';
 import {Switch, Route} from 'react-router-dom';
 
 import './App.css';
@@ -7,8 +10,6 @@ import {Layout} from 'antd';
 import Sidebar from './components/layouts/Sidebar';
 import AppHeader from './components/layouts/AppHeader';
 import View from './components/shared/View';
-import Home from './App/Home';
-import StudyProgram from './App/StudyProgram';
 import ContentWrapper from './components/layouts/ContentWrapper';
 
 function App() {
@@ -25,8 +26,12 @@ function App() {
                 <Home />
               </Route>
 
-              <Route path="/study_program">
+              <Route exact path="/study_program">
                 <StudyProgram />
+              </Route>
+
+              <Route exact path="/position">
+                <Position />
               </Route>
             </Switch>
           </ContentWrapper>

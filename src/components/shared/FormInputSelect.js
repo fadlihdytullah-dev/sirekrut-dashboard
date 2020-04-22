@@ -2,16 +2,22 @@
 import * as React from 'react';
 
 import {Select, Typography} from 'antd';
-import View from '../shared/View';
-import RedDot from '../shared/RedDot';
+import View from './View';
+import RedDot from './RedDot';
+import {capitalize} from '../../App/Utils';
 
 type Props = {
+  config?: {
+    allowClear?: boolean,
+    multiple?: boolean,
+  },
   options: Array<{key?: string, value: Object, label: string}>,
   label?: string,
   isRequired?: boolean,
   value: Object,
   error?: string,
   onChange: (value: Object) => void,
+  disabled?: boolean,
 };
 
 const styles = {
@@ -19,12 +25,14 @@ const styles = {
 };
 
 function FormInputSelect({
+  config,
   options,
   label,
   isRequired,
   value,
   error,
   onChange,
+  disabled,
 }: Props) {
   return (
     <React.Fragment>
@@ -36,10 +44,16 @@ function FormInputSelect({
         </View>
       )}
 
-      <Select onChange={onChange} value={value} style={styles.fullWidth}>
+      <Select
+        value={value}
+        style={styles.fullWidth}
+        mode={config && config.multiple ? 'multiple' : null}
+        allowClear={(config && config.allowClear) || false}
+        onChange={onChange}
+        disabled={disabled}>
         {options.map((option, index) => (
           <Select.Option key={option.key || index} value={option.value}>
-            {option.label}
+            {capitalize(option.label)}
           </Select.Option>
         ))}
       </Select>
@@ -50,8 +64,9 @@ function FormInputSelect({
 }
 
 FormInputSelect.defaultProps = {
-  onChange: () => {},
+  disabled: false,
   value: null,
+  onChange: () => {},
 };
 
 export default FormInputSelect;

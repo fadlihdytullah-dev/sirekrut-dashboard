@@ -8,24 +8,11 @@ import AddModal from './components/AddModal';
 import Header from '../../components/commons/Header';
 import View from '../../components/shared/View';
 import Highlighter from 'react-highlight-words';
-import {Table, Input, Button, Skeleton, Modal} from 'antd';
-import {SearchOutlined, ExclamationCircleOutlined} from '@ant-design/icons';
+import {Table, Input, Button, Skeleton, Empty, Popconfirm, message} from 'antd';
+import {SearchOutlined} from '@ant-design/icons';
+import {getColumnSortProps} from './../Utils';
 
 type Props = {};
-
-const {confirm} = Modal;
-
-const showDeleteConfirmModal = () =>
-  confirm({
-    title: 'Apakah Anda yakin menghapus data ini?',
-    icon: <ExclamationCircleOutlined />,
-    onOk() {
-      return new Promise((resolve, reject) => {
-        setTimeout(Math.random() > 0.5 ? resolve : reject, 1000);
-      }).catch(() => console.log('Oops errors!'));
-    },
-    onCancel() {},
-  });
 
 const DATA_SOURCE = [
   {
@@ -76,9 +63,9 @@ const getStudyPrograms = () => {
 
 function StudyProgram(props: Props) {
   const {appState, dispatchApp} = React.useContext(AppContext);
-  const [selectedStudyProgram, setSelectedStudyProgram] = React.useState(null);
+  const [selected, setSelected] = React.useState(null);
 
-  const handleFetchStudyPrograms = React.useCallback(async () => {
+  const handleFetch = async () => {
     try {
       const result = await getStudyPrograms();
       dispatchApp({
@@ -87,16 +74,20 @@ function StudyProgram(props: Props) {
       });
     } catch (error) {
       dispatchApp({
-        type: 'FETCH_STUDY_PROGRAM_FAILURE',
+        type: 'FETCH_POSITIONS_FAILURE',
         payload: {error: error.message},
       });
     }
-  }, [dispatchApp]);
+  };
 
-  React.useEffect(() => {
-    dispatchApp({type: 'FETCH_INIT_STUDY_PROGRAMS'});
-    handleFetchStudyPrograms();
-  }, [dispatchApp, handleFetchStudyPrograms]);
+  React.useEffect(
+    () => {
+      dispatchApp({type: 'FETCH_STUDY_PROGRAMS_INIT'});
+      handleFetch();
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
 
   const [showModal, setShowModal] = React.useState(false);
 
@@ -107,6 +98,22 @@ function StudyProgram(props: Props) {
   React.useEffect(() => {
     setTimeout(() => {}, 2000);
   }, []);
+
+  const handleConfirmDelete = async () => {
+    try {
+      await message.loading('Sedang menghapus', 1);
+      message.success('Data telah berhasil dihapus');
+    } catch (error) {
+      console.log('❌ error:=', error);
+      message.error('Gagal menghapus');
+    }
+  };
+
+  const handleCancelDelete = () => {};
+
+  const handleAddNew = () => {
+    setShowModal(true);
+  };
 
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();
@@ -184,13 +191,9 @@ function StudyProgram(props: Props) {
     [searchText, searchedColumn]
   );
 
-  const getColumnSortProps = (dataIndex) => ({
-    sorter: (a, b) => a[dataIndex].length - b[dataIndex].length,
-  });
-
   const handleSelectedStudyProgram = React.useCallback(
     (value: StudyProgramType) => {
-      setSelectedStudyProgram(value);
+      setSelected(value);
       setShowModal(true);
     },
     []
@@ -218,13 +221,16 @@ function StudyProgram(props: Props) {
                 onClick={() => handleSelectedStudyProgram(record)}>
                 Edit
               </Button>
-              <Button
-                size="small"
-                type="link"
-                danger
-                onClick={showDeleteConfirmModal}>
-                Delete
-              </Button>
+              <Popconfirm
+                title="Apakah Anda yakin ingin menghapus data ini?"
+                onConfirm={handleConfirmDelete}
+                onCancel={handleCancelDelete}
+                okText="Iya"
+                cancelText="Tidak">
+                <Button size="small" type="link" danger>
+                  Delete
+                </Button>
+              </Popconfirm>
             </span>
           );
         },
@@ -233,10 +239,8 @@ function StudyProgram(props: Props) {
     [getColumnSearchProps, handleSelectedStudyProgram]
   );
 
-  const handleAddNew = () => setShowModal(true);
-
   const handleCloseModal = () => {
-    setSelectedStudyProgram(null);
+    setSelected(null);
     setShowModal(false);
   };
 
@@ -256,13 +260,17 @@ function StudyProgram(props: Props) {
         <AddModal
           isVisible={showModal}
           onClose={handleCloseModal}
-          selected={selectedStudyProgram}
+          selected={selected}
         />
       )}
 
       <View marginTop={16}>
         {appState.loading ? (
           <Skeleton />
+        ) : !appState.studyPrograms.length ? (
+          <View paddingTop={32}>
+            <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+          </View>
         ) : (
           <Table
             pagination={false}

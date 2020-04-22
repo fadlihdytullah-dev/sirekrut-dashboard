@@ -1,7 +1,7 @@
 // @flow
 import * as React from 'react';
 
-import {Typography, Button} from 'antd';
+import {Typography} from 'antd';
 import View from '../shared/View';
 
 type Props = {
