@@ -125,6 +125,7 @@ function Position(props: Props) {
           `Data telah berhasil ${isEdit ? 'diperbarui' : 'ditambahkan'}`
         );
         handleFetchPositions();
+        setShowModal(false);
       } else {
         throw new Error(result.errors);
       }
@@ -136,7 +137,6 @@ function Position(props: Props) {
       }
     } finally {
       setIsSubmitting(false);
-      setShowModal(false);
     }
   };
 

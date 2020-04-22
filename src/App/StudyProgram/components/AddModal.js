@@ -58,7 +58,7 @@ function AddModal({
   React.useEffect(() => {
     resetError();
     resetState();
-  }, [studyProgram]);
+  }, [studyProgram, visible]);
 
   React.useEffect(() => {
     if (studyProgram) {
@@ -128,6 +128,7 @@ function AddModal({
 
   return (
     <Modal
+      maskClosable={false}
       visible={visible}
       title="Tambah Program Studi"
       okText="Submit"

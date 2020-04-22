@@ -57,6 +57,10 @@ function AddModal({visible, position, isSubmitting, onSubmit, onClose}: Props) {
   const {appState} = React.useContext(AppContext);
 
   React.useEffect(() => {
+    resetState();
+  }, [position, visible]);
+
+  React.useEffect(() => {
     if (position) {
       const minimumGraduate = config.app.strataOptions.find(
         (item) => item.value === position.minimumGraduate
@@ -174,8 +178,6 @@ function AddModal({visible, position, isSubmitting, onSubmit, onClose}: Props) {
     onClose();
   };
 
-  React.useEffect(() => resetState, [position]);
-
   const resetState = () => {
     setFormState(initState());
     setFormError(initStateFormError());
@@ -231,6 +233,8 @@ function AddModal({visible, position, isSubmitting, onSubmit, onClose}: Props) {
 
   return (
     <Modal
+      maskClosable={false}
+      style={{top: 40}}
       visible={visible}
       title="Tambah Program Studi"
       okText="Submit"
@@ -323,6 +327,7 @@ function AddModal({visible, position, isSubmitting, onSubmit, onClose}: Props) {
           value={formState.details}
           error={formError.details}
           onChange={handleChangeInput}
+          style={{height: '200px'}}
         />
       </View>
     </Modal>

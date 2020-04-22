@@ -3,18 +3,25 @@ import * as React from 'react';
 
 import ContentWrapper from '../../components/layouts/ContentWrapper';
 import {Typography} from 'antd';
-import {AppstoreOutlined} from '@ant-design/icons';
 import View from '../../components/shared/View';
-import Icons from '../../components/shared/Icons';
+import logo from './../../components/layouts/logo.png';
 
 function Home() {
   return (
     <ContentWrapper isCenter>
       <View textAlign="center">
-        <Icons icon={<AppstoreOutlined />} size="ultraBig" color="red" />
-        <Typography.Title level={2}>
-          <Typography.Text type="warning">SiRekrut</Typography.Text> Dashboard
-        </Typography.Title>
+        <View marginTop={32}>
+          <View marginBottom={16}>
+            <img src={logo} style={{width: '150px'}} alt="SiRekrut Logo" />
+          </View>
+          <Typography.Title level={2}>
+            SiRekrut <Typography.Text type="warning">Dashboard</Typography.Text>
+          </Typography.Title>
+          <Typography.Paragraph>
+            Sistem Informasi{' '}
+            <Typography.Text type="danger">Telkom University</Typography.Text>
+          </Typography.Paragraph>
+        </View>
       </View>
     </ContentWrapper>
   );

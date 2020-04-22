@@ -114,6 +114,7 @@ function StudyProgram(props: Props) {
           `Data telah berhasil ${isEdit ? 'diperbarui' : 'ditambahkan'}`
         );
         handleFetchStudyPrograms();
+        setShowModal(false);
       } else {
         throw new Error(result.errors);
       }
@@ -125,7 +126,6 @@ function StudyProgram(props: Props) {
       }
     } finally {
       setIsSubmitting(false);
-      setShowModal(false);
     }
   };
 
@@ -306,11 +306,7 @@ function StudyProgram(props: Props) {
             <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
           </View>
         ) : (
-          <Table
-            pagination={false}
-            columns={columns}
-            dataSource={appState.studyPrograms}
-          />
+          <Table columns={columns} dataSource={appState.studyPrograms} />
         )}
       </View>
     </React.Fragment>

@@ -3,7 +3,8 @@ import * as React from 'react';
 
 import styled from 'styled-components';
 import {Link} from 'react-router-dom';
-import {Layout} from 'antd';
+import {Layout, Typography} from 'antd';
+import logo from './logo.png';
 
 const {Header} = Layout;
 
@@ -16,12 +17,9 @@ const StyledHeader = styled(Header)`
 `;
 
 const styles = {
-  logo: {
-    width: '120px',
-    height: '31px',
-    background: 'rgba(0, 0, 0, 0.2)',
-    margin: '16px 24px 16px 0',
-    float: 'left',
+  logoTitle: {
+    fontSize: '2rem',
+    color: '#111',
   },
 };
 
@@ -29,7 +27,12 @@ function AppHeader() {
   return (
     <StyledHeader>
       <Link to="/">
-        <div className="logo" style={styles.logo} />
+        <img src={logo} alt="Logo SiRekrut" width={40} />{' '}
+        <Typography.Text strong style={styles.logoTitle}>
+          SiRekrut{' '}
+        </Typography.Text>
+        <Typography.Text>- Sistem Informasi Rekrutasi </Typography.Text>
+        <Typography.Text type="danger">Telkom University</Typography.Text>
       </Link>
     </StyledHeader>
   );
