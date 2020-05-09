@@ -29,13 +29,13 @@ const styles = {
 
 const MENUS: Array<SideMenu> = [
   {
-    key: 'timeline',
+    key: 'periods',
     label: 'Periode',
     icon: <CalendarOutlined style={styles.customMenuIcon} />,
   },
   {
     key: 'study_program',
-    label: 'Program Study',
+    label: 'Program Studi',
     icon: <GoldOutlined style={styles.customMenuIcon} />,
   },
   {
@@ -52,11 +52,6 @@ const MENUS: Array<SideMenu> = [
     key: 'applicant',
     label: 'Pelamar',
     icon: <FileSearchOutlined style={styles.customMenuIcon} />,
-  },
-  {
-    key: 'reporting',
-    label: 'Laporan',
-    icon: <BarChartOutlined style={styles.customMenuIcon} />,
   },
 ];
 

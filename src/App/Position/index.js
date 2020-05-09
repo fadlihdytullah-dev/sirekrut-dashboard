@@ -38,7 +38,7 @@ const generateStudyProgramList = (list: Array<CompactStudyProgramType>) => {
   );
 };
 
-function Position(props: Props) {
+function PositionPage(props: Props) {
   const {appState, dispatchApp} = React.useContext(AppContext);
   const [selectedPosition, setSelectedPosition] = React.useState(null);
 
@@ -383,4 +383,4 @@ function Position(props: Props) {
   );
 }
 
-export default Position;
+export default PositionPage;

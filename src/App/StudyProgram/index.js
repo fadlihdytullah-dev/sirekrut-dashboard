@@ -14,7 +14,7 @@ import axios from 'axios';
 
 type Props = {};
 
-function StudyProgram(props: Props) {
+function StudyProgramPage(props: Props) {
   const {appState, dispatchApp} = React.useContext(AppContext);
   const [selectedStudyProgram, setSelectedStudyProgram] = React.useState(null);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -313,4 +313,4 @@ function StudyProgram(props: Props) {
   );
 }
 
-export default StudyProgram;
+export default StudyProgramPage;

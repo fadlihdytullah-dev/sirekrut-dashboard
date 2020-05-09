@@ -6,7 +6,7 @@ import {Typography} from 'antd';
 import View from '../../components/shared/View';
 import logo from './../../components/layouts/logo.png';
 
-function Home() {
+function HomePage() {
   return (
     <ContentWrapper isCenter>
       <View textAlign="center">
@@ -27,4 +27,4 @@ function Home() {
   );
 }
 
-export default Home;
+export default HomePage;

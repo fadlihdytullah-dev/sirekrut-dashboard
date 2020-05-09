@@ -1,20 +1,21 @@
 // @flow
 import * as React from 'react';
 
-import {Typography, Input, InputNumber} from 'antd';
+import {Typography, Input, InputNumber, DatePicker} from 'antd';
 import RedDot from './RedDot';
 import View from './View';
 
 type Props = {
   config?: {
     allowClear?: boolean,
+    inline?: boolean,
   },
   inputProps?: {
-    type: 'text' | 'number' | 'textarea',
+    type: 'text' | 'number' | 'textarea' | 'date',
     min?: number,
     max?: number,
   },
-  label: string,
+  label?: string,
   isRequired?: boolean,
   value: *,
   placeholder?: string,
@@ -68,7 +69,7 @@ function FormInput({
           max={inputProps.max}
           value={value}
           onChange={onChange}
-          style={styles.fullWidth}
+          style={config && config.inline ? {} : styles.fullWidth}
           // $FlowFixMe
           {...otherProps}
         />
@@ -78,6 +79,15 @@ function FormInput({
         <Input.TextArea
           value={value}
           allowClear={(config && config.allowClear) || false}
+          onChange={onChange}
+          // $FlowFixMe
+          {...otherProps}
+        />
+      )}
+
+      {inputProps && inputProps.type === 'date' && (
+        <DatePicker
+          value={value}
           onChange={onChange}
           // $FlowFixMe
           {...otherProps}
