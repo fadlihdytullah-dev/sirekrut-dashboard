@@ -12,6 +12,7 @@ import AppNavigation from './AppNavigation';
 import AppHeader from './../components/layouts/AppHeader';
 import View from './../components/shared/View';
 import ContentWrapper from './../components/layouts/ContentWrapper';
+import AdministrationFormPage from './AdministrationForm';
 
 function App() {
   return (
@@ -35,9 +36,15 @@ function App() {
                 <PositionPage />
               </Route>
 
-              <Route exact path="/periods" component={PeriodsPage} />
+              <Route exact path="/periods">
+                <PeriodsPage />
+              </Route>
               <Route exact path="/periods/add_new">
                 <EditFormPeriods />
+              </Route>
+
+              <Route exact path="/form">
+                <AdministrationFormPage />
               </Route>
             </Switch>
           </ContentWrapper>
