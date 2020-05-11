@@ -223,13 +223,6 @@ function EditFormPeriods(props: Props) {
           />
         </View>
 
-        <View marginBottom={16} flex={1} flexAlignItems="center">
-          <View marginRight={16}>
-            <Typography.Text>Formulir Administrasi</Typography.Text>
-          </View>
-          <Button>Lihat</Button>
-        </View>
-
         <View marginBottom={16}>
           <AddPositionInput
             data={{

@@ -9,7 +9,6 @@ import {
   CalendarOutlined,
   SolutionOutlined,
   FileTextOutlined,
-  BarChartOutlined,
   FileSearchOutlined,
 } from '@ant-design/icons';
 

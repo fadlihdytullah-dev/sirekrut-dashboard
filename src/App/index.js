@@ -13,6 +13,7 @@ import AppHeader from './../components/layouts/AppHeader';
 import View from './../components/shared/View';
 import ContentWrapper from './../components/layouts/ContentWrapper';
 import AdministrationFormPage from './AdministrationForm';
+import ApplicantsPage from './Applicants';
 
 function App() {
   return (
@@ -45,6 +46,10 @@ function App() {
 
               <Route exact path="/form">
                 <AdministrationFormPage />
+              </Route>
+
+              <Route exact path="/applicant">
+                <ApplicantsPage />
               </Route>
             </Switch>
           </ContentWrapper>

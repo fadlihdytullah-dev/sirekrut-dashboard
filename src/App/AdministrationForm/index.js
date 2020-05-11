@@ -1,3 +1,4 @@
+// @flow
 import * as React from 'react';
 import styled from 'styled-components';
 import Header from '../../components/commons/Header';
@@ -27,7 +28,7 @@ const FormElement = (props) => (
   </View>
 );
 
-function AdministrationForm(props: Props) {
+function AdministrationFormPage(props: Props) {
   return (
     <React.Fragment>
       <Header
@@ -66,6 +67,15 @@ function AdministrationForm(props: Props) {
           <FormElement>
             <View style={styles.labelContainer}>
               <Typography.Text>Alamat</Typography.Text>
+            </View>
+            <View flex={1}>
+              <FormInput disabled />
+            </View>
+          </FormElement>
+
+          <FormElement>
+            <View style={styles.labelContainer}>
+              <Typography.Text>Asal</Typography.Text>
             </View>
             <View flex={1}>
               <FormInput disabled />
@@ -196,4 +206,4 @@ function AdministrationForm(props: Props) {
   );
 }
 
-export default AdministrationForm;
+export default AdministrationFormPage;
