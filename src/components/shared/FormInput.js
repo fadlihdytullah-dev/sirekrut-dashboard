@@ -11,7 +11,7 @@ type Props = {
     inline?: boolean,
   },
   inputProps?: {
-    type: 'text' | 'number' | 'textarea' | 'date',
+    type: 'text' | 'number' | 'textarea' | 'date' | 'password',
     min?: number,
     max?: number,
   },
@@ -54,6 +54,17 @@ function FormInput({
       {inputProps && inputProps.type === 'text' && (
         <Input
           name="name"
+          placeholder={placeholder}
+          value={value}
+          allowClear={(config && config.allowClear) || false}
+          onChange={onChange}
+          // $FlowFixMe
+          {...otherProps}
+        />
+      )}
+
+      {inputProps && inputProps.type === 'password' && (
+        <Input.Password
           placeholder={placeholder}
           value={value}
           allowClear={(config && config.allowClear) || false}

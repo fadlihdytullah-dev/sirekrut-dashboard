@@ -10,6 +10,7 @@ import {
   SolutionOutlined,
   FileTextOutlined,
   FileSearchOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
 
 type SideMenu = {
@@ -51,6 +52,11 @@ const MENUS: Array<SideMenu> = [
     key: 'applicant',
     label: 'Pelamar',
     icon: <FileSearchOutlined style={styles.customMenuIcon} />,
+  },
+  {
+    key: 'admin',
+    label: 'Admin',
+    icon: <UserOutlined style={styles.customMenuIcon} />,
   },
 ];
 

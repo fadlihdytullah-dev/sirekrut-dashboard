@@ -1,10 +1,12 @@
 // @flow
 import * as React from 'react';
 
-import styled from 'styled-components';
+import styled, {css} from 'styled-components';
 import {Link} from 'react-router-dom';
-import {Layout, Typography} from 'antd';
+import {Layout, Typography, Button} from 'antd';
 import logo from './logo.png';
+import View from '../shared/View';
+import {useLocation} from 'react-router-dom';
 
 const {Header} = Layout;
 
@@ -14,6 +16,18 @@ const StyledHeader = styled(Header)`
   position: fixed;
   zindex: 1;
   width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  ${(props) =>
+    props.center
+      ? css`
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        `
+      : css``}
 `;
 
 const styles = {
@@ -23,17 +37,26 @@ const styles = {
   },
 };
 
-function AppHeader() {
+type Props = {
+  backLink?: string,
+  center?: boolean,
+};
+
+function AppHeader(props: Props) {
+  const {pathname} = useLocation();
   return (
-    <StyledHeader>
-      <Link to="/">
-        <img src={logo} alt="Logo SiRekrut" width={40} />{' '}
-        <Typography.Text strong style={styles.logoTitle}>
-          SiRekrut{' '}
-        </Typography.Text>
-        <Typography.Text>- Sistem Informasi Rekrutasi </Typography.Text>
-        <Typography.Text type="danger">Telkom University</Typography.Text>
-      </Link>
+    <StyledHeader center={props.center}>
+      <View>
+        <Link to={`${props.backLink || '/'}`}>
+          <img src={logo} alt="Logo SiRekrut" width={40} />{' '}
+          <Typography.Text strong style={styles.logoTitle}>
+            SiRekrut{' '}
+          </Typography.Text>
+          <Typography.Text>- Sistem Informasi Rekrutasi </Typography.Text>
+          <Typography.Text type="danger">Telkom University</Typography.Text>
+        </Link>
+      </View>
+      {pathname !== '/login' && <Button type="default">Logout</Button>}
     </StyledHeader>
   );
 }
