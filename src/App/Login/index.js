@@ -3,6 +3,7 @@ import {Form, Input, Button} from 'antd';
 import styled from 'styled-components';
 import Header from '../../components/commons/Header';
 import AppHeader from '../../components/layouts/AppHeader';
+import {useHistory} from 'react-router-dom';
 
 type Props = {};
 
@@ -13,6 +14,8 @@ const LoginWrapper = styled.div`
 `;
 
 function Login(props: Props) {
+  const history = useHistory();
+
   const onFinish = (values) => {
     console.log('Success:', values);
   };
@@ -47,7 +50,7 @@ function Login(props: Props) {
             <Input.Password />
           </Form.Item>
 
-          <Button type="primary" htmlType="submit" block>
+          <Button type="primary" block onClick={() => history.push('/')}>
             Submit
           </Button>
         </Form>
