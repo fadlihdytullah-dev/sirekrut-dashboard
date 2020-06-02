@@ -21,7 +21,7 @@ import {
 import {SearchOutlined} from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
 import axios from 'axios';
-import {POSITIONS_API, STUDY_PROGRAMS_API, config} from './../config';
+import {TIMELINES_API, config} from '../config';
 
 import {getColumnSortProps, capitalize} from './../Utils';
 
@@ -102,6 +102,32 @@ function PeriodsPage(props: Props) {
 
   const history = useHistory();
 
+  const handleFetchTimelines = async () => {
+    try {
+      dispatchApp({type: 'FETCH_TIMELINES_INIT'});
+
+      const response = await axios.get(TIMELINES_API.getAll);
+      const result = response.data;
+
+      if (result.success) {
+        console.log(result.data, 'TRASDSADSADSAD');
+        dispatchApp({
+          type: 'FETCH_TIMELINES_SUCCESS',
+          payload: {dataTimelines: result.data},
+        });
+      } else {
+        throw new Error(result.errors);
+      }
+    } catch (error) {
+      message.error(error.message);
+
+      dispatchApp({
+        type: 'FETCH_TIMELINES_FAILURE',
+        payload: {error: error.message},
+      });
+    }
+  };
+
   // const handleFetchPositions = async () => {
   //   dispatchApp({type: 'FETCH_POSITIONS_INIT'});
 
@@ -127,6 +153,13 @@ function PeriodsPage(props: Props) {
   //   }
   // };
 
+  React.useEffect(
+    () => {
+      handleFetchTimelines();
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
   // React.useEffect(
   //   () => {
   //     handleFetchPositions();
@@ -388,16 +421,15 @@ function PeriodsPage(props: Props) {
         onClose={handleCloseModal}
       /> */}
       <View marginTop={16}>
-        {/* {appState.loading ? (
+        {appState.loading ? (
           <Skeleton />
-        ) : !appState.positions.length ? (
+        ) : !appState.dataTimelines.length ? (
           <View paddingTop={32}>
             <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
           </View>
         ) : (
-          <Table columns={columns} dataSource={MOCK_DATA} />
-        )} */}
-        <Table columns={columns} dataSource={MOCK_DATA} />
+          <Table columns={columns} dataSource={appState.dataTimelines} />
+        )}
       </View>
     </React.Fragment>
   );
