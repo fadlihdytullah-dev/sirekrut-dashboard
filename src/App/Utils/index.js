@@ -10,6 +10,11 @@ export const capitalize = (str: string) => {
   return capitalizeChunks.join(' ');
 };
 
+export const formatDate = (isoDate: string): string => {
+  const d = new Date(isoDate);
+  return d.toLocaleDateString('id-ID');
+};
+
 export const getColumnSortProps = (
   dataIndex: string,
   isNumeric?: boolean

@@ -21,9 +21,9 @@ import {
 import {SearchOutlined} from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
 import axios from 'axios';
-import {POSITIONS_API, STUDY_PROGRAMS_API, config} from './../config';
+import {TIMELINES_API, config} from '../config';
 
-import {getColumnSortProps, capitalize} from './../Utils';
+import {getColumnSortProps, capitalize, formatDate} from './../Utils';
 
 type Props = {};
 
@@ -35,7 +35,7 @@ const generatePositionList = (
       {list.map((item) => (
         <View key={item.id}>
           <Typography.Text type="secondary">
-            {item.name}{' '}
+            {item.name}
             <Badge count={item.quota} style={{backgroundColor: '#1890ff'}} />
           </Typography.Text>
         </View>
@@ -43,52 +43,6 @@ const generatePositionList = (
     </View>
   );
 };
-
-const MOCK_DATA = [
-  {
-    id: '1',
-    title: 'Rekrutmen Dosen Telkom University 2020',
-    type: 'DOSEN',
-    startDate: '1 Mei 2020',
-    endDate: '19 Juli 2020',
-    positions: [
-      {
-        name: 'Dosen D3RPLA Fakultas Ilmu Terapan',
-        id: '1',
-        quota: 3,
-      },
-      {
-        name: 'Dosen Akuntansi Fakultas Ilmu Terapan',
-        id: '2',
-        quota: 2,
-      },
-    ],
-  },
-  {
-    id: '2',
-    title: 'Rekrutmen Staff Telkom University 2020',
-    type: 'DOSEN',
-    startDate: '1 Mei 2020',
-    endDate: '19 Juli 2020',
-    positions: [
-      {
-        name: 'Staff Administrasi LAC',
-        id: '1',
-        quota: 2,
-      },
-      {
-        name: 'Staff Admin LAK FIT',
-        id: '2',
-        quota: 3,
-      },
-      {
-        name: 'Staff Sisfo Tel-U',
-        id: '3',
-        quota: 4,
-      },
-    ],
-  },
-];
 
 function PeriodsPage(props: Props) {
   const {appState, dispatchApp} = React.useContext(AppContext);
@@ -101,6 +55,32 @@ function PeriodsPage(props: Props) {
   const [searchedColumn, setSearchedColumn] = React.useState('');
 
   const history = useHistory();
+
+  const handleFetchTimelines = async () => {
+    try {
+      dispatchApp({type: 'FETCH_TIMELINES_INIT'});
+
+      const response = await axios.get(TIMELINES_API.getAll);
+      const result = response.data;
+
+      if (result.success) {
+        console.log(result.data, 'TRASDSADSADSAD');
+        dispatchApp({
+          type: 'FETCH_TIMELINES_SUCCESS',
+          payload: {dataTimelines: result.data},
+        });
+      } else {
+        throw new Error(result.errors);
+      }
+    } catch (error) {
+      message.error(error.message);
+
+      dispatchApp({
+        type: 'FETCH_TIMELINES_FAILURE',
+        payload: {error: error.message},
+      });
+    }
+  };
 
   // const handleFetchPositions = async () => {
   //   dispatchApp({type: 'FETCH_POSITIONS_INIT'});
@@ -127,6 +107,13 @@ function PeriodsPage(props: Props) {
   //   }
   // };
 
+  React.useEffect(
+    () => {
+      handleFetchTimelines();
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
   // React.useEffect(
   //   () => {
   //     handleFetchPositions();
@@ -308,7 +295,7 @@ function PeriodsPage(props: Props) {
         dataIndex: 'startDate',
         key: 'startDate',
         render: (startDate) => {
-          return <span>{startDate}</span>;
+          return <span>{formatDate(startDate)}</span>;
         },
       },
       {
@@ -316,7 +303,7 @@ function PeriodsPage(props: Props) {
         dataIndex: 'endDate',
         key: 'endDate',
         render: (endDate) => {
-          return <span>{endDate}</span>;
+          return <span>{formatDate(endDate)}</span>;
         },
       },
       {
@@ -369,7 +356,7 @@ function PeriodsPage(props: Props) {
     <React.Fragment>
       <Header
         title="Periode Rekrutmen"
-        subtitle={`Total data: ${MOCK_DATA.length}`}
+        subtitle={`Total data: ${appState.dataTimelines.length}`}
         rightContent={
           <Button
             disabled={appState.loading}
@@ -388,16 +375,15 @@ function PeriodsPage(props: Props) {
         onClose={handleCloseModal}
       /> */}
       <View marginTop={16}>
-        {/* {appState.loading ? (
+        {appState.loading ? (
           <Skeleton />
-        ) : !appState.positions.length ? (
+        ) : !appState.dataTimelines.length ? (
           <View paddingTop={32}>
             <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
           </View>
         ) : (
-          <Table columns={columns} dataSource={MOCK_DATA} />
-        )} */}
-        <Table columns={columns} dataSource={MOCK_DATA} />
+          <Table columns={columns} dataSource={appState.dataTimelines} />
+        )}
       </View>
     </React.Fragment>
   );

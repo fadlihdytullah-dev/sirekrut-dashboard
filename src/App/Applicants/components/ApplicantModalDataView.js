@@ -36,26 +36,57 @@ function ApplicantModalDataView(props: Props) {
         <View>
           <Typography.Paragraph>
             Posisi yang di-submit:{' '}
-            <Typography.Text strong>Staff IT Sisfo</Typography.Text>
+            <Typography.Text strong>
+              {props.dataBiodata && props.dataBiodata.positionName}
+            </Typography.Text>
           </Typography.Paragraph>
           <View flexDirection="row">
             <View style={{width: '500px'}}>
-              <FieldContainer label="Nama" content="Fadli Hidayatullah" />
+              <FieldContainer
+                label="Nama"
+                content={props.dataBiodata && props.dataBiodata.fullName}
+              />
               <FieldContainer
                 label="Email"
-                content="fadlihdytullah.dev@gmail.com"
+                content={props.dataBiodata && props.dataBiodata.email}
               />
               <FieldContainer
                 label="Alamat"
-                content="Prumnas Surabaya Permai RT 11, RW 04, Blok F9/50, Kec. Sungai Serut, Kel. Surabaya, Kota Bengkulu, Bengkulu, 38119"
+                content={props.dataBiodata && props.dataBiodata.address}
               />
-              <FieldContainer label="Asal" content="Bengkulu" />
-              <FieldContainer label="Tanggal Lahir" content="18 Juli 2020" />
-              <FieldContainer label="Jenis Kelamin" content="Laki-laki" />
-              <FieldContainer label="Telepon" content="081809751253" />
-              <FieldContainer label="Pendidikan Terakhir" content="Diploma" />
-              <FieldContainer label="Nilai TOEFL" content="507" />
-              <FieldContainer label="Nilai Tes 360" content="8.5" />
+              <FieldContainer
+                label="Asal"
+                content={props.dataBiodata && props.dataBiodata.originFrom}
+              />
+              <FieldContainer
+                label="Tanggal Lahir"
+                content={props.dataBiodata && props.dataBiodata.dateOfBirth}
+              />
+              <FieldContainer
+                label="Jenis Kelamin"
+                content={props.dataBiodata && props.dataBiodata.phoneNumber}
+              />
+              <FieldContainer
+                label="Telepon"
+                content={props.dataBiodata && props.dataBiodata.phoneNumber}
+              />
+              <FieldContainer
+                label="Pendidikan Terakhir"
+                content={props.dataBiodata && props.dataBiodata.lastEducation}
+              />
+              {props.dataBiodata && props.dataBiodata.toeflFile && (
+                <FieldContainer
+                  label="Nilai TOEFL"
+                  content={props.dataBiodata.toeflScore}
+                />
+              )}
+              {props.dataBiodata && props.dataBiodata._360File && (
+                <FieldContainer
+                  label="Nilai Tes 360"
+                  content={props.dataBiodata._360Score}
+                />
+              )}
+
               <FieldContainer label="ID Instagram" content="fadli_suikoden2" />
               <FieldContainer
                 label="ID Facebook"
