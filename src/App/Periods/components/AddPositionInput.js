@@ -10,7 +10,7 @@ type Props = {
   data: {
     positionsData: Array<any>,
   },
-  setFormData: any,
+  addData: any,
 };
 
 function AddPositionInput(props: Props) {
@@ -22,13 +22,24 @@ function AddPositionInput(props: Props) {
   console.log('ℹ️ addedPositions:=', addedPositions);
   console.log('ℹ️ addedPositionIDs:=', addedPositionIDs);
 
-  const handleAddPosition = () => {
+  const handleAddPosition = (e) => {
     setAddedPositionIDs((state) => [...state, positionID]);
     const newData = {positionID, quota};
     setAddedPositions((state) => [...state, newData]);
     setPositionID(undefined);
     setQuota(1);
   };
+  React.useEffect(() => {
+    // Manipulate from positionId to id due the server needed
+    const newData = addedPositions.map((item) => {
+      return {
+        id: item.positionID,
+        ...item,
+      };
+    });
+
+    props.addData(newData);
+  }, [addedPositions]);
 
   const handleChangeSelect = (id) => {
     setPositionID(id);
@@ -68,14 +79,17 @@ function AddPositionInput(props: Props) {
                 optionFilterProp="children"
                 value={positionID}
                 onChange={handleChangeSelect}
-                filterOption={(input, option) =>
-                  option.children.toLowerCase().indexOf(input.toLowerCase()) >=
-                  0
-                }>
+                filterOption={(input, option) => {
+                  return (
+                    option.children
+                      .toLowerCase()
+                      .indexOf(input.toLowerCase()) >= 0
+                  );
+                }}>
                 {props.data.positionsData.map((item) => {
                   if (!addedPositionIDs.includes(item.id)) {
                     return (
-                      <Select.Option key={item.id} value={item.id}>
+                      <Select.Option key={item.id} value={item.id} ss={'aww'}>
                         {item.name}
                       </Select.Option>
                     );

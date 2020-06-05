@@ -23,7 +23,7 @@ import Highlighter from 'react-highlight-words';
 import axios from 'axios';
 import {TIMELINES_API, config} from '../config';
 
-import {getColumnSortProps, capitalize} from './../Utils';
+import {getColumnSortProps, capitalize, formatDate} from './../Utils';
 
 type Props = {};
 
@@ -35,7 +35,7 @@ const generatePositionList = (
       {list.map((item) => (
         <View key={item.id}>
           <Typography.Text type="secondary">
-            {item.name}{' '}
+            {item.name}
             <Badge count={item.quota} style={{backgroundColor: '#1890ff'}} />
           </Typography.Text>
         </View>
@@ -43,52 +43,6 @@ const generatePositionList = (
     </View>
   );
 };
-
-const MOCK_DATA = [
-  {
-    id: '1',
-    title: 'Rekrutmen Dosen Telkom University 2020',
-    type: 'DOSEN',
-    startDate: '1 Mei 2020',
-    endDate: '19 Juli 2020',
-    positions: [
-      {
-        name: 'Dosen D3RPLA Fakultas Ilmu Terapan',
-        id: '1',
-        quota: 3,
-      },
-      {
-        name: 'Dosen Akuntansi Fakultas Ilmu Terapan',
-        id: '2',
-        quota: 2,
-      },
-    ],
-  },
-  {
-    id: '2',
-    title: 'Rekrutmen Staff Telkom University 2020',
-    type: 'DOSEN',
-    startDate: '1 Mei 2020',
-    endDate: '19 Juli 2020',
-    positions: [
-      {
-        name: 'Staff Administrasi LAC',
-        id: '1',
-        quota: 2,
-      },
-      {
-        name: 'Staff Admin LAK FIT',
-        id: '2',
-        quota: 3,
-      },
-      {
-        name: 'Staff Sisfo Tel-U',
-        id: '3',
-        quota: 4,
-      },
-    ],
-  },
-];
 
 function PeriodsPage(props: Props) {
   const {appState, dispatchApp} = React.useContext(AppContext);
@@ -341,7 +295,7 @@ function PeriodsPage(props: Props) {
         dataIndex: 'startDate',
         key: 'startDate',
         render: (startDate) => {
-          return <span>{startDate}</span>;
+          return <span>{formatDate(startDate)}</span>;
         },
       },
       {
@@ -349,7 +303,7 @@ function PeriodsPage(props: Props) {
         dataIndex: 'endDate',
         key: 'endDate',
         render: (endDate) => {
-          return <span>{endDate}</span>;
+          return <span>{formatDate(endDate)}</span>;
         },
       },
       {
@@ -402,7 +356,7 @@ function PeriodsPage(props: Props) {
     <React.Fragment>
       <Header
         title="Periode Rekrutmen"
-        subtitle={`Total data: ${MOCK_DATA.length}`}
+        subtitle={`Total data: ${appState.dataTimelines.length}`}
         rightContent={
           <Button
             disabled={appState.loading}

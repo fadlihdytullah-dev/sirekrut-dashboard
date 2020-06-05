@@ -1,11 +1,18 @@
 // @flow
 const BASE_URL = 'https://us-central1-si-rekrut.cloudfunctions.net/api';
+const LOCAL_BASE_URL = 'http://localhost:5001/si-rekrut/us-central1/api';
 export const POSITIONS_API = {
   getAll: `${BASE_URL}/positions`,
   getSingle: (id: string) => `${BASE_URL}/positions/${id}`,
   post: `${BASE_URL}/positions`,
   update: (id: string) => `${BASE_URL}/positions/${id}`,
   delete: (id: string) => `${BASE_URL}/positions/${id}`,
+};
+
+export const SUBMISSONS_API = {
+  getAll: `${LOCAL_BASE_URL}/submission`,
+  getSingle: (id: string) => `${LOCAL_BASE_URL}/submission/${id}`,
+  update: (id: string) => `${LOCAL_BASE_URL}/submission/${id}`,
 };
 
 export const STUDY_PROGRAMS_API = {
@@ -16,16 +23,21 @@ export const STUDY_PROGRAMS_API = {
   delete: (id: string) => `${BASE_URL}/study_programs/${id}`,
 };
 
+export const FORM_CONF_API = {
+  getConfig: `${LOCAL_BASE_URL}/forms-conf`,
+  update: `${LOCAL_BASE_URL}/forms/conf`,
+};
+
 export const TIMELINES_API = {
   getAll: `${BASE_URL}/timelines`,
   getSingle: (id: string) => `${BASE_URL}/study_programs/${id}`,
-  post: `${BASE_URL}/study_programs`,
+  post: `${BASE_URL}/timelines`,
   update: (id: string) => `${BASE_URL}/study_programs/${id}`,
   delete: (id: string) => `${BASE_URL}/study_programs/${id}`,
 };
 
 const AUTH_TOKEN =
-  'eyJhbGciOiJSUzI1NiIsImtpZCI6Ijc0Mzg3ZGUyMDUxMWNkNDgzYTIwZDIyOGQ5OTI4ZTU0YjNlZTBlMDgiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vc2ktcmVrcnV0IiwiYXVkIjoic2ktcmVrcnV0IiwiYXV0aF90aW1lIjoxNTkxMDg4MzY4LCJ1c2VyX2lkIjoidlRPdFBDdjY1MVN2Uk1oVnlYTUNkMVFNUEdzMiIsInN1YiI6InZUT3RQQ3Y2NTFTdlJNaFZ5WE1DZDFRTVBHczIiLCJpYXQiOjE1OTEwODgzNjgsImV4cCI6MTU5MTA5MTk2OCwiZW1haWwiOiJmYWRsaUBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZW1haWwiOlsiZmFkbGlAZ21haWwuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0.IUrCe9TIg5ReK0jOA7Y1qQGXeictzrChCtlyXiz4MTmQBgCs_cAyJJr58TORHuzyh5w32_6cY7X3Dj7WaJq82GU6dv5gLz6I73-uMQVOD9GzYDXcc9U5-8QvYW_PC7Kb0ps5lBrZhpEjy2SoDCGtCk55hvCRyqPNK4i3uhEGYcAlz-LzsblWMevuCs1ovLM3Ov39CZC4DT4ajaEl9cXqo5_LFOKdW2wcd4SzZRE2H9HSeouXbGcvD2784YvkcBQBcQME8a3sx95HFgGyp-GVm_rVhP6Gjzr0fonQ-didZS6oHy_vSbL94lsTwWTArI3Tg_Q8WrZXjbSq0uOVJaFw-Q';
+  'eyJhbGciOiJSUzI1NiIsImtpZCI6Ijc0Mzg3ZGUyMDUxMWNkNDgzYTIwZDIyOGQ5OTI4ZTU0YjNlZTBlMDgiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vc2ktcmVrcnV0IiwiYXVkIjoic2ktcmVrcnV0IiwiYXV0aF90aW1lIjoxNTkxMjQ2NDI4LCJ1c2VyX2lkIjoidlRPdFBDdjY1MVN2Uk1oVnlYTUNkMVFNUEdzMiIsInN1YiI6InZUT3RQQ3Y2NTFTdlJNaFZ5WE1DZDFRTVBHczIiLCJpYXQiOjE1OTEyNDY0MjgsImV4cCI6MTU5MTI1MDAyOCwiZW1haWwiOiJmYWRsaUBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZW1haWwiOlsiZmFkbGlAZ21haWwuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0.ax9JpiL30kNkgGTzMNBSanXMxhajChLdtdCvDo--G72XdbmvE9cz73zfxCGrNCaXKun6PbHyUgU_lG5khsWhmdHZVs9KGu36vp_OE5_EWcnF5gMv4CFLfuklCh-x3N2ZDmy6vbpvkJ4HGqCXP7OrmY3aK-zzVLzngdagzTMw4vQOH_PlpSNevED1q7WuZGL-kyI8I7NVYroitq0ApnShjkyQBXCI-Pz9Ef9XZg62GsJBaZOatZ78zcKAsmBmVi_r0f_FOpMQjzFg_39oWcWoCkEYZK0jRUMgmMr3RYhK6TW08gOYCX7pyKew1SIC5CXgqupb7KsMn_ld5Ccr3mS4LA';
 
 export const config = {
   headerConfig: {

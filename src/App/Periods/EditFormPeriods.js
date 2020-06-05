@@ -8,7 +8,8 @@ import styled from 'styled-components';
 import {capitalize} from '../Utils';
 import AddPositionInput from './components/AddPositionInput';
 import {AppContext} from '../../contexts/AppContext';
-import {POSITIONS_API} from '../config';
+import {POSITIONS_API, TIMELINES_API, config} from '../config';
+import {useHistory} from 'react-router-dom';
 import axios from 'axios';
 
 type Props = {};
@@ -22,7 +23,7 @@ const initFormData = () => ({
   type: '',
   startDate: null,
   endDate: null,
-  forms: [],
+  forms: ['C4UtF8dpfjuPOi6FmZ7L'],
   positions: [],
   isAllPositions: false,
 });
@@ -36,11 +37,13 @@ const initFormError = () => ({
   positions: '',
 });
 
-function EditFormPeriods(props: Props) {
+function AddPeriodInput(props: Props) {
   const [formData, setFormData] = React.useState(initFormData());
   const [formError, setFormError] = React.useState(initFormError());
+  const [isSubmiting, setIsSubmitting] = React.useState(false);
 
   const {appState, dispatchApp} = React.useContext(AppContext);
+  const history = useHistory();
 
   const handleFetchPositions = async () => {
     dispatchApp({type: 'FETCH_POSITIONS_INIT'});
@@ -97,8 +100,12 @@ function EditFormPeriods(props: Props) {
     console.log('ℹ️ date & dateString:=', date, dateString);
     setFormData((state) => ({
       ...state,
-      startDate: date,
+      endDate: date,
     }));
+  };
+
+  const handleChangePosition = (data) => {
+    console.log(data, 'ASDSAKNDJSANDDKJSAIn');
   };
 
   function onChange(value) {
@@ -117,7 +124,42 @@ function EditFormPeriods(props: Props) {
     console.log('search:', val);
   }
 
-  const handleSubmit = () => {};
+  const handleSubmit = async (timeLine: any, isEdit: boolean) => {
+    console.log(formData, 'INI DATA');
+    try {
+      setIsSubmitting(true);
+      const URL = isEdit
+        ? TIMELINES_API.update(formData.id)
+        : TIMELINES_API.post;
+      const method = isEdit ? 'put' : 'post';
+
+      const response = await axios[method](URL, formData, {
+        headers: config.headerConfig,
+      });
+
+      const result = response.data;
+      console.log(result, 'ASIAAPPpp');
+
+      if (result.success) {
+        message.success(
+          `Data telah berhasil ${isEdit ? 'diperbarui' : 'ditambahkan'}`
+        );
+        history.push('/periods');
+        // handleFetchStudyPrograms();
+        // setShowModal(false);
+      } else {
+        throw new Error(result.errors);
+      }
+    } catch (error) {
+      if (error.response) {
+        message.error(error.response.data.errors);
+      } else {
+        message.error(error.message);
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <React.Fragment>
@@ -228,7 +270,13 @@ function EditFormPeriods(props: Props) {
             data={{
               positionsData: appState.positions,
             }}
-            setFormData={setFormData}
+            addData={(dataPositions) => {
+              console.log(dataPositions, 'INI DATAPOSITIOn');
+              setFormData((state) => ({
+                ...state,
+                positions: dataPositions,
+              }));
+            }}
           />
         </View>
       </FormWrapper>
@@ -236,4 +284,4 @@ function EditFormPeriods(props: Props) {
   );
 }
 
-export default EditFormPeriods;
+export default AddPeriodInput;

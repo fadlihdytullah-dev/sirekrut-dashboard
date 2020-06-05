@@ -1,33 +1,97 @@
 // @flow
 import * as React from 'react';
 import Header from '../../components/commons/Header';
-import {Button, Table, Typography} from 'antd';
+import {Button, Table, Skeleton, message} from 'antd';
 import FormInput from '../../components/shared/FormInput';
 import View from '../../components/shared/View';
 import ApplicantModalDataView from './components/ApplicantModalDataView';
+import ApplicantInputModal from './components/ApplicantInputModal';
+import {EditOutlined} from '@ant-design/icons';
+import {useHistory} from 'react-router-dom';
+import {AppContext} from '../../contexts/AppContext';
+import axios from 'axios';
+import {SUBMISSONS_API, POSITIONS_API, config} from '../config';
 
 type Props = {};
 
 const data = [
   {
-    key: '1',
-    name: 'John Brown',
-    position: 'Staff IT Sisfo',
+    id: 'FLBTLgVnp1M6RMwU4ZzN',
+    fullName: 'Darijo Aurelya',
+    _360Score: 0,
+    status: 0,
+    lastEducation: 'S2',
+    cvFile: null,
+    email: 'ainayy@gmail.com',
+    address: 'Jl. Bingo',
+    toeflFile: null,
+    dateOfBirth: '20 January 2001',
+    profilePicture: '',
+    score: {
+      psikotesScore: 0,
+      interviewScore: 0,
+      academicScore: 0,
+    },
+    _360File: null,
+    phoneNumber: '082232322323',
+    toeflScore: 488,
+    passed: false,
+    gender: 'Perempuan',
+    createdAt: '2020-06-03T06:14:07.615Z',
+    originFrom: 'Sumedang',
+    positionId: 'hEXMsoTDcTvMufy7UaBg',
   },
   {
-    key: '2',
-    name: 'Jim Green',
-    position: 'Staff Admin LAC',
+    id: 'ZE6wlxdYqE0XuJeTZ8Xt',
+    status: 0,
+    lastEducation: 'S2',
+    cvFile: null,
+    email: 'ainayy@gmail.com',
+    address: 'Jl. Bingo',
+    toeflFile: null,
+    dateOfBirth: '20 January 2001',
+    profilePicture: '',
+    score: {
+      psikotesScore: 0,
+      interviewScore: 0,
+      academicScore: 0,
+    },
+    _360File: null,
+    phoneNumber: '082232322323',
+    toeflScore: 488,
+    passed: false,
+    gender: 'Perempuan',
+    createdAt: '2020-06-03T06:14:00.151Z',
+    originFrom: 'Sumedang',
+    positionId: 'hEXMsoTDcTvMufy7UaBg',
+    fullName: 'Kuncoro Aurelya',
+    _360Score: 0,
   },
   {
-    key: '3',
-    name: 'Joe Black',
-    position: 'Dosen D3RPLA',
-  },
-  {
-    key: '4',
-    name: 'Disabled User',
-    position: 'Dosen D3 Akuntansi',
+    id: 'YQjyu77bTspGbeZZk7pH',
+    lastEducation: 'S2',
+    cvFile: null,
+    email: 'ainayy@gmail.com',
+    address: 'Jl. Bingo',
+    toeflFile: null,
+    dateOfBirth: '20 January 2001',
+    profilePicture: '',
+    score: {
+      interviewScore: 0,
+      academicScore: 0,
+      psikotesScore: 0,
+    },
+    _360File: null,
+    phoneNumber: '082232322323',
+    toeflScore: 488,
+    passed: false,
+    gender: 'Perempuan',
+    createdAt: '2020-06-03T06:13:42.585Z',
+    originFrom: 'Sumedang',
+    positionId: 'hEXMsoTDcTvMufy7UaBg',
+    fullName: 'Xsss Aurelya',
+    _360Score: 0,
+    status: 0,
   },
 ];
 
@@ -46,6 +110,7 @@ const rowSelection = {
 };
 
 function ApplicantsPage(props: Props) {
+  const {appState, dispatchApp} = React.useContext(AppContext);
   const [activeTab, setActiveTab] = React.useState<
     | 'APPLLICANTS'
     | 'ACADEMIC_SCORE'
@@ -54,30 +119,56 @@ function ApplicantsPage(props: Props) {
     | 'AGREEMENT'
   >('APPLLICANTS');
   const [showModal, setShowModal] = React.useState(false);
+  const [showModalInput, setShowModalInput] = React.useState(false);
+  const [singleData, setSingleData] = React.useState({});
 
   let columns = [];
 
   let defaultColumns = [
     {
       title: 'Nama',
-      dataIndex: 'name',
-      render: (text) => <a>{text}</a>,
+      dataIndex: 'fullName',
+      render: (text) => {
+        const getSingleData = appState.submissions.filter(
+          (data) => data.fullName === text
+        );
+
+        return (
+          <a
+            onClick={() => {
+              setShowModal(true);
+              setSingleData(getSingleData[0]);
+            }}>
+            {text}
+          </a>
+        );
+      },
     },
     {
       title: 'Posisi',
-      dataIndex: 'position',
+      dataIndex: 'positionName',
     },
   ];
 
   const academiScoreColumn = {
     title: 'Nilai Akademik',
     key: 'academic_score',
-    render: (record) => {
+    render: (record, index) => {
       return (
         <span>
-          <Button size="small" type="link" onClick={() => {}}>
-            Isi Nilai
+          <Button
+            size="small"
+            type="link"
+            style={{display: 'inline-block'}}
+            onClick={() => {
+              console.log(record, 'ini single data');
+              setShowModalInput(true);
+              setSingleData(record);
+            }}>
+            0
           </Button>
+          <input type="text" value={0} style={{display: 'none'}} />
+          <EditOutlined />
         </span>
       );
     },
@@ -89,8 +180,15 @@ function ApplicantsPage(props: Props) {
     render: (record) => {
       return (
         <span>
-          <Button size="small" type="link" onClick={() => {}}>
-            Isi Nilai
+          <Button
+            size="small"
+            type="link"
+            onClick={() => {
+              console.log(record, 'ini single data');
+              setShowModalInput(true);
+              setSingleData(record);
+            }}>
+            0
           </Button>
         </span>
       );
@@ -104,7 +202,7 @@ function ApplicantsPage(props: Props) {
       return (
         <span>
           <Button size="small" type="link" onClick={() => {}}>
-            Isi Nilai
+            0
           </Button>
         </span>
       );
@@ -128,6 +226,43 @@ function ApplicantsPage(props: Props) {
     },
   };
 
+  const handleFetchSubmissions = async (statusSubmission) => {
+    try {
+      dispatchApp({type: 'FETCH_SUBMISSIONS_INIT'});
+
+      const response = await axios.get(SUBMISSONS_API.getAll);
+      const result = response.data;
+
+      if (result.success) {
+        const fetchPosition = async () => {
+          const data = result.data.map(async (dat) => {
+            const res = await axios.get(
+              POSITIONS_API.getSingle(dat.positionId)
+            );
+            const item = {...dat, positionName: res.data.data.name};
+            return item;
+          });
+          const promiseDone = Promise.all(data);
+          return promiseDone;
+        };
+        const positionsData = await fetchPosition();
+        dispatchApp({
+          type: 'FETCH_SUBMISSIONS_SUCCESS',
+          payload: {submissions: positionsData},
+        });
+      } else {
+        throw new Error(result.errors);
+      }
+    } catch (error) {
+      message.error(error.message);
+
+      dispatchApp({
+        type: 'FETCH_SUBMISSIONS_FAILURE',
+        payload: {error: error.message},
+      });
+    }
+  };
+
   if (activeTab === 'ACADEMIC_SCORE') {
     columns = defaultColumns.concat([academiScoreColumn]);
   } else if (activeTab === 'PSIKOTEST_SCORE') {
@@ -149,6 +284,14 @@ function ApplicantsPage(props: Props) {
     columns = defaultColumns;
   }
 
+  React.useEffect(
+    () => {
+      // handleFetchSubmissions(0);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+
   return (
     <React.Fragment>
       <Header
@@ -163,6 +306,18 @@ function ApplicantsPage(props: Props) {
             </View>
           </View>
         }
+      />
+      <ApplicantModalDataView
+        dataBiodata={singleData}
+        visible={showModal}
+        onClose={() => setShowModal(false)}
+      />
+
+      <ApplicantInputModal
+        title={'Input nilai Akademik'}
+        dataBiodata={singleData}
+        visible={showModalInput}
+        onClose={() => setShowModalInput(false)}
       />
 
       <View marginY={24} style={{width: '600px'}}>
@@ -198,26 +353,27 @@ function ApplicantsPage(props: Props) {
           <Button>Proses ke tahap selanjutnya</Button>
         </View>
 
-        <ApplicantModalDataView
-          visible={showModal}
-          onClose={() => setShowModal(false)}
-        />
-
-        <Table
-          onRow={(record, rowIndex) => {
-            return {
-              onClick: (event) => {
-                setShowModal(true);
-              },
-            };
-          }}
-          rowSelection={{
-            type: 'checkbox',
-            ...rowSelection,
-          }}
-          columns={columns}
-          dataSource={data}
-        />
+        {appState.loading ? (
+          <Skeleton />
+        ) : (
+          <Table
+            // onRow={(record, rowIndex) => {
+            //   return {
+            //     onClick: (event) => {
+            //       setSingleData(record);
+            //       setShowModal(true);
+            //     },
+            //   };
+            // }}
+            rowSelection={{
+              type: 'checkbox',
+              ...rowSelection,
+            }}
+            columns={columns}
+            dataSource={data}
+            // dataSource={appState.submissions}
+          />
+        )}
       </View>
     </React.Fragment>
   );

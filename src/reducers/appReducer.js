@@ -25,6 +25,7 @@ export const initState = {
   loading: false,
   error: null,
   studyPrograms: [],
+  submissions: [],
   dataTimelines: [],
   positions: [],
 };
@@ -99,6 +100,31 @@ const appReducer = (state: State, action: Action): State => {
     }
 
     case 'FETCH_POSITIONS_FAILURE': {
+      return {
+        ...state,
+        loading: false,
+        error: action.payload.error,
+      };
+    }
+
+    // FETCH_SUBMISSIONS_INIT
+    case 'FETCH_SUBMISSIONS_INIT': {
+      return {
+        ...state,
+        loading: true,
+      };
+    }
+
+    case 'FETCH_SUBMISSIONS_SUCCESS': {
+      return {
+        ...state,
+        submissions: action.payload.submissions,
+        loading: false,
+        error: null,
+      };
+    }
+
+    case 'FETCH_SUBMISSIONS_FAILURE': {
       return {
         ...state,
         loading: false,

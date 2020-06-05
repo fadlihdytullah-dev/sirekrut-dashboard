@@ -3,9 +3,11 @@ import * as React from 'react';
 import styled from 'styled-components';
 import Header from '../../components/commons/Header';
 import View from '../../components/shared/View';
-import {Typography, Radio, Button, Switch, Avatar} from 'antd';
+import {Typography, Radio, Button, Switch, Avatar, message} from 'antd';
 import {UserOutlined} from '@ant-design/icons';
 import FormInput from '../../components/shared/FormInput';
+import axios from 'axios';
+import {FORM_CONF_API, config} from '../config';
 
 type Props = {};
 
@@ -29,6 +31,60 @@ const FormElement = (props) => (
 );
 
 function AdministrationFormPage(props: Props) {
+  const initFormConf = () => ({
+    show360: null,
+    showToefl: null,
+  });
+  const [formConf, setFormConf] = React.useState(initFormConf());
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const handleFetchFormConfig = async () => {
+    try {
+      const response = await axios.get(FORM_CONF_API.getConfig);
+      const result = response.data;
+      if (result.success) {
+        setFormConf((state) => ({
+          ...state,
+          ...result.data,
+        }));
+      } else {
+        throw new Error(result.errors);
+      }
+    } catch (error) {
+      message.error(error.message);
+    }
+  };
+  const handleSubmit = async () => {
+    try {
+      setIsSubmitting(true);
+      const URL = FORM_CONF_API.update;
+      const method = 'put';
+
+      const response = await axios[method](URL, formConf, {
+        headers: config.headerConfig,
+      });
+
+      const result = response.data;
+
+      if (result.success) {
+        message.success(`Data telah berhasil diperbarui`);
+      } else {
+        throw new Error(result.errors);
+      }
+    } catch (error) {
+      if (error.response) {
+        message.error(error.response.data.errors);
+      } else {
+        message.error(error.message);
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  React.useEffect(() => {
+    handleFetchFormConfig();
+  }, []);
+
   return (
     <React.Fragment>
       <Header
@@ -38,6 +94,8 @@ function AdministrationFormPage(props: Props) {
             // disabled={appState.loading}
             size="large"
             type="primary"
+            onClick={handleSubmit}
+            disabled={isSubmitting}
             // onClick={handleClickAddNew}
           >
             Simpan
@@ -146,7 +204,17 @@ function AdministrationFormPage(props: Props) {
               </Typography.Text>
             </View>
             <View>
-              <Switch checkedChildren="On" unCheckedChildren="Off" />
+              <Switch
+                checkedChildren="On"
+                unCheckedChildren="Off"
+                checked={formConf.showToefl ? true : false}
+                onChange={(data, e) => {
+                  setFormConf((state) => ({
+                    ...state,
+                    showToefl: data,
+                  }));
+                }}
+              />
             </View>
           </FormElement>
 
@@ -170,7 +238,17 @@ function AdministrationFormPage(props: Props) {
               <Typography.Text type="danger">* Jika ada</Typography.Text>
             </View>
             <View>
-              <Switch checkedChildren="On" unCheckedChildren="Off" />
+              <Switch
+                checkedChildren="On"
+                unCheckedChildren="Off"
+                checked={formConf.show360}
+                onChange={(data, e) => {
+                  setFormConf((state) => ({
+                    ...state,
+                    show360: data,
+                  }));
+                }}
+              />
             </View>
           </FormElement>
 
