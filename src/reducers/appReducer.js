@@ -124,6 +124,21 @@ const appReducer = (state: State, action: Action): State => {
       };
     }
 
+    case 'SET_EDITING_SCORE_SUBMISSION': {
+      state.submissions[action.payload.indexNumber].isEditing =
+        action.payload.condition;
+      state.submissions[action.payload.indexNumber]['score'][
+        action.payload.scoreName
+      ] = action.payload.scoreValue;
+
+      return {
+        ...state,
+        submissions: state.submissions,
+        loading: false,
+        error: null,
+      };
+    }
+
     case 'FETCH_SUBMISSIONS_FAILURE': {
       return {
         ...state,

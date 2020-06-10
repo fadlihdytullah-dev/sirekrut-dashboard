@@ -96,7 +96,7 @@ function ApplicantModalDataView(props: Props) {
             <View flexDirection="column" style={{width: 150}}>
               <View marginBottom={8}>
                 <Avatar
-                  src="https://avatars3.githubusercontent.com/u/44917664?s=460&v=4"
+                  src={props.dataBiodata && props.dataBiodata.profilePicture}
                   size={150}
                   shape="square"
                 />

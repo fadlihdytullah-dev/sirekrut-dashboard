@@ -6,94 +6,13 @@ import FormInput from '../../components/shared/FormInput';
 import View from '../../components/shared/View';
 import ApplicantModalDataView from './components/ApplicantModalDataView';
 import ApplicantInputModal from './components/ApplicantInputModal';
-import {EditOutlined} from '@ant-design/icons';
+import {EditOutlined, SaveOutlined} from '@ant-design/icons';
 import {useHistory} from 'react-router-dom';
 import {AppContext} from '../../contexts/AppContext';
 import axios from 'axios';
 import {SUBMISSONS_API, POSITIONS_API, config} from '../config';
 
 type Props = {};
-
-const data = [
-  {
-    id: 'FLBTLgVnp1M6RMwU4ZzN',
-    fullName: 'Darijo Aurelya',
-    _360Score: 0,
-    status: 0,
-    lastEducation: 'S2',
-    cvFile: null,
-    email: 'ainayy@gmail.com',
-    address: 'Jl. Bingo',
-    toeflFile: null,
-    dateOfBirth: '20 January 2001',
-    profilePicture: '',
-    score: {
-      psikotesScore: 0,
-      interviewScore: 0,
-      academicScore: 0,
-    },
-    _360File: null,
-    phoneNumber: '082232322323',
-    toeflScore: 488,
-    passed: false,
-    gender: 'Perempuan',
-    createdAt: '2020-06-03T06:14:07.615Z',
-    originFrom: 'Sumedang',
-    positionId: 'hEXMsoTDcTvMufy7UaBg',
-  },
-  {
-    id: 'ZE6wlxdYqE0XuJeTZ8Xt',
-    status: 0,
-    lastEducation: 'S2',
-    cvFile: null,
-    email: 'ainayy@gmail.com',
-    address: 'Jl. Bingo',
-    toeflFile: null,
-    dateOfBirth: '20 January 2001',
-    profilePicture: '',
-    score: {
-      psikotesScore: 0,
-      interviewScore: 0,
-      academicScore: 0,
-    },
-    _360File: null,
-    phoneNumber: '082232322323',
-    toeflScore: 488,
-    passed: false,
-    gender: 'Perempuan',
-    createdAt: '2020-06-03T06:14:00.151Z',
-    originFrom: 'Sumedang',
-    positionId: 'hEXMsoTDcTvMufy7UaBg',
-    fullName: 'Kuncoro Aurelya',
-    _360Score: 0,
-  },
-  {
-    id: 'YQjyu77bTspGbeZZk7pH',
-    lastEducation: 'S2',
-    cvFile: null,
-    email: 'ainayy@gmail.com',
-    address: 'Jl. Bingo',
-    toeflFile: null,
-    dateOfBirth: '20 January 2001',
-    profilePicture: '',
-    score: {
-      interviewScore: 0,
-      academicScore: 0,
-      psikotesScore: 0,
-    },
-    _360File: null,
-    phoneNumber: '082232322323',
-    toeflScore: 488,
-    passed: false,
-    gender: 'Perempuan',
-    createdAt: '2020-06-03T06:13:42.585Z',
-    originFrom: 'Sumedang',
-    positionId: 'hEXMsoTDcTvMufy7UaBg',
-    fullName: 'Xsss Aurelya',
-    _360Score: 0,
-    status: 0,
-  },
-];
 
 // rowSelection object indicates the need for row selection
 const rowSelection = {
@@ -109,8 +28,17 @@ const rowSelection = {
   }),
 };
 
+const initScore = () => ({
+  interviewScore: 0,
+  academicScore: 0,
+  psikotesScore: 0,
+});
+
 function ApplicantsPage(props: Props) {
   const {appState, dispatchApp} = React.useContext(AppContext);
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [score, setScore] = React.useState(initScore());
   const [activeTab, setActiveTab] = React.useState<
     | 'APPLLICANTS'
     | 'ACADEMIC_SCORE'
@@ -121,6 +49,82 @@ function ApplicantsPage(props: Props) {
   const [showModal, setShowModal] = React.useState(false);
   const [showModalInput, setShowModalInput] = React.useState(false);
   const [singleData, setSingleData] = React.useState({});
+
+  const handleChangeInput = (event) => {
+    const name = event.target && event.target.name;
+    const value = event.target && event.target.value;
+
+    setScore((state) => ({
+      ...state,
+      [name]: parseInt(value),
+    }));
+  };
+
+  const handleSubmit = async (id) => {
+    try {
+      const scoreData = {
+        score,
+      };
+      setIsSubmitting(true);
+      const URL = SUBMISSONS_API.update(id);
+
+      const method = 'put';
+
+      const response = await axios[method](URL, scoreData, {
+        headers: config.headerConfig,
+      });
+
+      const result = response.data;
+
+      if (result.success) {
+        message.success(`Data telah berhasil diperbarui `);
+      } else {
+        throw new Error(result.errors);
+      }
+    } catch (error) {
+      if (error.response) {
+        message.error(error.response.data.errors);
+      } else {
+        message.error(error.message);
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  const buttonEditScore = (record, scoreTitle) => {
+    let disabled;
+    if (isEditing) {
+      if (!record.isEditing) {
+        disabled = true;
+      }
+    }
+
+    return (
+      <Button
+        type="primary"
+        icon={record.isEditing ? <SaveOutlined /> : <EditOutlined />}
+        size={'small'}
+        disabled={disabled}
+        onClick={() => {
+          setIsEditing(!isEditing);
+          const indexNumber = appState.submissions.findIndex(
+            (data) => data.id === record.id
+          );
+          if (record.isEditing) {
+            handleSubmit(record.id);
+            editScore(indexNumber, false, scoreTitle, score[scoreTitle]);
+            setScore((state) => ({
+              interviewScore: 0,
+              academicScore: 0,
+              psikotesScore: 0,
+            }));
+          } else {
+            editScore(indexNumber, true, scoreTitle, record.score[scoreTitle]);
+          }
+        }}
+      />
+    );
+  };
 
   let columns = [];
 
@@ -161,14 +165,23 @@ function ApplicantsPage(props: Props) {
             type="link"
             style={{display: 'inline-block'}}
             onClick={() => {
-              console.log(record, 'ini single data');
-              setShowModalInput(true);
-              setSingleData(record);
+              console.log(record);
             }}>
-            0
+            {record.isEditing ? (
+              <input
+                type="text"
+                name="academicScore"
+                style={{width: '30px'}}
+                onChange={handleChangeInput}
+                defaultValue={record.score.academicScore}
+              />
+            ) : (
+              record.score.academicScore
+            )}
           </Button>
-          <input type="text" value={0} style={{display: 'none'}} />
-          <EditOutlined />
+          {activeTab === 'ACADEMIC_SCORE'
+            ? buttonEditScore(record, 'academicScore')
+            : null}
         </span>
       );
     },
@@ -180,16 +193,22 @@ function ApplicantsPage(props: Props) {
     render: (record) => {
       return (
         <span>
-          <Button
-            size="small"
-            type="link"
-            onClick={() => {
-              console.log(record, 'ini single data');
-              setShowModalInput(true);
-              setSingleData(record);
-            }}>
-            0
+          <Button size="small" type="link">
+            {record.isEditing ? (
+              <input
+                type="text"
+                name="psikotesScore"
+                style={{width: '30px'}}
+                onChange={handleChangeInput}
+                defaultValue={record.score.psikotesScore}
+              />
+            ) : (
+              record.score.psikotesScore
+            )}
           </Button>
+          {activeTab === 'PSIKOTEST_SCORE'
+            ? buttonEditScore(record, 'psikotesScore')
+            : null}
         </span>
       );
     },
@@ -201,9 +220,22 @@ function ApplicantsPage(props: Props) {
     render: (record) => {
       return (
         <span>
-          <Button size="small" type="link" onClick={() => {}}>
-            0
+          <Button size="small" type="link">
+            {record.isEditing ? (
+              <input
+                type="text"
+                name="interviewScore"
+                style={{width: '30px'}}
+                onChange={handleChangeInput}
+                defaultValue={record.score.interviewScore}
+              />
+            ) : (
+              record.score.interviewScore
+            )}
           </Button>
+          {activeTab === 'INTERVIEW_SCORE'
+            ? buttonEditScore(record, 'interviewScore')
+            : null}
         </span>
       );
     },
@@ -226,10 +258,16 @@ function ApplicantsPage(props: Props) {
     },
   };
 
+  const editScore = (indexNumber, condition, scoreName, scoreValue) => {
+    dispatchApp({
+      type: 'SET_EDITING_SCORE_SUBMISSION',
+      payload: {indexNumber, condition, scoreName, scoreValue},
+    });
+  };
+
   const handleFetchSubmissions = async (statusSubmission) => {
     try {
       dispatchApp({type: 'FETCH_SUBMISSIONS_INIT'});
-
       const response = await axios.get(SUBMISSONS_API.getAll);
       const result = response.data;
 
@@ -239,7 +277,11 @@ function ApplicantsPage(props: Props) {
             const res = await axios.get(
               POSITIONS_API.getSingle(dat.positionId)
             );
-            const item = {...dat, positionName: res.data.data.name};
+            const item = {
+              ...dat,
+              positionName: res.data.data.name,
+              isEditing: false,
+            };
             return item;
           });
           const promiseDone = Promise.all(data);
@@ -286,7 +328,7 @@ function ApplicantsPage(props: Props) {
 
   React.useEffect(
     () => {
-      // handleFetchSubmissions(0);
+      handleFetchSubmissions(0);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
@@ -370,8 +412,8 @@ function ApplicantsPage(props: Props) {
               ...rowSelection,
             }}
             columns={columns}
-            dataSource={data}
-            // dataSource={appState.submissions}
+            // dataSource={data}
+            dataSource={appState.submissions}
           />
         )}
       </View>
