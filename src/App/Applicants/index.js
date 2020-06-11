@@ -1,32 +1,19 @@
 // @flow
 import * as React from 'react';
 import Header from '../../components/commons/Header';
-import {Button, Table, Skeleton, message} from 'antd';
+import {Button, Table, Skeleton, message, Select} from 'antd';
 import FormInput from '../../components/shared/FormInput';
 import View from '../../components/shared/View';
 import ApplicantModalDataView from './components/ApplicantModalDataView';
 import ApplicantInputModal from './components/ApplicantInputModal';
 import {EditOutlined, SaveOutlined} from '@ant-design/icons';
-import {useHistory} from 'react-router-dom';
+import {useLocation} from 'react-router-dom';
 import {AppContext} from '../../contexts/AppContext';
 import axios from 'axios';
-import {SUBMISSONS_API, POSITIONS_API, config} from '../config';
+import {SUBMISSONS_API, TIMELINES_API, POSITIONS_API, config} from '../config';
 
 type Props = {};
-
-// rowSelection object indicates the need for row selection
-const rowSelection = {
-  onChange: (selectedRowKeys, selectedRows) => {
-    console.log(
-      `selectedRowKeys: ${selectedRowKeys}`,
-      'selectedRows: ',
-      selectedRows
-    );
-  },
-  getCheckboxProps: (record) => ({
-    name: record.name,
-  }),
-};
+const {Option} = Select;
 
 const initScore = () => ({
   interviewScore: 0,
@@ -37,6 +24,7 @@ const initScore = () => ({
 function ApplicantsPage(props: Props) {
   const {appState, dispatchApp} = React.useContext(AppContext);
   const [isEditing, setIsEditing] = React.useState(false);
+  const [selectUser, setSelectUser] = React.useState([]);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [score, setScore] = React.useState(initScore());
   const [activeTab, setActiveTab] = React.useState<
@@ -50,6 +38,25 @@ function ApplicantsPage(props: Props) {
   const [showModalInput, setShowModalInput] = React.useState(false);
   const [singleData, setSingleData] = React.useState({});
 
+  const location = useLocation();
+
+  // rowSelection object indicates the need for row selection
+  const rowSelection = {
+    onChange: (selectedRowKeys, selectedRows) => {
+      setSelectUser(selectedRowKeys);
+      console.log(
+        `selectedRowKeys: ${selectedRowKeys}`,
+        'selectedRows: ',
+        selectedRows
+      );
+    },
+    getCheckboxProps: (record) => {
+      return {
+        fullName: record.fullName,
+      };
+    },
+  };
+
   const handleChangeInput = (event) => {
     const name = event.target && event.target.name;
     const value = event.target && event.target.value;
@@ -60,6 +67,35 @@ function ApplicantsPage(props: Props) {
     }));
   };
 
+  const handleUpdateStatus = async (statusId) => {
+    try {
+      const data = {
+        applicants: [],
+        updatedStatus: statusId,
+      };
+      setIsSubmitting(true);
+      const URL = SUBMISSONS_API.updateStatus;
+      const method = 'PUT';
+      const response = await axios[method](URL, data, {
+        headers: config.headerConfig,
+      });
+      const result = response.data;
+      if (result.success) {
+        message.success(`Data telah berhasil diperbarui `);
+      } else {
+        throw new Error(result.errors);
+      }
+    } catch (error) {
+      if (error.response) {
+        message.error(error.response.data.errors);
+      } else {
+        message.error(error.message);
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleSubmit = async (id) => {
     try {
       const scoreData = {
@@ -67,13 +103,10 @@ function ApplicantsPage(props: Props) {
       };
       setIsSubmitting(true);
       const URL = SUBMISSONS_API.update(id);
-
       const method = 'put';
-
       const response = await axios[method](URL, scoreData, {
         headers: config.headerConfig,
       });
-
       const result = response.data;
 
       if (result.success) {
@@ -91,10 +124,40 @@ function ApplicantsPage(props: Props) {
       setIsSubmitting(false);
     }
   };
+
+  const handleUpdateStatusApplicant = async (statusID) => {
+    try {
+      const data = {
+        applicants: selectUser,
+        updatedStatus: statusID,
+      };
+      setIsSubmitting(true);
+      const URL = SUBMISSONS_API.updateStatus;
+      const method = 'put';
+      const response = await axios[method](URL, data, {
+        headers: config.headerConfig,
+      });
+      const result = response.data;
+      if (result.success) {
+        message.success(`Data telah berhasil diperbarui `);
+        handleFetchSubmissions(0);
+      } else {
+        throw new Error(result.errors);
+      }
+    } catch (error) {
+      if (error.response) {
+        message.error(error.response.data.errors);
+      } else {
+        message.error(error.message);
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   const buttonEditScore = (record, scoreTitle) => {
     let disabled;
     if (isEditing) {
-      if (!record.isEditing) {
+      if (!record.isEditing[scoreTitle]) {
         disabled = true;
       }
     }
@@ -102,7 +165,9 @@ function ApplicantsPage(props: Props) {
     return (
       <Button
         type="primary"
-        icon={record.isEditing ? <SaveOutlined /> : <EditOutlined />}
+        icon={
+          record.isEditing[scoreTitle] ? <SaveOutlined /> : <EditOutlined />
+        }
         size={'small'}
         disabled={disabled}
         onClick={() => {
@@ -110,7 +175,7 @@ function ApplicantsPage(props: Props) {
           const indexNumber = appState.submissions.findIndex(
             (data) => data.id === record.id
           );
-          if (record.isEditing) {
+          if (record.isEditing[scoreTitle]) {
             handleSubmit(record.id);
             editScore(indexNumber, false, scoreTitle, score[scoreTitle]);
             setScore((state) => ({
@@ -167,7 +232,7 @@ function ApplicantsPage(props: Props) {
             onClick={() => {
               console.log(record);
             }}>
-            {record.isEditing ? (
+            {record.isEditing['academicScore'] ? (
               <input
                 type="text"
                 name="academicScore"
@@ -194,7 +259,7 @@ function ApplicantsPage(props: Props) {
       return (
         <span>
           <Button size="small" type="link">
-            {record.isEditing ? (
+            {record.isEditing['psikotesScore'] ? (
               <input
                 type="text"
                 name="psikotesScore"
@@ -221,7 +286,7 @@ function ApplicantsPage(props: Props) {
       return (
         <span>
           <Button size="small" type="link">
-            {record.isEditing ? (
+            {record.isEditing['interviewScore'] ? (
               <input
                 type="text"
                 name="interviewScore"
@@ -265,10 +330,41 @@ function ApplicantsPage(props: Props) {
     });
   };
 
-  const handleFetchSubmissions = async (statusSubmission) => {
+  const handleFetchTimelines = async () => {
+    try {
+      dispatchApp({type: 'FETCH_TIMELINES_APPLICANT_INIT'});
+
+      const response = await axios.get(TIMELINES_API.getAll);
+      const result = response.data;
+
+      if (result.success) {
+        console.log(result.data, 'TRASDSADSADSAD');
+        dispatchApp({
+          type: 'FETCH_TIMELINES_APPLICANT_SUCCESS',
+          payload: {dataTimelines: result.data},
+        });
+      } else {
+        throw new Error(result.errors);
+      }
+    } catch (error) {
+      message.error(error.message);
+
+      dispatchApp({
+        type: 'FETCH_TIMELINES_APPLICANT_FAILURE',
+        payload: {error: error.message},
+      });
+    }
+  };
+  const handleFetchSubmissions = async (statusSubmission, idPeriode) => {
     try {
       dispatchApp({type: 'FETCH_SUBMISSIONS_INIT'});
-      const response = await axios.get(SUBMISSONS_API.getAll);
+      const response = await axios.get(
+        SUBMISSONS_API.getAll.concat(
+          `?filter=status&filterValue=${statusSubmission}${
+            idPeriode ? `&periode=${idPeriode}` : ''
+          }`
+        )
+      );
       const result = response.data;
 
       if (result.success) {
@@ -280,7 +376,12 @@ function ApplicantsPage(props: Props) {
             const item = {
               ...dat,
               positionName: res.data.data.name,
-              isEditing: false,
+              key: dat.id,
+              isEditing: {
+                interviewScore: false,
+                academicScore: false,
+                psikotesScore: false,
+              },
             };
             return item;
           });
@@ -328,10 +429,29 @@ function ApplicantsPage(props: Props) {
 
   React.useEffect(
     () => {
-      handleFetchSubmissions(0);
+      handleFetchTimelines();
+      let query = null;
+      if (location.state && location.state.data) {
+        query = location.state.data.periodID;
+      }
+      if (activeTab === 'APPLLICANTS') {
+        handleFetchSubmissions(0, query);
+      }
+      if (activeTab === 'ACADEMIC_SCORE') {
+        handleFetchSubmissions(1, query);
+      }
+      if (activeTab === 'PSIKOTEST_SCORE') {
+        handleFetchSubmissions(2, query);
+      }
+      if (activeTab === 'INTERVIEW_SCORE') {
+        handleFetchSubmissions(3, query);
+      }
+      if (activeTab === 'AGREEMENT') {
+        handleFetchSubmissions(3, query);
+      }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [activeTab]
   );
 
   return (
@@ -347,8 +467,8 @@ function ApplicantsPage(props: Props) {
               </View>
             </View>
           </View>
-        }
-      />
+        }></Header>
+
       <ApplicantModalDataView
         dataBiodata={singleData}
         visible={showModal}
@@ -362,7 +482,35 @@ function ApplicantsPage(props: Props) {
         onClose={() => setShowModalInput(false)}
       />
 
-      <View marginY={24} style={{width: '600px'}}>
+      <View marginY={24}>
+        <Select
+          defaultValue={location.state ? location.state.data.periodID : 'ALL'}
+          style={{width: '400px'}}
+          placeholder="Pilih Periode"
+          onChange={(idPeriode) => {
+            if (idPeriode === 'ALL') handleFetchSubmissions(0);
+            if (activeTab === 'APPLLICANTS')
+              handleFetchSubmissions(0, idPeriode);
+
+            if (activeTab === 'ACADEMIC_SCORE')
+              handleFetchSubmissions(1, idPeriode);
+
+            if (activeTab === 'PSIKOTEST_SCORE')
+              handleFetchSubmissions(2, idPeriode);
+
+            if (activeTab === 'INTERVIEW_SCORE')
+              handleFetchSubmissions(3, idPeriode);
+
+            if (activeTab === 'AGREEMENT') handleFetchSubmissions(3, idPeriode);
+          }}
+          name="lastEducation">
+          <Option value="ALL">Semua periode</Option>
+          {appState.dataTimelines.map((data) => (
+            <Option value={data.id}>{data.title}</Option>
+          ))}
+        </Select>
+      </View>
+      <View marginY={14} style={{width: '600px'}}>
         <Button
           type={activeTab === 'APPLLICANTS' ? 'dashed' : 'link'}
           onClick={() => setActiveTab('APPLLICANTS')}>
@@ -392,21 +540,36 @@ function ApplicantsPage(props: Props) {
 
       <View>
         <View marginBottom={16}>
-          <Button>Proses ke tahap selanjutnya</Button>
+          <Button
+            onClick={() => {
+              let status = 0;
+              if (activeTab === 'APPLLICANTS') {
+                status = 1;
+              }
+              if (activeTab === 'ACADEMIC_SCORE') {
+                status = 2;
+              }
+              if (activeTab === 'PSIKOTEST_SCORE') {
+                status = 3;
+              }
+              if (activeTab === 'INTERVIEW_SCORE') {
+                status = 4;
+              }
+              handleUpdateStatusApplicant(status);
+            }}>
+            Proses ke tahap selanjutnya
+          </Button>
         </View>
 
         {appState.loading ? (
           <Skeleton />
         ) : (
           <Table
-            // onRow={(record, rowIndex) => {
-            //   return {
-            //     onClick: (event) => {
-            //       setSingleData(record);
-            //       setShowModal(true);
-            //     },
-            //   };
-            // }}
+            onRow={(record, rowIndex) => {
+              return {
+                onClick: (event) => {},
+              };
+            }}
             rowSelection={{
               type: 'checkbox',
               ...rowSelection,

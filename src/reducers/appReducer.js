@@ -57,6 +57,30 @@ const appReducer = (state: State, action: Action): State => {
         error: action.payload.error,
       };
     }
+    case 'FETCH_TIMELINES_APPLICANT_INIT': {
+      return {
+        ...state,
+      };
+    }
+
+    case 'FETCH_TIMELINES_APPLICANT_SUCCESS': {
+      return {
+        ...state,
+        dataTimelines: action.payload.dataTimelines,
+
+        error: null,
+      };
+    }
+
+    case 'FETCH_TIMELINES_APPLICANT_FAILURE': {
+      console.log('❌ error:=', action.payload.error);
+
+      return {
+        ...state,
+
+        error: action.payload.error,
+      };
+    }
     case 'FETCH_STUDY_PROGRAMS_INIT': {
       return {
         ...state,
@@ -125,8 +149,9 @@ const appReducer = (state: State, action: Action): State => {
     }
 
     case 'SET_EDITING_SCORE_SUBMISSION': {
-      state.submissions[action.payload.indexNumber].isEditing =
-        action.payload.condition;
+      state.submissions[action.payload.indexNumber].isEditing[
+        action.payload.scoreName
+      ] = action.payload.condition;
       state.submissions[action.payload.indexNumber]['score'][
         action.payload.scoreName
       ] = action.payload.scoreValue;

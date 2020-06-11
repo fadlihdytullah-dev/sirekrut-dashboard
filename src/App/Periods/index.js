@@ -1,6 +1,6 @@
 // @flow
 import * as React from 'react';
-import {useHistory} from 'react-router-dom';
+import {useHistory, Link} from 'react-router-dom';
 import {AppContext} from '../../contexts/AppContext';
 // import AddModal from './components/AddModal';
 import Header from '../../components/commons/Header';
@@ -47,13 +47,10 @@ const generatePositionList = (
 function PeriodsPage(props: Props) {
   const {appState, dispatchApp} = React.useContext(AppContext);
   const [selectedPosition, setSelectedPosition] = React.useState(null);
-
   const [showModal, setShowModal] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-
   const [searchText, setSearchText] = React.useState('');
   const [searchedColumn, setSearchedColumn] = React.useState('');
-
   const history = useHistory();
 
   const handleFetchTimelines = async () => {
@@ -322,11 +319,35 @@ function PeriodsPage(props: Props) {
         },
       },
       {
+        title: 'Total Pelamar',
+        dataIndex: 'endDate',
+        key: 'endDate',
+        render: (endDate) => {
+          return <span>23</span>;
+        },
+      },
+      {
         title: 'Aksi',
         key: 'action',
         render: (record) => {
           return (
             <span>
+              <Button size="small" type="dashed">
+                <Link
+                  to={{
+                    pathname: '/applicant',
+                    state: {
+                      data: {
+                        periodID: record.id,
+                        periodName: record.title,
+                        endDate: record.endDate,
+                        startDate: record.startDate,
+                      },
+                    },
+                  }}>
+                  Liat Pelamar
+                </Link>
+              </Button>
               <Button size="small" type="link">
                 Edit
               </Button>

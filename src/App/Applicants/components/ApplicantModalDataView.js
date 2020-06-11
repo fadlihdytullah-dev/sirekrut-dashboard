@@ -102,7 +102,12 @@ function ApplicantModalDataView(props: Props) {
                 />
               </View>
               <Button type="dashed" block>
-                Download CV
+                <a
+                  href={props.dataBiodata && props.dataBiodata.cvFile}
+                  target="_blank"
+                  download={true}>
+                  Download CV
+                </a>
               </Button>
 
               <View marginTop={24}>
@@ -110,11 +115,21 @@ function ApplicantModalDataView(props: Props) {
                   Dokumen Lainnya
                 </Typography.Paragraph>
                 <Button type="dashed" block style={{marginBottom: 8}}>
-                  Tes TOEFL/IELTS
+                  <a
+                    href={props.dataBiodata && props.dataBiodata.toeflFile}
+                    target="_blank"
+                    download={true}>
+                    Tes TOEFL/IELTS
+                  </a>
                 </Button>
 
                 <Button type="dashed" block>
-                  Tes 360
+                  <a
+                    href={props.dataBiodata && props.dataBiodata._360File}
+                    target="_blank"
+                    download={true}>
+                    Tes 360
+                  </a>
                 </Button>
               </View>
             </View>
