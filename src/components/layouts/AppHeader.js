@@ -6,7 +6,8 @@ import {Link} from 'react-router-dom';
 import {Layout, Typography, Button} from 'antd';
 import logo from './logo.png';
 import View from '../shared/View';
-import {useLocation} from 'react-router-dom';
+import {AppContext} from '../../contexts/AppContext';
+import {useLocation, useHistory} from 'react-router-dom';
 
 const {Header} = Layout;
 
@@ -44,6 +45,13 @@ type Props = {
 
 function AppHeader(props: Props) {
   const {pathname} = useLocation();
+  const {appState, dispatchApp} = React.useContext(AppContext);
+  const history = useHistory();
+  const handleLogout = () => {
+    dispatchApp({type: 'SET_LOGOUT'});
+    history.push('/login');
+  };
+
   return (
     <StyledHeader center={props.center}>
       <View>
@@ -56,7 +64,11 @@ function AppHeader(props: Props) {
           <Typography.Text type="danger">Telkom University</Typography.Text>
         </Link>
       </View>
-      {pathname !== '/login' && <Button type="default">Logout</Button>}
+      {pathname !== '/login' && (
+        <Button onClick={handleLogout} type="default">
+          Logout
+        </Button>
+      )}
     </StyledHeader>
   );
 }
