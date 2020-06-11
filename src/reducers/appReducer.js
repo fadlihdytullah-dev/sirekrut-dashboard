@@ -23,6 +23,7 @@ type Action = {
 
 export const initState = {
   loading: false,
+  isLogin: false,
   error: null,
   studyPrograms: [],
   submissions: [],
@@ -32,6 +33,38 @@ export const initState = {
 
 const appReducer = (state: State, action: Action): State => {
   switch (action.type) {
+    case 'SET_LOGOUT': {
+      return {
+        ...state,
+        isLogin: false,
+      };
+    }
+    case 'USER_LOGIN_INIT': {
+      return {
+        ...state,
+        loading: true,
+      };
+    }
+
+    case 'USER_LOGIN_SUCCESS': {
+      return {
+        ...state,
+        isLogin: true,
+        loading: false,
+        error: null,
+      };
+    }
+
+    case 'USER_LOGIN_FAILURE': {
+      console.log('❌ error:=', action.payload.error);
+
+      return {
+        ...state,
+        isLogin: false,
+        loading: false,
+        error: action.payload.error,
+      };
+    }
     case 'FETCH_TIMELINES_INIT': {
       return {
         ...state,
