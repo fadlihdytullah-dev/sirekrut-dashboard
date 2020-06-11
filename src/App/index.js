@@ -16,6 +16,7 @@ import AdministrationFormPage from './AdministrationForm';
 import ApplicantsPage from './Applicants';
 import AdminPage from './Admin';
 import LoginPage from './Login';
+import PrivateRoute from '../App/PrivateRoute';
 import {useLocation} from 'react-router-dom';
 
 function App() {
@@ -42,36 +43,41 @@ function App() {
             <View marginLeft={250} paddingTop={60}>
               <ContentWrapper>
                 <Switch>
-                  <Route exact path="/">
-                    <HomePage />
-                  </Route>
+                  <PrivateRoute exact path="/" component={HomePage} />
 
-                  <Route exact path="/study_program">
-                    <StudyProgramPage />
-                  </Route>
+                  <PrivateRoute
+                    exact
+                    path="/study_program"
+                    component={StudyProgramPage}
+                  />
 
-                  <Route exact path="/position">
-                    <PositionPage />
-                  </Route>
+                  <PrivateRoute
+                    exact
+                    path="/position"
+                    component={PositionPage}
+                  />
 
-                  <Route exact path="/periods">
-                    <PeriodsPage />
-                  </Route>
-                  <Route exact path="/periods/add_new">
-                    <EditFormPeriods />
-                  </Route>
+                  <PrivateRoute exact path="/periods" component={PeriodsPage} />
 
-                  <Route exact path="/form">
-                    <AdministrationFormPage />
-                  </Route>
+                  <PrivateRoute
+                    exact
+                    path="/periods/add_new"
+                    component={EditFormPeriods}
+                  />
 
-                  <Route exact path="/applicant">
-                    <ApplicantsPage />
-                  </Route>
+                  <PrivateRoute
+                    exact
+                    path="/form"
+                    component={AdministrationFormPage}
+                  />
 
-                  <Route exact path="/admin">
-                    <AdminPage />
-                  </Route>
+                  <PrivateRoute
+                    exact
+                    path="/applicant"
+                    component={ApplicantsPage}
+                  />
+
+                  <PrivateRoute exact path="/admin" component={AdminPage} />
                 </Switch>
               </ContentWrapper>
             </View>
