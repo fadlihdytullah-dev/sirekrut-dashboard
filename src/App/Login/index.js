@@ -25,9 +25,11 @@ function Login(props: Props) {
   const history = useHistory();
   const {appState, dispatchApp} = React.useContext(AppContext);
   const [formData, setFormData] = React.useState(initFormData);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const handleLogin = async () => {
     try {
+      setIsSubmitting(true);
       dispatchApp({type: 'USER_LOGIN_INIT'});
 
       const URL = AUTH_API.login;
@@ -46,6 +48,7 @@ function Login(props: Props) {
       }
     } catch (error) {
       message.error(error.message);
+      setIsSubmitting(false);
       dispatchApp({
         type: 'USER_LOGIN_FAILURE',
         payload: {error: error.message},
@@ -92,7 +95,11 @@ function Login(props: Props) {
             <Input.Password name="password" onChange={handleChangeInput} />
           </Form.Item>
 
-          <Button type="primary" block onClick={handleLogin}>
+          <Button
+            type="primary"
+            block
+            loading={isSubmitting}
+            onClick={handleLogin}>
             Submit
           </Button>
         </Form>

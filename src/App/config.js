@@ -18,6 +18,7 @@ export const SUBMISSONS_API = {
 
 export const AUTH_API = {
   login: `${BASE_URL}/login`,
+  register: `${BASE_URL}/register`,
 };
 
 export const STUDY_PROGRAMS_API = {

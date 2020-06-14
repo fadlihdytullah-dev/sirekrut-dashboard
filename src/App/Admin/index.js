@@ -2,7 +2,9 @@
 import * as React from 'react';
 import Header from '../../components/commons/Header';
 import View from '../../components/shared/View';
-import {Button, Table, Popconfirm} from 'antd';
+import {Button, Table, Popconfirm, message} from 'antd';
+import {AUTH_API, config} from '../config';
+import axios from 'axios';
 import AddModal from './components/AddModal';
 
 type Props = {};
@@ -24,6 +26,7 @@ const DATA_SOURCE = [
 
 function Admin(props: Props) {
   const [showModal, setShowModal] = React.useState(false);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   let columns = [
     {
@@ -63,6 +66,33 @@ function Admin(props: Props) {
     },
   ];
 
+  const handleSubmit = async (data) => {
+    try {
+      setIsSubmitting(true);
+      const URL = AUTH_API.register;
+      const method = 'post';
+      const response = await axios[method](URL, data, {
+        headers: config.headerConfig,
+      });
+      const result = response.data;
+
+      if (result.success) {
+        message.success(`Data telah berhasil diperbarui `);
+        setShowModal(false);
+      } else {
+        throw new Error(result.errors);
+      }
+    } catch (error) {
+      if (error.response) {
+        message.error(error.response.data.errors);
+      } else {
+        message.error(error.message);
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <React.Fragment>
       <Header
@@ -82,9 +112,9 @@ function Admin(props: Props) {
       <AddModal
         visible={showModal}
         admin={null}
-        isSubmitting={false}
+        isSubmitting={isSubmitting}
         onClose={() => setShowModal(false)}
-        onSubmit={() => {}}
+        onSubmit={(data) => handleSubmit(data)}
       />
 
       <View marginTop={24}>
