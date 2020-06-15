@@ -253,9 +253,9 @@ function AdministrationFormPage(props: Props) {
           </FormElement>
 
           <View flexJustifyContent="center" marginY={32}>
-            <Button type="dashed" block>
+            {/* <Button type="dashed" block>
               Tambah field baru
-            </Button>
+            </Button> */}
           </View>
         </FormWrapper>
         <View marginLeft={32}>

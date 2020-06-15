@@ -1,6 +1,7 @@
 // @flow
 import * as React from 'react';
 import Header from '../../components/commons/Header';
+import moment from 'moment';
 import View from '../../components/shared/View';
 import FormInput from '../../components/shared/FormInput';
 import {Button, Typography, message} from 'antd';
@@ -9,9 +10,8 @@ import {capitalize} from '../Utils';
 import AddPositionInput from './components/AddPositionInput';
 import {AppContext} from '../../contexts/AppContext';
 import {POSITIONS_API, TIMELINES_API, config} from '../config';
-import {useHistory} from 'react-router-dom';
+import {useHistory, useParams} from 'react-router-dom';
 import axios from 'axios';
-
 type Props = {};
 
 const FormWrapper = styled.div`
@@ -25,6 +25,7 @@ const initFormData = () => ({
   endDate: null,
   forms: ['C4UtF8dpfjuPOi6FmZ7L'],
   positions: [],
+  prePositions: [],
   isAllPositions: false,
 });
 
@@ -44,6 +45,51 @@ function AddPeriodInput(props: Props) {
 
   const {appState, dispatchApp} = React.useContext(AppContext);
   const history = useHistory();
+  const {id} = useParams();
+
+  React.useEffect(() => {
+    if (id) {
+      const getData = async () => {
+        try {
+          // dispatchApp({type: 'FETCH_TIMELINES_INIT'});
+
+          const response = await axios.get(TIMELINES_API.getSingle(id));
+          const result = response.data;
+
+          const {title, type, startDate, endDate, positions} = result.data;
+          setFormData((state) => ({
+            ...state,
+            title,
+            type,
+            startDate: moment(startDate),
+            endDate: moment(endDate),
+            positions: positions,
+          }));
+
+          console.log('ℹ️ result:=', result);
+
+          // if (result.success) {
+          //   console.log(result.data, 'TRASDSADSADSAD');
+          //   dispatchApp({
+          //     type: 'FETCH_TIMELINES_SUCCESS',
+          //     payload: {dataTimelines: result.data},
+          //   });
+          // } else {
+          //   throw new Error(result.errors);
+          // }
+        } catch (error) {
+          message.error('Terjadi error ketika memuat data');
+
+          // dispatchApp({
+          //   type: 'FETCH_TIMELINES_FAILURE',
+          //   payload: {error: error.message},
+          // });
+        }
+      };
+
+      getData();
+    }
+  }, [id]);
 
   const handleFetchPositions = async () => {
     dispatchApp({type: 'FETCH_POSITIONS_INIT'});
@@ -125,24 +171,20 @@ function AddPeriodInput(props: Props) {
   }
 
   const handleSubmit = async (timeLine: any, isEdit: boolean) => {
-    console.log(formData, 'INI DATA');
     try {
       setIsSubmitting(true);
-      const URL = isEdit
-        ? TIMELINES_API.update(formData.id)
-        : TIMELINES_API.post;
-      const method = isEdit ? 'put' : 'post';
+      const URL = id ? TIMELINES_API.update(id) : TIMELINES_API.post;
+      const method = id ? 'put' : 'post';
 
       const response = await axios[method](URL, formData, {
         headers: config.headerConfig,
       });
 
       const result = response.data;
-      console.log(result, 'ASIAAPPpp');
 
       if (result.success) {
         message.success(
-          `Data telah berhasil ${isEdit ? 'diperbarui' : 'ditambahkan'}`
+          `Data telah berhasil ${id ? 'diperbarui' : 'ditambahkan'}`
         );
         history.push('/periods');
         // handleFetchStudyPrograms();
@@ -160,6 +202,10 @@ function AddPeriodInput(props: Props) {
       setIsSubmitting(false);
     }
   };
+
+  console.log('ℹ️ formData:=', formData);
+
+  const editedPositions = formData.positions;
 
   return (
     <React.Fragment>
@@ -267,6 +313,7 @@ function AddPeriodInput(props: Props) {
 
         <View marginBottom={16}>
           <AddPositionInput
+            positions={editedPositions}
             data={{
               positionsData: appState.positions,
             }}

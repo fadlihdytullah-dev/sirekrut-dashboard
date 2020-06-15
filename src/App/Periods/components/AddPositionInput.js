@@ -7,21 +7,19 @@ import RedDot from '../../../components/shared/RedDot';
 import {DeleteOutlined} from '@ant-design/icons';
 
 type Props = {
+  positions?: Array<any>,
   data: {
     positionsData: Array<any>,
   },
   addData: any,
 };
 
-function AddPositionInput(props: Props) {
+function AddPositionInput({data, addData, positions}: Props) {
   const [quota, setQuota] = React.useState(1);
   const [positionID, setPositionID] = React.useState(undefined);
   const [name, setName] = React.useState(undefined);
   const [addedPositions, setAddedPositions] = React.useState([]);
   const [addedPositionIDs, setAddedPositionIDs] = React.useState([]);
-
-  console.log('ℹ️ addedPositions:=', addedPositions);
-  console.log('ℹ️ addedPositionIDs:=', addedPositionIDs);
 
   const handleAddPosition = (e) => {
     setAddedPositionIDs((state) => [...state, positionID]);
@@ -31,22 +29,26 @@ function AddPositionInput(props: Props) {
     setName(undefined);
     setQuota(1);
   };
-  React.useEffect(() => {
-    // Manipulate from positionId to id due the server needed
-    const newData = addedPositions.map((item) => {
-      return {
-        id: item.positionID,
-        ...item,
-      };
-    });
+  React.useEffect(
+    () => {
+      // Manipulate from positionId to id due the server needed
+      const newData = addedPositions.map((item) => {
+        return {
+          id: item.positionID,
+          ...item,
+        };
+      });
 
-    props.addData(newData);
-  }, [addedPositions]);
+      addData(newData);
+    },
+
+    // eslint-disable-next-line
+    [addedPositions]
+  );
 
   const handleChangeSelect = (id) => {
     setPositionID(id);
-    const name = props.data.positionsData.find((position) => position.id === id)
-      .name;
+    const name = data.positionsData.find((position) => position.id === id).name;
     setName(name);
   };
 
@@ -73,7 +75,7 @@ function AddPositionInput(props: Props) {
         </View>
       </View>
 
-      {!props.data.isAllPositions ? (
+      {!data.isAllPositions ? (
         <React.Fragment>
           <View flex={1} marginBottom={16}>
             <View marginRight={8}>
@@ -91,7 +93,7 @@ function AddPositionInput(props: Props) {
                       .indexOf(input.toLowerCase()) >= 0
                   );
                 }}>
-                {props.data.positionsData.map((item) => {
+                {data.positionsData.map((item) => {
                   if (!addedPositionIDs.includes(item.id)) {
                     return (
                       <Select.Option key={item.id} value={item.id} ss={'aww'}>
@@ -113,7 +115,7 @@ function AddPositionInput(props: Props) {
                 inputProps={{
                   type: 'number',
                   min: 1,
-                  max: 4,
+                  max: 99,
                 }}
                 isRequired
                 value={quota}
@@ -135,7 +137,7 @@ function AddPositionInput(props: Props) {
                     <View flex={1}>
                       <View marginRight={16}>
                         <Typography.Text>
-                          {props.data.positionsData.find(
+                          {data.positionsData.find(
                             (position) => position.id === item.positionID
                           ).name || ''}
                         </Typography.Text>

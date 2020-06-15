@@ -39,13 +39,13 @@ export const FORM_CONF_API = {
 
 export const TIMELINES_API = {
   getAll: `${BASE_URL}/timelines`,
-  getSingle: (id: string) => `${BASE_URL}/study_programs/${id}`,
+  getSingle: (id: string) => `${BASE_URL}/timelines/${id}`,
   post: `${BASE_URL}/timelines`,
-  update: (id: string) => `${BASE_URL}/study_programs/${id}`,
-  delete: (id: string) => `${BASE_URL}/study_programs/${id}`,
+  update: (id: string) => `${BASE_URL}/timelines/${id}`,
+  delete: (id: string) => `${BASE_URL}/timelines/${id}`,
 };
 
-const AUTH_TOKEN = localStorage.getItem('token');
+const AUTH_TOKEN = localStorage.getItem('token') || '';
 
 export const config = {
   headerConfig: {

@@ -67,6 +67,12 @@ function App() {
 
                   <PrivateRoute
                     exact
+                    path="/periods/edit/:id"
+                    component={EditFormPeriods}
+                  />
+
+                  <PrivateRoute
+                    exact
                     path="/form"
                     component={AdministrationFormPage}
                   />

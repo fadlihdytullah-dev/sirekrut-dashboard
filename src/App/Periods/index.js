@@ -158,29 +158,29 @@ function PeriodsPage(props: Props) {
 
   const handleConfirmDelete = React.useCallback(
     async (id: string) => {
-      // const key = 'loading';
-      // try {
-      //   message.loading({
-      //     content: 'Menghapus data...',
-      //     key,
-      //   });
-      //   const response = await axios.delete(POSITIONS_API.delete(id), {
-      //     headers: config.headerConfig,
-      //   });
-      //   const result = response.data;
-      //   if (result.success) {
-      //     message.success({content: 'Data telah berhasil dihapus', key});
-      //     handleFetchPositions();
-      //   } else {
-      //     throw new Error(result.errors);
-      //   }
-      // } catch (error) {
-      //   if (error.response) {
-      //     message.error({content: error.response.data.errors, key});
-      //   } else {
-      //     message.error({content: error.message, key});
-      //   }
-      // }
+      const key = 'loading';
+      try {
+        message.loading({
+          content: 'Menghapus data...',
+          key,
+        });
+        const response = await axios.delete(TIMELINES_API.delete(id), {
+          headers: config.headerConfig,
+        });
+        const result = response.data;
+        if (result.success) {
+          message.success({content: 'Data telah berhasil dihapus', key});
+          handleFetchTimelines();
+        } else {
+          throw new Error(result.errors);
+        }
+      } catch (error) {
+        if (error.response) {
+          message.error({content: error.response.data.errors, key});
+        } else {
+          message.error({content: error.message, key});
+        }
+      }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
@@ -209,6 +209,10 @@ function PeriodsPage(props: Props) {
     // setSelectedPosition(position);
     // setShowModal(true);
   }, []);
+
+  const handleClickEdit = (id: string) => {
+    history.push(`/periods/edit/${id}`);
+  };
 
   const getColumnSearchProps = React.useCallback(
     (dataIndex) => ({
@@ -349,12 +353,15 @@ function PeriodsPage(props: Props) {
                   Liat Pelamar
                 </Link>
               </Button>
-              <Button size="small" type="link">
+              <Button
+                size="small"
+                type="link"
+                onClick={() => handleClickEdit(record.id)}>
                 Edit
               </Button>
               <Popconfirm
                 title="Apakah Anda yakin ingin menghapus data ini?"
-                onConfirm={() => {}}
+                onConfirm={() => handleConfirmDelete(record.id)}
                 onCancel={() => {}}
                 okText="Iya"
                 cancelText="Tidak">
@@ -367,7 +374,7 @@ function PeriodsPage(props: Props) {
         },
       },
     ],
-    []
+    [handleClickEdit, handleConfirmDelete]
   );
 
   const handleClickAddNew = () => {

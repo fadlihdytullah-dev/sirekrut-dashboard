@@ -515,12 +515,12 @@ function ApplicantsPage(props: Props) {
         title="Pelamar"
         rightContent={
           <View style={{width: '400px'}}>
-            <View flexDirection="row">
+            {/* <View flexDirection="row">
               <FormInput placeholder="Pencarian berdasarkan nama" />
               <View marginLeft={8}>
                 <Button type="primary">Cari</Button>
               </View>
-            </View>
+            </View> */}
           </View>
         }></Header>
 
