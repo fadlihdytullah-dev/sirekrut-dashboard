@@ -1,6 +1,6 @@
 // @flow
 import * as React from 'react';
-import {useHistory} from 'react-router-dom';
+import {useHistory, Link} from 'react-router-dom';
 import {AppContext} from '../../contexts/AppContext';
 // import AddModal from './components/AddModal';
 import Header from '../../components/commons/Header';
@@ -21,7 +21,7 @@ import {
 import {SearchOutlined} from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
 import axios from 'axios';
-import {TIMELINES_API, config} from '../config';
+import {TIMELINES_API, POSITIONS_API, config} from '../config';
 
 import {getColumnSortProps, capitalize, formatDate} from './../Utils';
 
@@ -47,13 +47,10 @@ const generatePositionList = (
 function PeriodsPage(props: Props) {
   const {appState, dispatchApp} = React.useContext(AppContext);
   const [selectedPosition, setSelectedPosition] = React.useState(null);
-
   const [showModal, setShowModal] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-
   const [searchText, setSearchText] = React.useState('');
   const [searchedColumn, setSearchedColumn] = React.useState('');
-
   const history = useHistory();
 
   const handleFetchTimelines = async () => {
@@ -62,6 +59,7 @@ function PeriodsPage(props: Props) {
 
       const response = await axios.get(TIMELINES_API.getAll);
       const result = response.data;
+      console.log(result.data);
 
       if (result.success) {
         console.log(result.data, 'TRASDSADSADSAD');
@@ -322,11 +320,35 @@ function PeriodsPage(props: Props) {
         },
       },
       {
+        // title: 'Total Pelamar',
+        // dataIndex: 'endDate',
+        // key: 'endDate',
+        // render: (endDate) => {
+        //   return <span>23</span>;
+        // },
+      },
+      {
         title: 'Aksi',
         key: 'action',
         render: (record) => {
           return (
             <span>
+              <Button size="small" type="dashed">
+                <Link
+                  to={{
+                    pathname: '/applicant',
+                    state: {
+                      data: {
+                        periodID: record.id,
+                        periodName: record.title,
+                        endDate: record.endDate,
+                        startDate: record.startDate,
+                      },
+                    },
+                  }}>
+                  Liat Pelamar
+                </Link>
+              </Button>
               <Button size="small" type="link">
                 Edit
               </Button>

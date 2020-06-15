@@ -12,7 +12,8 @@ export const capitalize = (str: string) => {
 
 export const formatDate = (isoDate: string): string => {
   const d = new Date(isoDate);
-  return d.toLocaleDateString('id-ID');
+  var options = {year: 'numeric', month: 'long', day: 'numeric'};
+  return d.toLocaleDateString('id-ID', options);
 };
 
 export const getColumnSortProps = (

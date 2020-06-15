@@ -1,116 +1,32 @@
 // @flow
 import * as React from 'react';
 import Header from '../../components/commons/Header';
-import {Button, Table, Skeleton, message} from 'antd';
+import {Button, Table, Skeleton, message, Select, Popconfirm} from 'antd';
 import FormInput from '../../components/shared/FormInput';
 import View from '../../components/shared/View';
 import ApplicantModalDataView from './components/ApplicantModalDataView';
 import ApplicantInputModal from './components/ApplicantInputModal';
-import {EditOutlined} from '@ant-design/icons';
-import {useHistory} from 'react-router-dom';
+import {EditOutlined, SaveOutlined} from '@ant-design/icons';
+import {useLocation} from 'react-router-dom';
 import {AppContext} from '../../contexts/AppContext';
 import axios from 'axios';
-import {SUBMISSONS_API, POSITIONS_API, config} from '../config';
+import {SUBMISSONS_API, TIMELINES_API, POSITIONS_API, config} from '../config';
 
 type Props = {};
+const {Option} = Select;
 
-const data = [
-  {
-    id: 'FLBTLgVnp1M6RMwU4ZzN',
-    fullName: 'Darijo Aurelya',
-    _360Score: 0,
-    status: 0,
-    lastEducation: 'S2',
-    cvFile: null,
-    email: 'ainayy@gmail.com',
-    address: 'Jl. Bingo',
-    toeflFile: null,
-    dateOfBirth: '20 January 2001',
-    profilePicture: '',
-    score: {
-      psikotesScore: 0,
-      interviewScore: 0,
-      academicScore: 0,
-    },
-    _360File: null,
-    phoneNumber: '082232322323',
-    toeflScore: 488,
-    passed: false,
-    gender: 'Perempuan',
-    createdAt: '2020-06-03T06:14:07.615Z',
-    originFrom: 'Sumedang',
-    positionId: 'hEXMsoTDcTvMufy7UaBg',
-  },
-  {
-    id: 'ZE6wlxdYqE0XuJeTZ8Xt',
-    status: 0,
-    lastEducation: 'S2',
-    cvFile: null,
-    email: 'ainayy@gmail.com',
-    address: 'Jl. Bingo',
-    toeflFile: null,
-    dateOfBirth: '20 January 2001',
-    profilePicture: '',
-    score: {
-      psikotesScore: 0,
-      interviewScore: 0,
-      academicScore: 0,
-    },
-    _360File: null,
-    phoneNumber: '082232322323',
-    toeflScore: 488,
-    passed: false,
-    gender: 'Perempuan',
-    createdAt: '2020-06-03T06:14:00.151Z',
-    originFrom: 'Sumedang',
-    positionId: 'hEXMsoTDcTvMufy7UaBg',
-    fullName: 'Kuncoro Aurelya',
-    _360Score: 0,
-  },
-  {
-    id: 'YQjyu77bTspGbeZZk7pH',
-    lastEducation: 'S2',
-    cvFile: null,
-    email: 'ainayy@gmail.com',
-    address: 'Jl. Bingo',
-    toeflFile: null,
-    dateOfBirth: '20 January 2001',
-    profilePicture: '',
-    score: {
-      interviewScore: 0,
-      academicScore: 0,
-      psikotesScore: 0,
-    },
-    _360File: null,
-    phoneNumber: '082232322323',
-    toeflScore: 488,
-    passed: false,
-    gender: 'Perempuan',
-    createdAt: '2020-06-03T06:13:42.585Z',
-    originFrom: 'Sumedang',
-    positionId: 'hEXMsoTDcTvMufy7UaBg',
-    fullName: 'Xsss Aurelya',
-    _360Score: 0,
-    status: 0,
-  },
-];
-
-// rowSelection object indicates the need for row selection
-const rowSelection = {
-  onChange: (selectedRowKeys, selectedRows) => {
-    console.log(
-      `selectedRowKeys: ${selectedRowKeys}`,
-      'selectedRows: ',
-      selectedRows
-    );
-  },
-  getCheckboxProps: (record) => ({
-    name: record.name,
-  }),
-};
+const initScore = () => ({
+  interviewScore: 0,
+  academicScore: 0,
+  psikotesScore: 0,
+});
 
 function ApplicantsPage(props: Props) {
   const {appState, dispatchApp} = React.useContext(AppContext);
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [selectUser, setSelectUser] = React.useState([]);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [score, setScore] = React.useState(initScore());
   const [activeTab, setActiveTab] = React.useState<
     | 'APPLLICANTS'
     | 'ACADEMIC_SCORE'
@@ -121,6 +37,159 @@ function ApplicantsPage(props: Props) {
   const [showModal, setShowModal] = React.useState(false);
   const [showModalInput, setShowModalInput] = React.useState(false);
   const [singleData, setSingleData] = React.useState({});
+
+  const location = useLocation();
+
+  // rowSelection object indicates the need for row selection
+  const rowSelection = {
+    onChange: (selectedRowKeys, selectedRows) => {
+      setSelectUser(selectedRowKeys);
+      console.log(
+        `selectedRowKeys: ${selectedRowKeys}`,
+        'selectedRows: ',
+        selectedRows
+      );
+    },
+    getCheckboxProps: (record) => {
+      return {
+        fullName: record.fullName,
+      };
+    },
+  };
+
+  const handleChangeInput = (event) => {
+    const name = event.target && event.target.name;
+    const value = event.target && event.target.value;
+
+    setScore((state) => ({
+      ...state,
+      [name]: parseInt(value),
+    }));
+  };
+
+  const handleUpdateStatus = async (statusId) => {
+    try {
+      const data = {
+        applicants: [],
+        updatedStatus: statusId,
+      };
+      setIsSubmitting(true);
+      const URL = SUBMISSONS_API.updateStatus;
+      const method = 'PUT';
+      const response = await axios[method](URL, data, {
+        headers: config.headerConfig,
+      });
+      const result = response.data;
+      if (result.success) {
+        message.success(`Data telah berhasil diperbarui `);
+      } else {
+        throw new Error(result.errors);
+      }
+    } catch (error) {
+      if (error.response) {
+        message.error(error.response.data.errors);
+      } else {
+        message.error(error.message);
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleSubmit = async (id) => {
+    try {
+      const scoreData = {
+        score,
+      };
+      setIsSubmitting(true);
+      const URL = SUBMISSONS_API.update(id);
+      const method = 'put';
+      const response = await axios[method](URL, scoreData, {
+        headers: config.headerConfig,
+      });
+      const result = response.data;
+
+      if (result.success) {
+        message.success(`Data telah berhasil diperbarui `);
+      } else {
+        throw new Error(result.errors);
+      }
+    } catch (error) {
+      if (error.response) {
+        message.error(error.response.data.errors);
+      } else {
+        message.error(error.message);
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleUpdateStatusApplicant = async (statusID) => {
+    try {
+      const data = {
+        applicants: selectUser,
+        updatedStatus: statusID,
+      };
+      setIsSubmitting(true);
+      const URL = SUBMISSONS_API.updateStatus;
+      const method = 'put';
+      const response = await axios[method](URL, data, {
+        headers: config.headerConfig,
+      });
+      const result = response.data;
+      if (result.success) {
+        message.success(`Data telah berhasil diperbarui `);
+        handleFetchSubmissions(0);
+      } else {
+        throw new Error(result.errors);
+      }
+    } catch (error) {
+      if (error.response) {
+        message.error(error.response.data.errors);
+      } else {
+        message.error(error.message);
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+  const buttonEditScore = (record, scoreTitle) => {
+    let disabled;
+    if (isEditing) {
+      if (!record.isEditing[scoreTitle]) {
+        disabled = true;
+      }
+    }
+
+    return (
+      <Button
+        type="primary"
+        icon={
+          record.isEditing[scoreTitle] ? <SaveOutlined /> : <EditOutlined />
+        }
+        size={'small'}
+        disabled={disabled}
+        onClick={() => {
+          setIsEditing(!isEditing);
+          const indexNumber = appState.submissions.findIndex(
+            (data) => data.id === record.id
+          );
+          if (record.isEditing[scoreTitle]) {
+            handleSubmit(record.id);
+            editScore(indexNumber, false, scoreTitle, score[scoreTitle]);
+            setScore((state) => ({
+              interviewScore: 0,
+              academicScore: 0,
+              psikotesScore: 0,
+            }));
+          } else {
+            editScore(indexNumber, true, scoreTitle, record.score[scoreTitle]);
+          }
+        }}
+      />
+    );
+  };
 
   let columns = [];
 
@@ -161,14 +230,23 @@ function ApplicantsPage(props: Props) {
             type="link"
             style={{display: 'inline-block'}}
             onClick={() => {
-              console.log(record, 'ini single data');
-              setShowModalInput(true);
-              setSingleData(record);
+              console.log(record);
             }}>
-            0
+            {record.isEditing['academicScore'] ? (
+              <input
+                type="text"
+                name="academicScore"
+                style={{width: '30px'}}
+                onChange={handleChangeInput}
+                defaultValue={record.score.academicScore}
+              />
+            ) : (
+              record.score.academicScore
+            )}
           </Button>
-          <input type="text" value={0} style={{display: 'none'}} />
-          <EditOutlined />
+          {activeTab === 'ACADEMIC_SCORE'
+            ? buttonEditScore(record, 'academicScore')
+            : null}
         </span>
       );
     },
@@ -180,16 +258,22 @@ function ApplicantsPage(props: Props) {
     render: (record) => {
       return (
         <span>
-          <Button
-            size="small"
-            type="link"
-            onClick={() => {
-              console.log(record, 'ini single data');
-              setShowModalInput(true);
-              setSingleData(record);
-            }}>
-            0
+          <Button size="small" type="link">
+            {record.isEditing['psikotesScore'] ? (
+              <input
+                type="text"
+                name="psikotesScore"
+                style={{width: '30px'}}
+                onChange={handleChangeInput}
+                defaultValue={record.score.psikotesScore}
+              />
+            ) : (
+              record.score.psikotesScore
+            )}
           </Button>
+          {activeTab === 'PSIKOTEST_SCORE'
+            ? buttonEditScore(record, 'psikotesScore')
+            : null}
         </span>
       );
     },
@@ -201,9 +285,22 @@ function ApplicantsPage(props: Props) {
     render: (record) => {
       return (
         <span>
-          <Button size="small" type="link" onClick={() => {}}>
-            0
+          <Button size="small" type="link">
+            {record.isEditing['interviewScore'] ? (
+              <input
+                type="text"
+                name="interviewScore"
+                style={{width: '30px'}}
+                onChange={handleChangeInput}
+                defaultValue={record.score.interviewScore}
+              />
+            ) : (
+              record.score.interviewScore
+            )}
           </Button>
+          {activeTab === 'INTERVIEW_SCORE'
+            ? buttonEditScore(record, 'interviewScore')
+            : null}
         </span>
       );
     },
@@ -213,24 +310,116 @@ function ApplicantsPage(props: Props) {
     title: 'Kontrak',
     key: 'contract',
     render: (record) => {
-      return (
-        <span>
-          <Button size="small" type="link" onClick={() => {}}>
-            Menyetujui
-          </Button>
-          <Button size="small" type="link" danger onClick={() => {}}>
-            Menolak
-          </Button>
-        </span>
-      );
+      console.log(record.passed);
+      if (record.passed === 2) {
+        return (
+          <span>
+            <Button size="small" type="dashed">
+              Lulus
+            </Button>
+          </span>
+        );
+      }
+      if (record.passed === 1) {
+        return (
+          <span>
+            <Button size="small" type="dashed">
+              Tidak Lulus
+            </Button>
+          </span>
+        );
+      }
+      if (record.passed === 0) {
+        return (
+          <span>
+            <Popconfirm
+              title="Apakah Anda yakin ingin menyetujui pelamar ini?"
+              onConfirm={() => handleUpdateStatusAgreement(record.id, 2)}
+              onCancel={() => handleUpdateStatusAgreement(record.id, 1)}
+              okText="Iya"
+              cancelText="Tidak">
+              <Button size="small" type="link">
+                Konfirmasi
+              </Button>
+            </Popconfirm>
+          </span>
+        );
+      }
     },
   };
 
-  const handleFetchSubmissions = async (statusSubmission) => {
+  const editScore = (indexNumber, condition, scoreName, scoreValue) => {
+    dispatchApp({
+      type: 'SET_EDITING_SCORE_SUBMISSION',
+      payload: {indexNumber, condition, scoreName, scoreValue},
+    });
+  };
+
+  const handleUpdateStatusAgreement = async (idUser, idStatus) => {
+    try {
+      const data = {
+        id: idUser,
+        updatedStatus: idStatus,
+      };
+      setIsSubmitting(true);
+      const URL = SUBMISSONS_API.updateStatusAgreement;
+      const method = 'put';
+      const response = await axios[method](URL, data, {
+        headers: config.headerConfig,
+      });
+      const result = response.data;
+      if (result.success) {
+        message.success(`Data telah berhasil diperbarui`);
+        handleFetchSubmissions(3);
+      } else {
+        throw new Error(result.errors);
+      }
+    } catch (error) {
+      if (error.response) {
+        message.error(error.response.data.errors);
+      } else {
+        message.error(error.message);
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleFetchTimelines = async () => {
+    try {
+      dispatchApp({type: 'FETCH_TIMELINES_APPLICANT_INIT'});
+
+      const response = await axios.get(TIMELINES_API.getAll);
+      const result = response.data;
+
+      if (result.success) {
+        console.log(result.data, 'TRASDSADSADSAD');
+        dispatchApp({
+          type: 'FETCH_TIMELINES_APPLICANT_SUCCESS',
+          payload: {dataTimelines: result.data},
+        });
+      } else {
+        throw new Error(result.errors);
+      }
+    } catch (error) {
+      message.error(error.message);
+
+      dispatchApp({
+        type: 'FETCH_TIMELINES_APPLICANT_FAILURE',
+        payload: {error: error.message},
+      });
+    }
+  };
+  const handleFetchSubmissions = async (statusSubmission, idPeriode) => {
     try {
       dispatchApp({type: 'FETCH_SUBMISSIONS_INIT'});
-
-      const response = await axios.get(SUBMISSONS_API.getAll);
+      const response = await axios.get(
+        SUBMISSONS_API.getAll.concat(
+          `?filter=status&filterValue=${statusSubmission}${
+            idPeriode ? `&periode=${idPeriode}` : ''
+          }`
+        )
+      );
       const result = response.data;
 
       if (result.success) {
@@ -239,7 +428,16 @@ function ApplicantsPage(props: Props) {
             const res = await axios.get(
               POSITIONS_API.getSingle(dat.positionId)
             );
-            const item = {...dat, positionName: res.data.data.name};
+            const item = {
+              ...dat,
+              positionName: res.data.data.name,
+              key: dat.id,
+              isEditing: {
+                interviewScore: false,
+                academicScore: false,
+                psikotesScore: false,
+              },
+            };
             return item;
           });
           const promiseDone = Promise.all(data);
@@ -286,10 +484,29 @@ function ApplicantsPage(props: Props) {
 
   React.useEffect(
     () => {
-      // handleFetchSubmissions(0);
+      handleFetchTimelines();
+      let query = null;
+      if (location.state && location.state.data) {
+        query = location.state.data.periodID;
+      }
+      if (activeTab === 'APPLLICANTS') {
+        handleFetchSubmissions(0, query);
+      }
+      if (activeTab === 'ACADEMIC_SCORE') {
+        handleFetchSubmissions(1, query);
+      }
+      if (activeTab === 'PSIKOTEST_SCORE') {
+        handleFetchSubmissions(2, query);
+      }
+      if (activeTab === 'INTERVIEW_SCORE') {
+        handleFetchSubmissions(3, query);
+      }
+      if (activeTab === 'AGREEMENT') {
+        handleFetchSubmissions(3, query);
+      }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [activeTab]
   );
 
   return (
@@ -305,8 +522,8 @@ function ApplicantsPage(props: Props) {
               </View>
             </View>
           </View>
-        }
-      />
+        }></Header>
+
       <ApplicantModalDataView
         dataBiodata={singleData}
         visible={showModal}
@@ -320,7 +537,52 @@ function ApplicantsPage(props: Props) {
         onClose={() => setShowModalInput(false)}
       />
 
-      <View marginY={24} style={{width: '600px'}}>
+      <View marginY={24}>
+        <Select
+          defaultValue={location.state ? location.state.data.periodID : 'ALL'}
+          style={{width: '400px'}}
+          placeholder="Pilih Periode"
+          onChange={(idPeriode) => {
+            if (idPeriode === 'ALL') {
+              if (activeTab === 'APPLLICANTS') {
+                handleFetchSubmissions(0, null);
+              }
+              if (activeTab === 'ACADEMIC_SCORE') {
+                handleFetchSubmissions(1, null);
+              }
+              if (activeTab === 'PSIKOTEST_SCORE') {
+                handleFetchSubmissions(2, null);
+              }
+              if (activeTab === 'INTERVIEW_SCORE') {
+                handleFetchSubmissions(3, null);
+              }
+              if (activeTab === 'AGREEMENT') {
+                handleFetchSubmissions(3, null);
+              }
+            }
+            if (activeTab === 'APPLLICANTS')
+              handleFetchSubmissions(0, idPeriode === 'ALL' ? null : idPeriode);
+
+            if (activeTab === 'ACADEMIC_SCORE')
+              handleFetchSubmissions(1, idPeriode === 'ALL' ? null : idPeriode);
+
+            if (activeTab === 'PSIKOTEST_SCORE')
+              handleFetchSubmissions(2, idPeriode === 'ALL' ? null : idPeriode);
+
+            if (activeTab === 'INTERVIEW_SCORE')
+              handleFetchSubmissions(3, idPeriode === 'ALL' ? null : idPeriode);
+
+            if (activeTab === 'AGREEMENT')
+              handleFetchSubmissions(3, idPeriode === 'ALL' ? null : idPeriode);
+          }}
+          name="lastEducation">
+          <Option value="ALL">Semua periode</Option>
+          {appState.dataTimelines.map((data) => (
+            <Option value={data.id}>{data.title}</Option>
+          ))}
+        </Select>
+      </View>
+      <View marginY={14} style={{width: '600px'}}>
         <Button
           type={activeTab === 'APPLLICANTS' ? 'dashed' : 'link'}
           onClick={() => setActiveTab('APPLLICANTS')}>
@@ -350,28 +612,45 @@ function ApplicantsPage(props: Props) {
 
       <View>
         <View marginBottom={16}>
-          <Button>Proses ke tahap selanjutnya</Button>
+          {activeTab !== 'AGREEMENT' ? (
+            <Button
+              onClick={() => {
+                let status = 0;
+                if (activeTab === 'APPLLICANTS') {
+                  status = 1;
+                }
+                if (activeTab === 'ACADEMIC_SCORE') {
+                  status = 2;
+                }
+                if (activeTab === 'PSIKOTEST_SCORE') {
+                  status = 3;
+                }
+                if (activeTab === 'INTERVIEW_SCORE') {
+                  status = 4;
+                }
+                handleUpdateStatusApplicant(status);
+              }}>
+              Proses ke tahap selanjutnya
+            </Button>
+          ) : null}
         </View>
 
         {appState.loading ? (
           <Skeleton />
         ) : (
           <Table
-            // onRow={(record, rowIndex) => {
-            //   return {
-            //     onClick: (event) => {
-            //       setSingleData(record);
-            //       setShowModal(true);
-            //     },
-            //   };
-            // }}
+            onRow={(record, rowIndex) => {
+              return {
+                onClick: (event) => {},
+              };
+            }}
             rowSelection={{
               type: 'checkbox',
               ...rowSelection,
             }}
             columns={columns}
-            dataSource={data}
-            // dataSource={appState.submissions}
+            // dataSource={data}
+            dataSource={appState.submissions}
           />
         )}
       </View>

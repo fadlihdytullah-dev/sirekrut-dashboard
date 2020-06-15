@@ -1,13 +1,12 @@
 // @flow
 import * as React from 'react';
-
 import type {StudyProgramType} from './../../../types/App.flow';
-
-import {Modal, Button} from 'antd';
+import axios from 'axios';
+import {Modal, Button, message} from 'antd';
 import FormInput from '../../../components/shared/FormInput';
 import FormInputSelect from '../../../components/shared/FormInputSelect';
 import View from '../../../components/shared/View';
-import {config} from '../../config';
+import {AUTH_API, config} from '../../config';
 import {isEmpty} from '../../Utils';
 
 type Props = {
@@ -18,8 +17,16 @@ type Props = {
   onClose: () => void,
 };
 
-function AddModal({visible, admin, isSubmitting, onSubmit, onClose}: Props) {
-  const [name, setName] = React.useState('');
+const initFormData = () => ({
+  nip: '',
+
+  email: '',
+  password: '',
+  confirmPassword: '',
+});
+
+function AddModal({visible, isSubmitting, admin, onSubmit, onClose}: Props) {
+  const [formData, setFormData] = React.useState(initFormData);
   const [errorName, setErrorName] = React.useState('');
 
   const [degree, setDegree] = React.useState('');
@@ -37,12 +44,18 @@ function AddModal({visible, admin, isSubmitting, onSubmit, onClose}: Props) {
   //   }
   // }, [studyProgram]);
 
-  const handleChangeName = (event: SyntheticInputEvent<>) => {
-    setName(event && event.target.value);
+  const handleChangeName = (event) => {
+    const name = event.target && event.target.name;
+    const value = event.target && event.target.value;
+
+    setFormData((state) => ({
+      ...state,
+      [name]: value,
+    }));
   };
 
-  const handleChangeDegree = (value: string) => {
-    setDegree(value);
+  const handleSubmit = () => {
+    onSubmit(formData);
   };
 
   const validation = () => {
@@ -50,7 +63,7 @@ function AddModal({visible, admin, isSubmitting, onSubmit, onClose}: Props) {
 
     resetError();
 
-    if (isEmpty(name)) {
+    if (isEmpty(formData.name)) {
       setErrorName('Nama tidak boleh kosong');
 
       isValid = false;
@@ -71,26 +84,28 @@ function AddModal({visible, admin, isSubmitting, onSubmit, onClose}: Props) {
   };
 
   const resetState = () => {
-    setName('');
+    setFormData('');
     setDegree('');
   };
 
-  const handleSubmit = () => {
-    // if (!validation()) {
-    //   return;
-    // }
-    // const isEdit = !!studyProgram;
-    // const data = {
-    //   name,
-    //   degree,
-    // };
-    // if (studyProgram) {
-    //   data.id = studyProgram.id;
-    // }
-    // onSubmit(data, isEdit);
-  };
+  // const handleSubmit = () => {
+  //   // if (!validation()) {
+  //   //   return;
+  //   // }
+  //   // const isEdit = !!studyProgram;
+  //   // const data = {
+  //   //   name,
+  //   //   degree,
+  //   // };
+  //   // if (studyProgram) {
+  //   //   data.id = studyProgram.id;
+  //   // }
+  //   // onSubmit(data, isEdit);
+  // };
 
-  const handleClose = () => onClose();
+  const handleClose = () => {
+    onClose();
+  };
 
   return (
     <Modal
@@ -98,6 +113,7 @@ function AddModal({visible, admin, isSubmitting, onSubmit, onClose}: Props) {
       visible={visible}
       title="Tambah Admin"
       okText="Submit"
+      afterClose={() => setFormData(initFormData())}
       footer={[
         <Button
           key="submit"
@@ -114,7 +130,8 @@ function AddModal({visible, admin, isSubmitting, onSubmit, onClose}: Props) {
         <FormInput
           isRequired
           label="NIP"
-          value={name}
+          name="nip"
+          value={formData.nip}
           error={errorName}
           onChange={handleChangeName}
         />
@@ -124,7 +141,8 @@ function AddModal({visible, admin, isSubmitting, onSubmit, onClose}: Props) {
         <FormInput
           isRequired
           label="Nama"
-          value={name}
+          name="name"
+          value={formData.name}
           error={errorName}
           onChange={handleChangeName}
         />
@@ -134,7 +152,8 @@ function AddModal({visible, admin, isSubmitting, onSubmit, onClose}: Props) {
         <FormInput
           isRequired
           label="Email"
-          value={name}
+          name="email"
+          value={formData.email}
           error={errorName}
           onChange={handleChangeName}
         />
@@ -147,7 +166,8 @@ function AddModal({visible, admin, isSubmitting, onSubmit, onClose}: Props) {
           }}
           isRequired
           label="Password"
-          value={name}
+          value={formData.password}
+          name="password"
           error={errorName}
           onChange={handleChangeName}
         />
@@ -160,7 +180,8 @@ function AddModal({visible, admin, isSubmitting, onSubmit, onClose}: Props) {
           }}
           isRequired
           label="Konfirmasi Password"
-          value={name}
+          value={formData.confirmPassword}
+          name="confirmPassword"
           error={errorName}
           onChange={handleChangeName}
         />

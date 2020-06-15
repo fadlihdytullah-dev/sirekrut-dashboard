@@ -10,9 +10,18 @@ export const POSITIONS_API = {
 };
 
 export const SUBMISSONS_API = {
-  getAll: `${LOCAL_BASE_URL}/submission`,
-  getSingle: (id: string) => `${LOCAL_BASE_URL}/submission/${id}`,
-  update: (id: string) => `${LOCAL_BASE_URL}/submission/${id}`,
+  getAll: `${BASE_URL}/submission`,
+  getSingle: (id: string) => `${BASE_URL}/submission/${id}`,
+  update: (id: string) => `${BASE_URL}/submission/${id}`,
+  updateStatus: `${BASE_URL}/submissions-update`,
+  updateStatusAgreement: `${BASE_URL}/submissions-update/agreement`,
+};
+
+export const AUTH_API = {
+  login: `${BASE_URL}/login`,
+  register: `${BASE_URL}/register`,
+  get: `${BASE_URL}/users`,
+  deleteUser: (idUser) => `${BASE_URL}/users/${idUser}`,
 };
 
 export const STUDY_PROGRAMS_API = {
@@ -24,8 +33,8 @@ export const STUDY_PROGRAMS_API = {
 };
 
 export const FORM_CONF_API = {
-  getConfig: `${LOCAL_BASE_URL}/forms-conf`,
-  update: `${LOCAL_BASE_URL}/forms/conf`,
+  getConfig: `${BASE_URL}/forms-conf`,
+  update: `${BASE_URL}/forms/conf`,
 };
 
 export const TIMELINES_API = {
@@ -36,8 +45,7 @@ export const TIMELINES_API = {
   delete: (id: string) => `${BASE_URL}/study_programs/${id}`,
 };
 
-const AUTH_TOKEN =
-  'eyJhbGciOiJSUzI1NiIsImtpZCI6Ijc0Mzg3ZGUyMDUxMWNkNDgzYTIwZDIyOGQ5OTI4ZTU0YjNlZTBlMDgiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vc2ktcmVrcnV0IiwiYXVkIjoic2ktcmVrcnV0IiwiYXV0aF90aW1lIjoxNTkxMzQxMjQ4LCJ1c2VyX2lkIjoidlRPdFBDdjY1MVN2Uk1oVnlYTUNkMVFNUEdzMiIsInN1YiI6InZUT3RQQ3Y2NTFTdlJNaFZ5WE1DZDFRTVBHczIiLCJpYXQiOjE1OTEzNDEyNDgsImV4cCI6MTU5MTM0NDg0OCwiZW1haWwiOiJmYWRsaUBnbWFpbC5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZW1haWwiOlsiZmFkbGlAZ21haWwuY29tIl19LCJzaWduX2luX3Byb3ZpZGVyIjoicGFzc3dvcmQifX0.cxNWwQeH4NYJtZlPRAT8e6Rp89PPA9ZZ8tRwqFxLXjn2BZ_0EY90ZkLrWA0EaQFjN9L7ix8ellcXoNFdvvqFcOQr45C7uaB_FvD9_vyW_rIYJAyA79Livfq8k_vGjdpU9Phqpt5aiNiecfJIKD3f_C-ApIwTbUSeWI6c_jlkvGjsCSLtUWYyAdcVby6oaTEmFCFhMc2eN1HeeUomJWkwrHPUCDivaVs1ym4uia6IzBBsCuMxo4PuwW0k7WZ2R1rwlGaqSSVH80f51mQ-dnK70wf3BJXKg-yTxbu-PVad5ViZeMNS61FMNyTa4NryPnctjN_to4bMX3RIHkgwlJqIzg';
+const AUTH_TOKEN = localStorage.getItem('token');
 
 export const config = {
   headerConfig: {

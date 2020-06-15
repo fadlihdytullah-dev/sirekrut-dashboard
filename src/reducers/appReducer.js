@@ -23,15 +23,75 @@ type Action = {
 
 export const initState = {
   loading: false,
+  isLogin: false,
   error: null,
   studyPrograms: [],
   submissions: [],
+  users: [],
   dataTimelines: [],
   positions: [],
 };
 
 const appReducer = (state: State, action: Action): State => {
   switch (action.type) {
+    case 'SET_LOGOUT': {
+      return {
+        ...state,
+        isLogin: false,
+      };
+    }
+    case 'FETCH_USERS_INIT': {
+      return {
+        ...state,
+        loading: true,
+      };
+    }
+
+    case 'FETCH_USERS_SUCCESS': {
+      return {
+        ...state,
+        users: action.payload.users,
+        loading: false,
+        error: null,
+      };
+    }
+
+    case 'FETCH_USERS_FAILURE': {
+      console.log('❌ error:=', action.payload.error);
+
+      return {
+        ...state,
+        loading: false,
+        error: action.payload.error,
+      };
+    }
+
+    case 'USER_LOGIN_INIT': {
+      return {
+        ...state,
+        loading: true,
+      };
+    }
+
+    case 'USER_LOGIN_SUCCESS': {
+      return {
+        ...state,
+        isLogin: true,
+        loading: false,
+        error: null,
+      };
+    }
+
+    case 'USER_LOGIN_FAILURE': {
+      console.log('❌ error:=', action.payload.error);
+
+      return {
+        ...state,
+        isLogin: false,
+        loading: false,
+        error: action.payload.error,
+      };
+    }
     case 'FETCH_TIMELINES_INIT': {
       return {
         ...state,
@@ -54,6 +114,31 @@ const appReducer = (state: State, action: Action): State => {
       return {
         ...state,
         loading: false,
+        error: action.payload.error,
+      };
+    }
+
+    case 'FETCH_TIMELINES_APPLICANT_INIT': {
+      return {
+        ...state,
+      };
+    }
+
+    case 'FETCH_TIMELINES_APPLICANT_SUCCESS': {
+      return {
+        ...state,
+        dataTimelines: action.payload.dataTimelines,
+
+        error: null,
+      };
+    }
+
+    case 'FETCH_TIMELINES_APPLICANT_FAILURE': {
+      console.log('❌ error:=', action.payload.error);
+
+      return {
+        ...state,
+
         error: action.payload.error,
       };
     }
@@ -119,6 +204,22 @@ const appReducer = (state: State, action: Action): State => {
       return {
         ...state,
         submissions: action.payload.submissions,
+        loading: false,
+        error: null,
+      };
+    }
+
+    case 'SET_EDITING_SCORE_SUBMISSION': {
+      state.submissions[action.payload.indexNumber].isEditing[
+        action.payload.scoreName
+      ] = action.payload.condition;
+      state.submissions[action.payload.indexNumber]['score'][
+        action.payload.scoreName
+      ] = action.payload.scoreValue;
+
+      return {
+        ...state,
+        submissions: state.submissions,
         loading: false,
         error: null,
       };

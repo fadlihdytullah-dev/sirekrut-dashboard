@@ -1,9 +1,12 @@
 import * as React from 'react';
-import {Form, Input, Button} from 'antd';
+import {Form, Input, Button, message} from 'antd';
 import styled from 'styled-components';
 import Header from '../../components/commons/Header';
 import AppHeader from '../../components/layouts/AppHeader';
 import {useHistory} from 'react-router-dom';
+import {AppContext} from '../../contexts/AppContext';
+import {AUTH_API, config} from '../config';
+import axios from 'axios';
 
 type Props = {};
 
@@ -13,11 +16,57 @@ const LoginWrapper = styled.div`
   padding-top: 100px;
 `;
 
+const initFormData = () => ({
+  email: '',
+  password: '',
+});
+
 function Login(props: Props) {
   const history = useHistory();
+  const {appState, dispatchApp} = React.useContext(AppContext);
+  const [formData, setFormData] = React.useState(initFormData);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
+  const handleLogin = async () => {
+    try {
+      setIsSubmitting(true);
+      dispatchApp({type: 'USER_LOGIN_INIT'});
+
+      const URL = AUTH_API.login;
+      const response = await axios.post(URL, formData);
+      const result = response.data;
+      if (result.success) {
+        console.log(result.data, 'TRASDSADSADSAD');
+        localStorage.setItem('token', result.data.token);
+        localStorage.setItem('isLogin', true);
+        dispatchApp({
+          type: 'USER_LOGIN_SUCCESS',
+        });
+        history.push('/');
+      } else {
+        throw new Error(result.errors);
+      }
+    } catch (error) {
+      message.error(error.message);
+      setIsSubmitting(false);
+      dispatchApp({
+        type: 'USER_LOGIN_FAILURE',
+        payload: {error: error.message},
+      });
+    }
+  };
   const onFinish = (values) => {
     console.log('Success:', values);
+  };
+
+  const handleChangeInput = (event) => {
+    const name = event.target && event.target.name;
+    const value = event.target && event.target.value;
+
+    setFormData((state) => ({
+      ...state,
+      [name]: value,
+    }));
   };
 
   const onFinishFailed = (errorInfo) => {
@@ -29,17 +78,13 @@ function Login(props: Props) {
       <AppHeader backLink="/login" center />
       <LoginWrapper>
         <Header title="Silahkan Login" />
-        <Form
-          name="basic"
-          initialValues={{remember: true}}
-          onFinish={onFinish}
-          onFinishFailed={onFinishFailed}>
+        <Form name="basic" initialValues={{remember: true}}>
           <Form.Item
             style={{display: 'block'}}
             label="Email"
             name="email"
             rules={[{required: true, message: 'Please input your email!'}]}>
-            <Input />
+            <Input name="email" onChange={handleChangeInput} />
           </Form.Item>
 
           <Form.Item
@@ -47,10 +92,14 @@ function Login(props: Props) {
             label="Password"
             name="password"
             rules={[{required: true, message: 'Please input your password!'}]}>
-            <Input.Password />
+            <Input.Password name="password" onChange={handleChangeInput} />
           </Form.Item>
 
-          <Button type="primary" block onClick={() => history.push('/')}>
+          <Button
+            type="primary"
+            block
+            loading={isSubmitting}
+            onClick={handleLogin}>
             Submit
           </Button>
         </Form>
