@@ -21,7 +21,7 @@ export const AUTH_API = {
   login: `${BASE_URL}/login`,
   register: `${BASE_URL}/register`,
   get: `${BASE_URL}/users`,
-  deleteUser: (idUser) => `${BASE_URL}/users/${idUser}`,
+  deleteUser: (idUser) => `${LOCAL_BASE_URL}/users/${idUser}`,
 };
 
 export const STUDY_PROGRAMS_API = {
