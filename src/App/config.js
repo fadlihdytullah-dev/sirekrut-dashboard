@@ -10,18 +10,18 @@ export const POSITIONS_API = {
 };
 
 export const SUBMISSONS_API = {
-  getAll: `${LOCAL_BASE_URL}/submission`,
-  getSingle: (id: string) => `${LOCAL_BASE_URL}/submission/${id}`,
-  update: (id: string) => `${LOCAL_BASE_URL}/submission/${id}`,
-  updateStatus: `${LOCAL_BASE_URL}/submissions-update`,
-  updateStatusAgreement: `${LOCAL_BASE_URL}/submissions-update/agreement`,
+  getAll: `${BASE_URL}/submission`,
+  getSingle: (id: string) => `${BASE_URL}/submission/${id}`,
+  update: (id: string) => `${BASE_URL}/submission/${id}`,
+  updateStatus: `${BASE_URL}/submissions-update`,
+  updateStatusAgreement: `${BASE_URL}/submissions-update/agreement`,
 };
 
 export const AUTH_API = {
-  login: `${LOCAL_BASE_URL}/login`,
-  register: `${LOCAL_BASE_URL}/register`,
-  get: `${LOCAL_BASE_URL}/users`,
-  deleteUser: (idUser) => `${LOCAL_BASE_URL}/users/${idUser}`,
+  login: `${BASE_URL}/login`,
+  register: `${BASE_URL}/register`,
+  get: `${BASE_URL}/users`,
+  deleteUser: (idUser) => `${BASE_URL}/users/${idUser}`,
 };
 
 export const STUDY_PROGRAMS_API = {
@@ -33,8 +33,8 @@ export const STUDY_PROGRAMS_API = {
 };
 
 export const FORM_CONF_API = {
-  getConfig: `${LOCAL_BASE_URL}/forms-conf`,
-  update: `${LOCAL_BASE_URL}/forms/conf`,
+  getConfig: `${BASE_URL}/forms-conf`,
+  update: `${BASE_URL}/forms/conf`,
 };
 
 export const TIMELINES_API = {
