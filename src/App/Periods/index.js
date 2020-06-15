@@ -21,7 +21,7 @@ import {
 import {SearchOutlined} from '@ant-design/icons';
 import Highlighter from 'react-highlight-words';
 import axios from 'axios';
-import {TIMELINES_API, config} from '../config';
+import {TIMELINES_API, POSITIONS_API, config} from '../config';
 
 import {getColumnSortProps, capitalize, formatDate} from './../Utils';
 
@@ -59,6 +59,7 @@ function PeriodsPage(props: Props) {
 
       const response = await axios.get(TIMELINES_API.getAll);
       const result = response.data;
+      console.log(result.data);
 
       if (result.success) {
         console.log(result.data, 'TRASDSADSADSAD');
@@ -319,12 +320,12 @@ function PeriodsPage(props: Props) {
         },
       },
       {
-        title: 'Total Pelamar',
-        dataIndex: 'endDate',
-        key: 'endDate',
-        render: (endDate) => {
-          return <span>23</span>;
-        },
+        // title: 'Total Pelamar',
+        // dataIndex: 'endDate',
+        // key: 'endDate',
+        // render: (endDate) => {
+        //   return <span>23</span>;
+        // },
       },
       {
         title: 'Aksi',

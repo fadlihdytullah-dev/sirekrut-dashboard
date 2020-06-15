@@ -2,31 +2,44 @@
 import * as React from 'react';
 import Header from '../../components/commons/Header';
 import View from '../../components/shared/View';
-import {Button, Table, Popconfirm, message} from 'antd';
+import {Button, Table, Popconfirm, message, Skeleton} from 'antd';
 import {AUTH_API, config} from '../config';
 import axios from 'axios';
 import AddModal from './components/AddModal';
+import {AppContext} from '../../contexts/AppContext';
 
 type Props = {};
 
-const DATA_SOURCE = [
-  {
-    id: '1',
-    nip: '6711023',
-    name: 'Fadli Hidayatullah',
-    email: 'fadlihdytullah.dev@gmail.com',
-  },
-  {
-    id: '2',
-    nip: '9712324',
-    name: 'Nindy Haris Putri',
-    email: 'nindyharisputri@gmail.com',
-  },
-];
-
 function Admin(props: Props) {
+  const {appState, dispatchApp} = React.useContext(AppContext);
   const [showModal, setShowModal] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+  const handleFetchUser = async () => {
+    try {
+      dispatchApp({type: 'FETCH_USERS_INIT'});
+
+      const response = await axios.get(AUTH_API.get);
+      const result = response.data;
+
+      if (result.success) {
+        console.log(result.data, 'TRASDSADSADSAD');
+        dispatchApp({
+          type: 'FETCH_USERS_SUCCESS',
+          payload: {users: result.data},
+        });
+      } else {
+        throw new Error(result.errors);
+      }
+    } catch (error) {
+      message.error(error.message);
+
+      dispatchApp({
+        type: 'FETCH_USERS_FAILURE',
+        payload: {error: error.message},
+      });
+    }
+  };
 
   let columns = [
     {
@@ -47,12 +60,9 @@ function Admin(props: Props) {
       render: (record) => {
         return (
           <span>
-            <Button size="small" type="link" onClick={() => {}}>
-              Edit
-            </Button>
             <Popconfirm
               title="Apakah Anda yakin ingin menghapus data ini?"
-              onConfirm={() => {}}
+              onConfirm={() => handleDeleteUser(record.id)}
               onCancel={() => {}}
               okText="Iya"
               cancelText="Tidak">
@@ -65,6 +75,34 @@ function Admin(props: Props) {
       },
     },
   ];
+
+  const handleDeleteUser = async (idUser) => {
+    try {
+      setIsSubmitting(true);
+      const URL = AUTH_API.deleteUser(idUser);
+      const method = 'delete';
+      const response = await axios[method](URL, {
+        headers: config.headerConfig,
+      });
+      const result = response.data;
+
+      if (result.success) {
+        message.success(`Data telah berhasil dihapus `);
+
+        handleFetchUser();
+      } else {
+        throw new Error(result.errors);
+      }
+    } catch (error) {
+      if (error.response) {
+        message.error(error.response.data.errors);
+      } else {
+        message.error(error.message);
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleSubmit = async (data) => {
     try {
@@ -79,6 +117,7 @@ function Admin(props: Props) {
       if (result.success) {
         message.success(`Data telah berhasil diperbarui `);
         setShowModal(false);
+        handleFetchUser();
       } else {
         throw new Error(result.errors);
       }
@@ -92,6 +131,10 @@ function Admin(props: Props) {
       setIsSubmitting(false);
     }
   };
+
+  React.useEffect(() => {
+    handleFetchUser();
+  }, []);
 
   return (
     <React.Fragment>
@@ -118,17 +161,19 @@ function Admin(props: Props) {
       />
 
       <View marginTop={24}>
-        <Table
-          onRow={(record, rowIndex) => {
-            return {
-              onClick: (event) => {
-                setShowModal(true);
-              },
-            };
-          }}
-          columns={columns}
-          dataSource={DATA_SOURCE}
-        />
+        {appState.isLoading ? (
+          <Skeleton />
+        ) : (
+          <Table
+            onRow={(record, rowIndex) => {
+              return {
+                onClick: (event) => {},
+              };
+            }}
+            columns={columns}
+            dataSource={appState.users}
+          />
+        )}
       </View>
     </React.Fragment>
   );

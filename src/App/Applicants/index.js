@@ -1,7 +1,7 @@
 // @flow
 import * as React from 'react';
 import Header from '../../components/commons/Header';
-import {Button, Table, Skeleton, message, Select} from 'antd';
+import {Button, Table, Skeleton, message, Select, Popconfirm} from 'antd';
 import FormInput from '../../components/shared/FormInput';
 import View from '../../components/shared/View';
 import ApplicantModalDataView from './components/ApplicantModalDataView';
@@ -310,16 +310,41 @@ function ApplicantsPage(props: Props) {
     title: 'Kontrak',
     key: 'contract',
     render: (record) => {
-      return (
-        <span>
-          <Button size="small" type="link" onClick={() => {}}>
-            Menyetujui
-          </Button>
-          <Button size="small" type="link" danger onClick={() => {}}>
-            Menolak
-          </Button>
-        </span>
-      );
+      console.log(record.passed);
+      if (record.passed === 2) {
+        return (
+          <span>
+            <Button size="small" type="dashed">
+              Lulus
+            </Button>
+          </span>
+        );
+      }
+      if (record.passed === 1) {
+        return (
+          <span>
+            <Button size="small" type="dashed">
+              Tidak Lulus
+            </Button>
+          </span>
+        );
+      }
+      if (record.passed === 0) {
+        return (
+          <span>
+            <Popconfirm
+              title="Apakah Anda yakin ingin menyetujui pelamar ini?"
+              onConfirm={() => handleUpdateStatusAgreement(record.id, 2)}
+              onCancel={() => handleUpdateStatusAgreement(record.id, 1)}
+              okText="Iya"
+              cancelText="Tidak">
+              <Button size="small" type="link">
+                Konfirmasi
+              </Button>
+            </Popconfirm>
+          </span>
+        );
+      }
     },
   };
 
@@ -328,6 +353,36 @@ function ApplicantsPage(props: Props) {
       type: 'SET_EDITING_SCORE_SUBMISSION',
       payload: {indexNumber, condition, scoreName, scoreValue},
     });
+  };
+
+  const handleUpdateStatusAgreement = async (idUser, idStatus) => {
+    try {
+      const data = {
+        id: idUser,
+        updatedStatus: idStatus,
+      };
+      setIsSubmitting(true);
+      const URL = SUBMISSONS_API.updateStatusAgreement;
+      const method = 'put';
+      const response = await axios[method](URL, data, {
+        headers: config.headerConfig,
+      });
+      const result = response.data;
+      if (result.success) {
+        message.success(`Data telah berhasil diperbarui`);
+        handleFetchSubmissions(3);
+      } else {
+        throw new Error(result.errors);
+      }
+    } catch (error) {
+      if (error.response) {
+        message.error(error.response.data.errors);
+      } else {
+        message.error(error.message);
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleFetchTimelines = async () => {
@@ -488,20 +543,37 @@ function ApplicantsPage(props: Props) {
           style={{width: '400px'}}
           placeholder="Pilih Periode"
           onChange={(idPeriode) => {
-            if (idPeriode === 'ALL') handleFetchSubmissions(0);
+            if (idPeriode === 'ALL') {
+              if (activeTab === 'APPLLICANTS') {
+                handleFetchSubmissions(0, null);
+              }
+              if (activeTab === 'ACADEMIC_SCORE') {
+                handleFetchSubmissions(1, null);
+              }
+              if (activeTab === 'PSIKOTEST_SCORE') {
+                handleFetchSubmissions(2, null);
+              }
+              if (activeTab === 'INTERVIEW_SCORE') {
+                handleFetchSubmissions(3, null);
+              }
+              if (activeTab === 'AGREEMENT') {
+                handleFetchSubmissions(3, null);
+              }
+            }
             if (activeTab === 'APPLLICANTS')
-              handleFetchSubmissions(0, idPeriode);
+              handleFetchSubmissions(0, idPeriode === 'ALL' ? null : idPeriode);
 
             if (activeTab === 'ACADEMIC_SCORE')
-              handleFetchSubmissions(1, idPeriode);
+              handleFetchSubmissions(1, idPeriode === 'ALL' ? null : idPeriode);
 
             if (activeTab === 'PSIKOTEST_SCORE')
-              handleFetchSubmissions(2, idPeriode);
+              handleFetchSubmissions(2, idPeriode === 'ALL' ? null : idPeriode);
 
             if (activeTab === 'INTERVIEW_SCORE')
-              handleFetchSubmissions(3, idPeriode);
+              handleFetchSubmissions(3, idPeriode === 'ALL' ? null : idPeriode);
 
-            if (activeTab === 'AGREEMENT') handleFetchSubmissions(3, idPeriode);
+            if (activeTab === 'AGREEMENT')
+              handleFetchSubmissions(3, idPeriode === 'ALL' ? null : idPeriode);
           }}
           name="lastEducation">
           <Option value="ALL">Semua periode</Option>
@@ -540,25 +612,27 @@ function ApplicantsPage(props: Props) {
 
       <View>
         <View marginBottom={16}>
-          <Button
-            onClick={() => {
-              let status = 0;
-              if (activeTab === 'APPLLICANTS') {
-                status = 1;
-              }
-              if (activeTab === 'ACADEMIC_SCORE') {
-                status = 2;
-              }
-              if (activeTab === 'PSIKOTEST_SCORE') {
-                status = 3;
-              }
-              if (activeTab === 'INTERVIEW_SCORE') {
-                status = 4;
-              }
-              handleUpdateStatusApplicant(status);
-            }}>
-            Proses ke tahap selanjutnya
-          </Button>
+          {activeTab !== 'AGREEMENT' ? (
+            <Button
+              onClick={() => {
+                let status = 0;
+                if (activeTab === 'APPLLICANTS') {
+                  status = 1;
+                }
+                if (activeTab === 'ACADEMIC_SCORE') {
+                  status = 2;
+                }
+                if (activeTab === 'PSIKOTEST_SCORE') {
+                  status = 3;
+                }
+                if (activeTab === 'INTERVIEW_SCORE') {
+                  status = 4;
+                }
+                handleUpdateStatusApplicant(status);
+              }}>
+              Proses ke tahap selanjutnya
+            </Button>
+          ) : null}
         </View>
 
         {appState.loading ? (

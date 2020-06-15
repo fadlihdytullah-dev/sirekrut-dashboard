@@ -14,11 +14,14 @@ export const SUBMISSONS_API = {
   getSingle: (id: string) => `${LOCAL_BASE_URL}/submission/${id}`,
   update: (id: string) => `${LOCAL_BASE_URL}/submission/${id}`,
   updateStatus: `${LOCAL_BASE_URL}/submissions-update`,
+  updateStatusAgreement: `${LOCAL_BASE_URL}/submissions-update/agreement`,
 };
 
 export const AUTH_API = {
-  login: `${BASE_URL}/login`,
-  register: `${BASE_URL}/register`,
+  login: `${LOCAL_BASE_URL}/login`,
+  register: `${LOCAL_BASE_URL}/register`,
+  get: `${LOCAL_BASE_URL}/users`,
+  deleteUser: (idUser) => `${LOCAL_BASE_URL}/users/${idUser}`,
 };
 
 export const STUDY_PROGRAMS_API = {

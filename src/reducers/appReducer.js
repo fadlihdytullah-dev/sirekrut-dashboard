@@ -27,6 +27,7 @@ export const initState = {
   error: null,
   studyPrograms: [],
   submissions: [],
+  users: [],
   dataTimelines: [],
   positions: [],
 };
@@ -39,6 +40,32 @@ const appReducer = (state: State, action: Action): State => {
         isLogin: false,
       };
     }
+    case 'FETCH_USERS_INIT': {
+      return {
+        ...state,
+        loading: true,
+      };
+    }
+
+    case 'FETCH_USERS_SUCCESS': {
+      return {
+        ...state,
+        users: action.payload.users,
+        loading: false,
+        error: null,
+      };
+    }
+
+    case 'FETCH_USERS_FAILURE': {
+      console.log('❌ error:=', action.payload.error);
+
+      return {
+        ...state,
+        loading: false,
+        error: action.payload.error,
+      };
+    }
+
     case 'USER_LOGIN_INIT': {
       return {
         ...state,
@@ -90,6 +117,7 @@ const appReducer = (state: State, action: Action): State => {
         error: action.payload.error,
       };
     }
+
     case 'FETCH_TIMELINES_APPLICANT_INIT': {
       return {
         ...state,

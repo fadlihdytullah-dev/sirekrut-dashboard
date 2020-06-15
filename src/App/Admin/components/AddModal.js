@@ -19,7 +19,7 @@ type Props = {
 
 const initFormData = () => ({
   nip: '',
-  name: '',
+
   email: '',
   password: '',
   confirmPassword: '',

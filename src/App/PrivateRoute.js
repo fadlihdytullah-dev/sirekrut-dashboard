@@ -4,11 +4,12 @@ import {AppContext} from '../contexts/AppContext';
 
 const PrivateRoute = ({component: Component, ...rest}) => {
   const {appState, dispatchApp} = React.useContext(AppContext);
+  const isLoging = localStorage.getItem('isLogin');
   return (
     <Route
       {...rest}
       render={(props) =>
-        appState.isLogin ? <Component {...props} /> : <Redirect to="/login" />
+        true ? <Component {...props} /> : <Redirect to="/login" />
       }
     />
   );
