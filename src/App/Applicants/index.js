@@ -26,6 +26,8 @@ function ApplicantsPage(props: Props) {
   const [isEditing, setIsEditing] = React.useState(false);
   const [selectUser, setSelectUser] = React.useState([]);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [searchKeyword, setSearchKeyword] = React.useState('');
+  const [data, setData] = React.useState([]);
   const [score, setScore] = React.useState(initScore());
   const [activeTab, setActiveTab] = React.useState<
     | 'APPLLICANTS'
@@ -140,7 +142,11 @@ function ApplicantsPage(props: Props) {
       const result = response.data;
       if (result.success) {
         message.success(`Data telah berhasil diperbarui `);
-        handleFetchSubmissions(0);
+        if (activeTab === 'APPLLICANTS') handleFetchSubmissions(0);
+        if (activeTab === 'ACADEMIC_SCORE') handleFetchSubmissions(1);
+        if (activeTab === 'PSIKOTEST_SCORE') handleFetchSubmissions(2);
+        if (activeTab === 'INTERVIEW_SCORE') handleFetchSubmissions(3);
+        if (activeTab === 'AGREEMENT') handleFetchSubmissions(4);
       } else {
         throw new Error(result.errors);
       }
@@ -355,6 +361,14 @@ function ApplicantsPage(props: Props) {
     });
   };
 
+  const handleSearch = () => {
+    const newData = appState.submissions.filter((applicant) => {
+      return applicant.fullName == searchKeyword;
+    });
+    console.log(newData, 'this is new data');
+    setData(newData);
+  };
+
   const handleUpdateStatusAgreement = async (idUser, idStatus) => {
     try {
       const data = {
@@ -481,6 +495,9 @@ function ApplicantsPage(props: Props) {
   } else {
     columns = defaultColumns;
   }
+  React.useEffect(() => {
+    setData(appState.submissions);
+  }, [appState.submissions]);
 
   React.useEffect(
     () => {
@@ -502,7 +519,7 @@ function ApplicantsPage(props: Props) {
         handleFetchSubmissions(3, query);
       }
       if (activeTab === 'AGREEMENT') {
-        handleFetchSubmissions(3, query);
+        handleFetchSubmissions(4, query);
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -515,10 +532,30 @@ function ApplicantsPage(props: Props) {
         title="Pelamar"
         rightContent={
           <View style={{width: '400px'}}>
-            {/* <View flexDirection="row">
-              <FormInput placeholder="Pencarian berdasarkan nama" />
+            <View flexDirection="row">
+              <FormInput
+                value={searchKeyword}
+                onChange={(event) => {
+                  const name = event.target && event.target.name;
+                  const value = event.target && event.target.value;
+                  setSearchKeyword(value);
+                }}
+                placeholder="Pencarian berdasarkan nama"
+              />
               <View marginLeft={8}>
-                <Button type="primary">Cari</Button>
+                <Button onClick={handleSearch} type="primary">
+                  Cari
+                </Button>
+              </View>
+              <View marginLeft={8}>
+                <Button
+                  onClick={() => {
+                    setData(appState.submissions);
+                    setSearchKeyword('');
+                  }}
+                  type="default">
+                  Reset
+                </Button>
               </View>
             </View> */}
           </View>
@@ -650,7 +687,7 @@ function ApplicantsPage(props: Props) {
             }}
             columns={columns}
             // dataSource={data}
-            dataSource={appState.submissions}
+            dataSource={data}
           />
         )}
       </View>

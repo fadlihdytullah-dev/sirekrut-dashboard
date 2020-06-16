@@ -79,6 +79,11 @@ function Admin(props: Props) {
   const handleDeleteUser = async (idUser) => {
     try {
       setIsSubmitting(true);
+      const key = 'loading';
+      message.loading({
+        content: 'Menghapus data...',
+        key,
+      });
       const URL = AUTH_API.deleteUser(idUser);
       const method = 'delete';
       const response = await axios[method](URL, {

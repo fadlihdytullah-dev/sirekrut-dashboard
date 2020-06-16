@@ -1,17 +1,17 @@
 // @flow
 import * as React from 'react';
 import Header from '../../components/commons/Header';
-import moment from 'moment';
 import View from '../../components/shared/View';
 import FormInput from '../../components/shared/FormInput';
 import {Button, Typography, message} from 'antd';
 import styled from 'styled-components';
-import {capitalize} from '../Utils';
+import {capitalize, formatDate} from '../Utils';
 import AddPositionInput from './components/AddPositionInput';
 import {AppContext} from '../../contexts/AppContext';
 import {POSITIONS_API, TIMELINES_API, config} from '../config';
 import {useHistory, useParams} from 'react-router-dom';
 import axios from 'axios';
+import moment from 'moment';
 type Props = {};
 
 const FormWrapper = styled.div`
@@ -317,6 +317,7 @@ function AddPeriodInput(props: Props) {
             data={{
               positionsData: appState.positions,
             }}
+            defaultPosition={formData.title !== '' ? formData.positions : false}
             addData={(dataPositions) => {
               console.log(dataPositions, 'INI DATAPOSITIOn');
               setFormData((state) => ({

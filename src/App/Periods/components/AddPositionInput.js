@@ -14,7 +14,7 @@ type Props = {
   addData: any,
 };
 
-function AddPositionInput({data, addData, positions}: Props) {
+function AddPositionInput({data, addData, positions, defaultPosition}: Props) {
   const [quota, setQuota] = React.useState(1);
   const [positionID, setPositionID] = React.useState(undefined);
   const [name, setName] = React.useState(undefined);
