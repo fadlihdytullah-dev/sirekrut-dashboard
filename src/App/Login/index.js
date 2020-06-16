@@ -47,7 +47,7 @@ function Login(props: Props) {
         throw new Error(result.errors);
       }
     } catch (error) {
-      message.error(error.message);
+      message.error('Username atau password salah');
       setIsSubmitting(false);
       dispatchApp({
         type: 'USER_LOGIN_FAILURE',
