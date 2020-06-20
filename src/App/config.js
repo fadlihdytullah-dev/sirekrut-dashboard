@@ -18,7 +18,7 @@ export const SUBMISSONS_API = {
 };
 
 export const AUTH_API = {
-  login: `${BASE_URL}/login`,
+  login: `${LOCAL_BASE_URL}/login`,
   register: `${BASE_URL}/register`,
   get: `${BASE_URL}/users`,
   deleteUser: (idUser) => `${LOCAL_BASE_URL}/users/${idUser}`,
