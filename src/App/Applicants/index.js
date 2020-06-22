@@ -39,7 +39,7 @@ function ApplicantsPage(props: Props) {
   const [showModal, setShowModal] = React.useState(false);
   const [showModalInput, setShowModalInput] = React.useState(false);
   const [singleData, setSingleData] = React.useState({});
-
+  const regexPhone = /^[0-9]*$/;
   const location = useLocation();
 
   // rowSelection object indicates the need for row selection
@@ -60,13 +60,23 @@ function ApplicantsPage(props: Props) {
   };
 
   const handleChangeInput = (event) => {
+    // const value = event.target && event.target.value;
+
+    // if (regexPhone.test(value)) {
+    //   setFormData((state) => ({
+    //     ...state,
+    //     nip: value,
+    //   }));
+    // }
     const name = event.target && event.target.name;
     const value = event.target && event.target.value;
-
-    setScore((state) => ({
-      ...state,
-      [name]: parseInt(value),
-    }));
+    if (regexPhone.test(value)) {
+      console.log('ANJAYY');
+      setScore((state) => ({
+        ...state,
+        [name]: parseInt(value),
+      }));
+    }
   };
 
   const handleUpdateStatus = async (statusId) => {
@@ -240,7 +250,7 @@ function ApplicantsPage(props: Props) {
             }}>
             {record.isEditing['academicScore'] ? (
               <input
-                type="text"
+                type="number"
                 name="academicScore"
                 style={{width: '30px'}}
                 onChange={handleChangeInput}
@@ -267,7 +277,7 @@ function ApplicantsPage(props: Props) {
           <Button size="small" type="link">
             {record.isEditing['psikotesScore'] ? (
               <input
-                type="text"
+                type="number"
                 name="psikotesScore"
                 style={{width: '30px'}}
                 onChange={handleChangeInput}
@@ -294,7 +304,7 @@ function ApplicantsPage(props: Props) {
           <Button size="small" type="link">
             {record.isEditing['interviewScore'] ? (
               <input
-                type="text"
+                type="number"
                 name="interviewScore"
                 style={{width: '30px'}}
                 onChange={handleChangeInput}
@@ -340,8 +350,12 @@ function ApplicantsPage(props: Props) {
           <span>
             <Popconfirm
               title="Apakah Anda yakin ingin menyetujui pelamar ini?"
-              onConfirm={() => handleUpdateStatusAgreement(record.id, 2)}
-              onCancel={() => handleUpdateStatusAgreement(record.id, 1)}
+              onConfirm={() =>
+                handleUpdateStatusAgreement(record.id, 2, record.positionId)
+              }
+              onCancel={() =>
+                handleUpdateStatusAgreement(record.id, 1, record.positionId)
+              }
               okText="Iya"
               cancelText="Tidak">
               <Button size="small" type="link">
@@ -369,11 +383,12 @@ function ApplicantsPage(props: Props) {
     setData(newData);
   };
 
-  const handleUpdateStatusAgreement = async (idUser, idStatus) => {
+  const handleUpdateStatusAgreement = async (idUser, idStatus, positionId) => {
     try {
       const data = {
         id: idUser,
         updatedStatus: idStatus,
+        positionId,
       };
       setIsSubmitting(true);
       const URL = SUBMISSONS_API.updateStatusAgreement;
@@ -501,6 +516,7 @@ function ApplicantsPage(props: Props) {
 
   React.useEffect(
     () => {
+      setSelectUser([]);
       handleFetchTimelines();
       let query = null;
       if (location.state && location.state.data) {
@@ -594,7 +610,7 @@ function ApplicantsPage(props: Props) {
                 handleFetchSubmissions(3, null);
               }
               if (activeTab === 'AGREEMENT') {
-                handleFetchSubmissions(3, null);
+                handleFetchSubmissions(4, null);
               }
             }
             if (activeTab === 'APPLLICANTS')
@@ -610,7 +626,7 @@ function ApplicantsPage(props: Props) {
               handleFetchSubmissions(3, idPeriode === 'ALL' ? null : idPeriode);
 
             if (activeTab === 'AGREEMENT')
-              handleFetchSubmissions(3, idPeriode === 'ALL' ? null : idPeriode);
+              handleFetchSubmissions(4, idPeriode === 'ALL' ? null : idPeriode);
           }}
           name="lastEducation">
           <Option value="ALL">Semua periode</Option>
@@ -651,7 +667,9 @@ function ApplicantsPage(props: Props) {
         <View marginBottom={16}>
           {activeTab !== 'AGREEMENT' ? (
             <Button
+              disabled={!selectUser.length ? true : false}
               onClick={() => {
+                setSelectUser([]);
                 let status = 0;
                 if (activeTab === 'APPLLICANTS') {
                   status = 1;
@@ -681,10 +699,14 @@ function ApplicantsPage(props: Props) {
                 onClick: (event) => {},
               };
             }}
-            rowSelection={{
-              type: 'checkbox',
-              ...rowSelection,
-            }}
+            rowSelection={
+              activeTab !== 'AGREEMENT'
+                ? {
+                    type: 'checkbox',
+                    ...rowSelection,
+                  }
+                : null
+            }
             columns={columns}
             // dataSource={data}
             dataSource={data}
