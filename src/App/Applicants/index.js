@@ -1,7 +1,17 @@
 // @flow
 import * as React from 'react';
 import Header from '../../components/commons/Header';
-import {Button, Table, Skeleton, message, Select, Popconfirm} from 'antd';
+import {
+  Button,
+  Table,
+  Skeleton,
+  message,
+  Select,
+  Popconfirm,
+  Input,
+} from 'antd';
+import Highlighter from 'react-highlight-words';
+import {SearchOutlined} from '@ant-design/icons';
 import FormInput from '../../components/shared/FormInput';
 import View from '../../components/shared/View';
 import ApplicantModalDataView from './components/ApplicantModalDataView';
@@ -39,8 +49,90 @@ function ApplicantsPage(props: Props) {
   const [showModal, setShowModal] = React.useState(false);
   const [showModalInput, setShowModalInput] = React.useState(false);
   const [singleData, setSingleData] = React.useState({});
+  const [searchText, setSearchText] = React.useState('');
+  const [searchedColumn, setSearchedColumn] = React.useState('');
   const regexPhone = /^[0-9]*$/;
   const location = useLocation();
+
+  const searchInput = React.useRef(null);
+
+  const handleSearchData = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
+  };
+
+  const handleReset = (clearFilters) => {
+    clearFilters();
+    setSearchText('');
+  };
+
+  const getColumnSearchProps = React.useCallback(
+    (dataIndex) => ({
+      filterDropdown: ({
+        setSelectedKeys,
+        selectedKeys,
+        confirm,
+        clearFilters,
+      }) => (
+        <div style={{padding: 8}}>
+          <Input
+            ref={(node) => {
+              searchInput.current = node;
+            }}
+            placeholder={`Pencarian`}
+            value={selectedKeys[0]}
+            onChange={(e) =>
+              setSelectedKeys(e.target.value ? [e.target.value] : [])
+            }
+            onPressEnter={() =>
+              handleSearchData(selectedKeys, confirm, dataIndex)
+            }
+            style={{width: 188, marginBottom: 8, display: 'block'}}
+          />
+          <Button
+            type="primary"
+            onClick={() => handleSearchData(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{width: 90, marginRight: 8}}>
+            Cari
+          </Button>
+          <Button
+            onClick={() => handleReset(clearFilters)}
+            size="small"
+            style={{width: 90}}>
+            Reset
+          </Button>
+        </div>
+      ),
+      filterIcon: (filtered) => (
+        <SearchOutlined style={{color: filtered ? '#1890ff' : undefined}} />
+      ),
+      onFilter: (value, record) =>
+        record[dataIndex]
+          .toString()
+          .toLowerCase()
+          .includes(value.toLowerCase()),
+      onFilterDropdownVisibleChange: (visible) => {
+        if (visible) {
+          setTimeout(() => searchInput.current && searchInput.current.select());
+        }
+      },
+      render: (text) =>
+        searchedColumn === dataIndex ? (
+          <Highlighter
+            highlightStyle={{backgroundColor: '#ffc069', padding: 0}}
+            searchWords={[searchText]}
+            autoEscape
+            textToHighlight={text.toString()}
+          />
+        ) : (
+          text
+        ),
+    }),
+    [searchText, searchedColumn]
+  );
 
   // rowSelection object indicates the need for row selection
   const rowSelection = {
@@ -213,6 +305,7 @@ function ApplicantsPage(props: Props) {
     {
       title: 'Nama',
       dataIndex: 'fullName',
+      ...getColumnSearchProps('fullName'),
       render: (text) => {
         const getSingleData = appState.submissions.filter(
           (data) => data.fullName === text
@@ -351,10 +444,20 @@ function ApplicantsPage(props: Props) {
             <Popconfirm
               title="Apakah Anda yakin ingin menyetujui pelamar ini?"
               onConfirm={() =>
-                handleUpdateStatusAgreement(record.id, 2, record.positionId)
+                handleUpdateStatusAgreement(
+                  record.id,
+                  2,
+                  record.positionId,
+                  record.periodId
+                )
               }
               onCancel={() =>
-                handleUpdateStatusAgreement(record.id, 1, record.positionId)
+                handleUpdateStatusAgreement(
+                  record.id,
+                  1,
+                  record.positionId,
+                  record.periodId
+                )
               }
               okText="Iya"
               cancelText="Tidak">
@@ -383,12 +486,18 @@ function ApplicantsPage(props: Props) {
     setData(newData);
   };
 
-  const handleUpdateStatusAgreement = async (idUser, idStatus, positionId) => {
+  const handleUpdateStatusAgreement = async (
+    idUser,
+    idStatus,
+    positionId,
+    periodId
+  ) => {
     try {
       const data = {
         id: idUser,
         updatedStatus: idStatus,
         positionId,
+        periodId,
       };
       setIsSubmitting(true);
       const URL = SUBMISSONS_API.updateStatusAgreement;
@@ -399,7 +508,7 @@ function ApplicantsPage(props: Props) {
       const result = response.data;
       if (result.success) {
         message.success(`Data telah berhasil diperbarui`);
-        handleFetchSubmissions(3);
+        handleFetchSubmissions(4);
       } else {
         throw new Error(result.errors);
       }
@@ -544,38 +653,7 @@ function ApplicantsPage(props: Props) {
 
   return (
     <React.Fragment>
-      <Header
-        title="Pelamar"
-        rightContent={
-          <View style={{width: '400px'}}>
-            <View flexDirection="row">
-              <FormInput
-                value={searchKeyword}
-                onChange={(event) => {
-                  const name = event.target && event.target.name;
-                  const value = event.target && event.target.value;
-                  setSearchKeyword(value);
-                }}
-                placeholder="Pencarian berdasarkan nama"
-              />
-              <View marginLeft={8}>
-                <Button onClick={handleSearch} type="primary">
-                  Cari
-                </Button>
-              </View>
-              <View marginLeft={8}>
-                <Button
-                  onClick={() => {
-                    setData(appState.submissions);
-                    setSearchKeyword('');
-                  }}
-                  type="default">
-                  Reset
-                </Button>
-              </View>
-            </View>
-          </View>
-        }></Header>
+      <Header title="Pelamar"></Header>
 
       <ApplicantModalDataView
         dataBiodata={singleData}
@@ -664,30 +742,46 @@ function ApplicantsPage(props: Props) {
       </View>
 
       <View>
-        <View marginBottom={16}>
-          {activeTab !== 'AGREEMENT' ? (
+        <View flexDirection="row">
+          <View marginBottom={16} marginRight={10}>
             <Button
-              disabled={!selectUser.length ? true : false}
+              type="dashed"
               onClick={() => {
                 setSelectUser([]);
-                let status = 0;
-                if (activeTab === 'APPLLICANTS') {
-                  status = 1;
-                }
-                if (activeTab === 'ACADEMIC_SCORE') {
-                  status = 2;
-                }
-                if (activeTab === 'PSIKOTEST_SCORE') {
-                  status = 3;
-                }
-                if (activeTab === 'INTERVIEW_SCORE') {
-                  status = 4;
-                }
-                handleUpdateStatusApplicant(status);
+                if (activeTab === 'APPLLICANTS') handleFetchSubmissions(0);
+                if (activeTab === 'ACADEMIC_SCORE') handleFetchSubmissions(1);
+                if (activeTab === 'PSIKOTEST_SCORE') handleFetchSubmissions(2);
+                if (activeTab === 'INTERVIEW_SCORE') handleFetchSubmissions(3);
+                if (activeTab === 'AGREEMENT') handleFetchSubmissions(4);
               }}>
-              Proses ke tahap selanjutnya
+              Muat Ulang
             </Button>
-          ) : null}
+          </View>
+          <View marginBottom={16}>
+            {activeTab !== 'AGREEMENT' ? (
+              <Button
+                disabled={!selectUser.length ? true : false}
+                onClick={() => {
+                  setSelectUser([]);
+                  let status = 0;
+                  if (activeTab === 'APPLLICANTS') {
+                    status = 1;
+                  }
+                  if (activeTab === 'ACADEMIC_SCORE') {
+                    status = 2;
+                  }
+                  if (activeTab === 'PSIKOTEST_SCORE') {
+                    status = 3;
+                  }
+                  if (activeTab === 'INTERVIEW_SCORE') {
+                    status = 4;
+                  }
+                  handleUpdateStatusApplicant(status);
+                }}>
+                Proses ke tahap selanjutnya
+              </Button>
+            ) : null}
+          </View>
         </View>
 
         {appState.loading ? (
