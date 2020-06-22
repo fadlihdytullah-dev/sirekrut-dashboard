@@ -10,11 +10,11 @@ export const POSITIONS_API = {
 };
 
 export const SUBMISSONS_API = {
-  getAll: `${BASE_URL}/submission`,
-  getSingle: (id: string) => `${BASE_URL}/submission/${id}`,
-  update: (id: string) => `${BASE_URL}/submission/${id}`,
-  updateStatus: `${BASE_URL}/submissions-update`,
-  updateStatusAgreement: `${BASE_URL}/submissions-update/agreement`,
+  getAll: `${LOCAL_BASE_URL}/submission`,
+  getSingle: (id: string) => `${LOCAL_BASE_URL}/submission/${id}`,
+  update: (id: string) => `${LOCAL_BASE_URL}/submission/${id}`,
+  updateStatus: `${LOCAL_BASE_URL}/submissions-update`,
+  updateStatusAgreement: `${LOCAL_BASE_URL}/submissions-update/agreement`,
 };
 
 export const AUTH_API = {
