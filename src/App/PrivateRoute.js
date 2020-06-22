@@ -1,6 +1,5 @@
 import React from 'react';
 import {Redirect, Route} from 'react-router-dom';
-import {AppContext} from '../contexts/AppContext';
 import jwt from 'jsonwebtoken';
 
 const PrivateRoute = ({component: Component, ...rest}) => {
@@ -15,7 +14,6 @@ const PrivateRoute = ({component: Component, ...rest}) => {
     }
   };
   const isLogin = checkToken();
-  console.log(isLogin, 'this is isLoigin');
   return (
     <Route
       {...rest}

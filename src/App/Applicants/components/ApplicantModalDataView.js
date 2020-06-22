@@ -20,6 +20,7 @@ const FieldContainer = (props: {label: string, content: string}) => (
 );
 
 function ApplicantModalDataView(props: Props) {
+  console.log('ℹ️ props:=', props);
   return (
     <React.Fragment>
       <Modal
@@ -64,7 +65,7 @@ function ApplicantModalDataView(props: Props) {
               />
               <FieldContainer
                 label="Jenis Kelamin"
-                content={props.dataBiodata && props.dataBiodata.phoneNumber}
+                content={props.dataBiodata && props.dataBiodata.gender}
               />
               <FieldContainer
                 label="Telepon"
@@ -86,12 +87,6 @@ function ApplicantModalDataView(props: Props) {
                   content={props.dataBiodata._360Score}
                 />
               )}
-
-              <FieldContainer label="ID Instagram" content="fadli_suikoden2" />
-              <FieldContainer
-                label="ID Facebook"
-                content="fadli.hidayatullah"
-              />
             </View>
             <View flexDirection="column" style={{width: 150}}>
               <View marginBottom={8}>
@@ -114,23 +109,27 @@ function ApplicantModalDataView(props: Props) {
                 <Typography.Paragraph strong>
                   Dokumen Lainnya
                 </Typography.Paragraph>
-                <Button type="dashed" block style={{marginBottom: 8}}>
-                  <a
-                    href={props.dataBiodata && props.dataBiodata.toeflFile}
-                    target="_blank"
-                    download={true}>
-                    Tes TOEFL/IELTS
-                  </a>
-                </Button>
+                {props.dataBiodata && props.dataBiodata.toeflFile && (
+                  <Button type="dashed" block style={{marginBottom: 8}}>
+                    <a
+                      href={props.dataBiodata && props.dataBiodata.toeflFile}
+                      target="_blank"
+                      download={true}>
+                      Tes TOEFL/IELTS
+                    </a>
+                  </Button>
+                )}
 
-                <Button type="dashed" block>
-                  <a
-                    href={props.dataBiodata && props.dataBiodata._360File}
-                    target="_blank"
-                    download={true}>
-                    Tes 360
-                  </a>
-                </Button>
+                {props.dataBiodata && props.dataBiodata._360File && (
+                  <Button type="dashed" block>
+                    <a
+                      href={props.dataBiodata && props.dataBiodata._360File}
+                      target="_blank"
+                      download={true}>
+                      Tes 360
+                    </a>
+                  </Button>
+                )}
               </View>
             </View>
           </View>

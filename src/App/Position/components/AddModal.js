@@ -29,6 +29,8 @@ type State = {
   nip: string,
 };
 
+const regexName = /^[a-zA-Z0-9 ]*$/;
+
 const startGPA = 1;
 const endGPA = 4;
 
@@ -159,7 +161,7 @@ function AddModal({visible, position, isSubmitting, onSubmit, onClose}: Props) {
 
     const isEdit = !!position;
 
-    const data = {
+    let data = {
       name,
       minimumGPA,
       minimumGraduate,
@@ -168,7 +170,10 @@ function AddModal({visible, position, isSubmitting, onSubmit, onClose}: Props) {
     };
 
     if (position) {
-      data.id = position.id;
+      data = {
+        ...data,
+        id: position.id,
+      };
     }
 
     onSubmit(data, isEdit);
@@ -191,6 +196,17 @@ function AddModal({visible, position, isSubmitting, onSubmit, onClose}: Props) {
       ...state,
       [name]: value,
     }));
+  };
+
+  const handleChangeName = (event: SyntheticInputEvent<>) => {
+    const value = event.target && event.target.value;
+
+    if (regexName.test(value)) {
+      setFormState((state) => ({
+        ...state,
+        name: value,
+      }));
+    }
   };
 
   const handleChangeMinimumGPA = (value: number) => {
@@ -236,7 +252,7 @@ function AddModal({visible, position, isSubmitting, onSubmit, onClose}: Props) {
       maskClosable={false}
       style={{top: 40}}
       visible={visible}
-      title="Tambah Program Studi"
+      title={`${position ? 'Edit' : 'Tambah'} Posisi`}
       okText="Submit"
       footer={[
         <Button
@@ -260,7 +276,7 @@ function AddModal({visible, position, isSubmitting, onSubmit, onClose}: Props) {
           label="Nama"
           value={formState.name}
           error={formError.name}
-          onChange={handleChangeInput}
+          onChange={handleChangeName}
         />
       </View>
 

@@ -10,12 +10,14 @@ import {AppContext} from '../../contexts/AppContext';
 
 type Props = {};
 
+const regexPhone = /^[0-9]*$/;
+
 function Admin(props: Props) {
   const {appState, dispatchApp} = React.useContext(AppContext);
   const [showModal, setShowModal] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  const handleFetchUser = async () => {
+  const handleFetchUser = React.useCallback(async () => {
     try {
       dispatchApp({type: 'FETCH_USERS_INIT'});
 
@@ -23,7 +25,6 @@ function Admin(props: Props) {
       const result = response.data;
 
       if (result.success) {
-        console.log(result.data, 'TRASDSADSADSAD');
         dispatchApp({
           type: 'FETCH_USERS_SUCCESS',
           payload: {users: result.data},
@@ -39,7 +40,7 @@ function Admin(props: Props) {
         payload: {error: error.message},
       });
     }
-  };
+  }, [dispatchApp]);
 
   let columns = [
     {
@@ -139,13 +140,13 @@ function Admin(props: Props) {
 
   React.useEffect(() => {
     handleFetchUser();
-  }, []);
+  }, [handleFetchUser]);
 
   return (
     <React.Fragment>
       <Header
         title="Manajemen Admin"
-        subtitle={`Total data: 2`}
+        subtitle={`Total data: ${appState.users.length || 0}`}
         rightContent={
           <Button
             // disabled={appState.loading}

@@ -3,7 +3,7 @@ import * as React from 'react';
 
 import styled, {css} from 'styled-components';
 import {Link} from 'react-router-dom';
-import {Layout, Typography, Button} from 'antd';
+import {Layout, Typography, Button, message} from 'antd';
 import logo from './logo.png';
 import View from '../shared/View';
 import {AppContext} from '../../contexts/AppContext';
@@ -48,8 +48,14 @@ function AppHeader(props: Props) {
   const {appState, dispatchApp} = React.useContext(AppContext);
   const history = useHistory();
   const handleLogout = () => {
-    dispatchApp({type: 'SET_LOGOUT'});
-    history.push('/login');
+    try {
+      localStorage.removeItem('isLogin');
+      localStorage.removeItem('token');
+    } catch (error) {
+      message.error('Terjadi kesalahan saat logout');
+    } finally {
+      history.push('/login');
+    }
   };
 
   return (

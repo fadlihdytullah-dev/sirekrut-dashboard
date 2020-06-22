@@ -557,7 +557,7 @@ function ApplicantsPage(props: Props) {
                   Reset
                 </Button>
               </View>
-            </View> */}
+            </View>
           </View>
         }></Header>
 

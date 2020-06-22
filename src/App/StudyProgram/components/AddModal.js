@@ -1,8 +1,6 @@
 // @flow
 import * as React from 'react';
 
-import type {StudyProgramType} from './../../../types/App.flow';
-
 import {Modal, Button} from 'antd';
 import FormInput from '../../../components/shared/FormInput';
 import FormInputSelect from '../../../components/shared/FormInputSelect';
@@ -18,29 +16,7 @@ type Props = {
   onClose: () => void,
 };
 
-// const buildStudyProgram = (
-//   studyProgram: StudyProgramType
-// ): {degree: string, name: string} => {
-//   // S1 Teknik Informatika
-//   const chunks = studyProgram.name.split(' '); // [S1, Teknik, Informatika]
-//   let degree = chunks[0];
-//   const name = chunks.splice(1).join(' ');
-
-//   if (degree === 'D3') {
-//     degree = 'DIPLOMA';
-//   } else if (degree === 'S1') {
-//     degree = 'SARJANA';
-//   } else if (degree === 'S2') {
-//     degree = 'MAGISTER';
-//   } else if (degree === 'S3') {
-//     degree = 'DOKTOR';
-//   }
-
-//   return {
-//     degree,
-//     name,
-//   };
-// };
+const regexTitle = /^[a-zA-Z0-9 ]*$/;
 
 function AddModal({
   visible,
@@ -68,7 +44,10 @@ function AddModal({
   }, [studyProgram]);
 
   const handleChangeName = (event: SyntheticInputEvent<>) => {
-    setName(event && event.target.value);
+    const value = event && event.target.value;
+    if (regexTitle.test(value)) {
+      setName(value);
+    }
   };
 
   const handleChangeDegree = (value: string) => {
@@ -112,13 +91,16 @@ function AddModal({
 
     const isEdit = !!studyProgram;
 
-    const data = {
+    let data = {
       name,
       degree,
     };
 
     if (studyProgram) {
-      data.id = studyProgram.id;
+      data = {
+        ...data,
+        id: studyProgram.id,
+      };
     }
 
     onSubmit(data, isEdit);
@@ -130,7 +112,7 @@ function AddModal({
     <Modal
       maskClosable={false}
       visible={visible}
-      title="Tambah Program Studi"
+      title={`${studyProgram ? 'Edit' : 'Tambah'} Program Studi`}
       okText="Submit"
       footer={[
         <Button
