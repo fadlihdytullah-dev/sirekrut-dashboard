@@ -5,7 +5,7 @@ import View from '../../components/shared/View';
 import FormInput from '../../components/shared/FormInput';
 import {Button, Typography, DatePicker, message} from 'antd';
 import styled from 'styled-components';
-import {capitalize} from '../Utils';
+import {capitalize, formatDate} from '../Utils';
 import AddPositionInput from './components/AddPositionInput';
 import {AppContext} from '../../contexts/AppContext';
 import {POSITIONS_API, TIMELINES_API, config} from '../config';

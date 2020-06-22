@@ -1,14 +1,24 @@
 import React from 'react';
 import {Redirect, Route} from 'react-router-dom';
+import jwt from 'jsonwebtoken';
 
 const PrivateRoute = ({component: Component, ...rest}) => {
-  const isLogin = localStorage.getItem('isLogin');
-  const token = localStorage.getItem('token');
+  const checkToken = () => {
+    if (localStorage.getItem('token')) {
+      const tokenKey = localStorage.getItem('token');
+      return jwt.verify(tokenKey, 'meongmeongmeong', (error, decode) =>
+        error ? false : true
+      );
+    } else {
+      return false;
+    }
+  };
+  const isLogin = checkToken();
   return (
     <Route
       {...rest}
       render={(props) =>
-        isLogin && token ? <Component {...props} /> : <Redirect to="/login" />
+        isLogin ? <Component {...props} /> : <Redirect to="/login" />
       }
     />
   );
