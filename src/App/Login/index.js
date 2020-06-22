@@ -23,7 +23,7 @@ const initFormData = () => ({
 
 function Login(props: Props) {
   const history = useHistory();
-  const {appState, dispatchApp} = React.useContext(AppContext);
+  const {dispatchApp} = React.useContext(AppContext);
   const [formData, setFormData] = React.useState(initFormData);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
@@ -55,9 +55,6 @@ function Login(props: Props) {
       });
     }
   };
-  const onFinish = (values) => {
-    console.log('Success:', values);
-  };
 
   const handleChangeInput = (event) => {
     const name = event.target && event.target.name;
@@ -69,21 +66,20 @@ function Login(props: Props) {
     }));
   };
 
-  const onFinishFailed = (errorInfo) => {
-    console.log('Failed:', errorInfo);
-  };
-
   return (
     <React.Fragment>
       <AppHeader backLink="/login" center />
       <LoginWrapper>
         <Header title="Silahkan Login" />
-        <Form name="basic" initialValues={{remember: true}}>
+        <Form
+          name="basic"
+          initialValues={{remember: true}}
+          onFinish={handleLogin}>
           <Form.Item
             style={{display: 'block'}}
             label="Email"
             name="email"
-            rules={[{required: true, message: 'Please input your email!'}]}>
+            rules={[{required: true, message: 'Email tidak boleh kosong'}]}>
             <Input name="email" onChange={handleChangeInput} />
           </Form.Item>
 
@@ -91,15 +87,11 @@ function Login(props: Props) {
             style={{display: 'block'}}
             label="Password"
             name="password"
-            rules={[{required: true, message: 'Please input your password!'}]}>
+            rules={[{required: true, message: 'Password tidak boleh kosong'}]}>
             <Input.Password name="password" onChange={handleChangeInput} />
           </Form.Item>
 
-          <Button
-            type="primary"
-            block
-            loading={isSubmitting}
-            onClick={handleLogin}>
+          <Button type="primary" htmlType="submit" block loading={isSubmitting}>
             Submit
           </Button>
         </Form>

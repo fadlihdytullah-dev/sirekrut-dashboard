@@ -29,6 +29,8 @@ type State = {
   nip: string,
 };
 
+const regexTitle = /^[a-zA-Z0-9 ]*$/;
+
 const startGPA = 1;
 const endGPA = 4;
 
@@ -159,7 +161,7 @@ function AddModal({visible, position, isSubmitting, onSubmit, onClose}: Props) {
 
     const isEdit = !!position;
 
-    const data = {
+    let data = {
       name,
       minimumGPA,
       minimumGraduate,
@@ -168,7 +170,10 @@ function AddModal({visible, position, isSubmitting, onSubmit, onClose}: Props) {
     };
 
     if (position) {
-      data.id = position.id;
+      data = {
+        ...data,
+        id: position.id,
+      };
     }
 
     onSubmit(data, isEdit);
@@ -236,7 +241,7 @@ function AddModal({visible, position, isSubmitting, onSubmit, onClose}: Props) {
       maskClosable={false}
       style={{top: 40}}
       visible={visible}
-      title="Tambah Program Studi"
+      title="Tambah Posisi"
       okText="Submit"
       footer={[
         <Button

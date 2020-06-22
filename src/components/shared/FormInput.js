@@ -11,7 +11,14 @@ type Props = {
     inline?: boolean,
   },
   inputProps?: {
-    type: 'text' | 'number' | 'textarea' | 'date' | 'password',
+    type:
+      | 'text'
+      | 'number'
+      | 'textarea'
+      | 'date'
+      | 'password'
+      | 'date-range'
+      | 'email',
     min?: number,
     max?: number,
   },
@@ -53,6 +60,7 @@ function FormInput({
 
       {inputProps && inputProps.type === 'text' && (
         <Input
+          required={isRequired}
           name="name"
           placeholder={placeholder}
           value={value}
@@ -65,6 +73,20 @@ function FormInput({
 
       {inputProps && inputProps.type === 'password' && (
         <Input.Password
+          required={isRequired}
+          placeholder={placeholder}
+          value={value}
+          allowClear={(config && config.allowClear) || false}
+          onChange={onChange}
+          // $FlowFixMe
+          {...otherProps}
+        />
+      )}
+
+      {inputProps && inputProps.type === 'email' && (
+        <Input
+          required={isRequired}
+          type="email"
           placeholder={placeholder}
           value={value}
           allowClear={(config && config.allowClear) || false}
@@ -76,6 +98,7 @@ function FormInput({
 
       {inputProps && inputProps.type === 'number' && (
         <InputNumber
+          required={isRequired}
           min={inputProps.min}
           max={inputProps.max}
           value={value}
@@ -88,6 +111,7 @@ function FormInput({
 
       {inputProps && inputProps.type === 'textarea' && (
         <Input.TextArea
+          required={isRequired}
           value={value}
           allowClear={(config && config.allowClear) || false}
           onChange={onChange}
@@ -98,6 +122,15 @@ function FormInput({
 
       {inputProps && inputProps.type === 'date' && (
         <DatePicker
+          value={value}
+          onChange={onChange}
+          // $FlowFixMe
+          {...otherProps}
+        />
+      )}
+
+      {inputProps && inputProps.type === 'date-range' && (
+        <DatePicker.RangePicker
           value={value}
           onChange={onChange}
           // $FlowFixMe

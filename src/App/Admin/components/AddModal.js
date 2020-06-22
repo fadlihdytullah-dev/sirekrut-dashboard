@@ -1,50 +1,41 @@
 // @flow
 import * as React from 'react';
-import type {StudyProgramType} from './../../../types/App.flow';
-import axios from 'axios';
-import {Modal, Button, message} from 'antd';
+import {Modal, Button, Form} from 'antd';
 import FormInput from '../../../components/shared/FormInput';
-import FormInputSelect from '../../../components/shared/FormInputSelect';
 import View from '../../../components/shared/View';
-import {AUTH_API, config} from '../../config';
 import {isEmpty} from '../../Utils';
 
 type Props = {
   visible: boolean,
   admin: any,
   isSubmitting: boolean,
-  onSubmit: () => void,
+  onSubmit: (data: any) => void,
   onClose: () => void,
 };
 
+const regexPhone = /^[0-9]*$/;
+const regexName = /^[a-zA-Z ]*$/;
+const regexEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+
 const initFormData = () => ({
   nip: '',
-
+  name: '',
   email: '',
   password: '',
   confirmPassword: '',
 });
+const initFormError = () => ({
+  nip: '',
+  name: '',
+  email: '',
+  password: '',
+});
 
 function AddModal({visible, isSubmitting, admin, onSubmit, onClose}: Props) {
   const [formData, setFormData] = React.useState(initFormData);
-  const [errorName, setErrorName] = React.useState('');
+  const [formError, setFormError] = React.useState(initFormError());
 
-  const [degree, setDegree] = React.useState('');
-  const [errorDegree, setErrorDegree] = React.useState('');
-
-  // React.useEffect(() => {
-  //   resetError();
-  //   resetState();
-  // }, [studyProgram, visible]);
-
-  // React.useEffect(() => {
-  //   if (studyProgram) {
-  //     setName(studyProgram.name);
-  //     setDegree(studyProgram.degree);
-  //   }
-  // }, [studyProgram]);
-
-  const handleChangeName = (event) => {
+  const handleChangeInput = (event) => {
     const name = event.target && event.target.name;
     const value = event.target && event.target.value;
 
@@ -54,54 +45,100 @@ function AddModal({visible, isSubmitting, admin, onSubmit, onClose}: Props) {
     }));
   };
 
-  const handleSubmit = () => {
-    onSubmit(formData);
+  const handleChangeName = (event) => {
+    const value = event.target && event.target.value;
+
+    if (regexName.test(value)) {
+      setFormData((state) => ({
+        ...state,
+        name: value,
+      }));
+    }
   };
 
-  const validation = () => {
+  const handleChangeNIP = (event) => {
+    const value = event.target && event.target.value;
+
+    if (regexPhone.test(value)) {
+      setFormData((state) => ({
+        ...state,
+        nip: value,
+      }));
+    }
+  };
+
+  const handleChangeEmail = (event) => {
+    const value = event.target && event.target.value;
+
+    setFormData((state) => ({
+      ...state,
+      email: value,
+    }));
+  };
+
+  const validate = () => {
+    setFormError(initFormError());
+
     let isValid = true;
 
-    resetError();
+    const {nip, name, email, password, confirmPassword} = formData;
 
-    if (isEmpty(formData.name)) {
-      setErrorName('Nama tidak boleh kosong');
-
+    if (isEmpty(nip)) {
+      setFormError((state) => ({
+        ...state,
+        nip: 'NIP tidak boleh kosong',
+      }));
       isValid = false;
     }
 
-    if (isEmpty(degree)) {
-      setErrorDegree('Degree tidak boleh kosong');
+    if (isEmpty(name)) {
+      setFormError((state) => ({
+        ...state,
+        name: 'Nama tidak boleh kosong',
+      }));
+      isValid = false;
+    }
 
+    if (!regexEmail.test(email)) {
+      setFormError((state) => ({
+        ...state,
+        email: 'Email tidak valid',
+      }));
+      isValid = false;
+    }
+
+    if (isEmpty(email)) {
+      setFormError((state) => ({
+        ...state,
+        email: 'Email tidak boleh kosong',
+      }));
+      isValid = false;
+    }
+
+    if (isEmpty(password) || isEmpty(confirmPassword)) {
+      setFormError((state) => ({
+        ...state,
+        password: 'Password tidak boleh kosong',
+      }));
+      isValid = false;
+    }
+
+    if (password !== confirmPassword) {
+      setFormError((state) => ({
+        ...state,
+        password: 'Password dan Konfirmasi password tidak sama',
+      }));
       isValid = false;
     }
 
     return isValid;
   };
 
-  const resetError = () => {
-    setErrorName('');
-    setErrorDegree('');
+  const handleSubmit = () => {
+    if (validate()) {
+      onSubmit(formData);
+    }
   };
-
-  const resetState = () => {
-    setFormData('');
-    setDegree('');
-  };
-
-  // const handleSubmit = () => {
-  //   // if (!validation()) {
-  //   //   return;
-  //   // }
-  //   // const isEdit = !!studyProgram;
-  //   // const data = {
-  //   //   name,
-  //   //   degree,
-  //   // };
-  //   // if (studyProgram) {
-  //   //   data.id = studyProgram.id;
-  //   // }
-  //   // onSubmit(data, isEdit);
-  // };
 
   const handleClose = () => {
     onClose();
@@ -118,8 +155,10 @@ function AddModal({visible, isSubmitting, admin, onSubmit, onClose}: Props) {
         <Button
           key="submit"
           type="primary"
+          htmlType="submit"
+          onClick={handleSubmit}
           loading={isSubmitting}
-          onClick={handleSubmit}>
+          disabled={isSubmitting}>
           {admin ? 'Update' : 'Submit'}
         </Button>,
       ]}
@@ -132,8 +171,8 @@ function AddModal({visible, isSubmitting, admin, onSubmit, onClose}: Props) {
           label="NIP"
           name="nip"
           value={formData.nip}
-          error={errorName}
-          onChange={handleChangeName}
+          error={formError.nip}
+          onChange={handleChangeNIP}
         />
       </View>
 
@@ -143,19 +182,22 @@ function AddModal({visible, isSubmitting, admin, onSubmit, onClose}: Props) {
           label="Nama"
           name="name"
           value={formData.name}
-          error={errorName}
+          error={formError.name}
           onChange={handleChangeName}
         />
       </View>
 
       <View marginBottom={16}>
         <FormInput
+          inputProps={{
+            type: 'email',
+          }}
           isRequired
           label="Email"
           name="email"
           value={formData.email}
-          error={errorName}
-          onChange={handleChangeName}
+          error={formError.email}
+          onChange={handleChangeEmail}
         />
       </View>
 
@@ -168,8 +210,7 @@ function AddModal({visible, isSubmitting, admin, onSubmit, onClose}: Props) {
           label="Password"
           value={formData.password}
           name="password"
-          error={errorName}
-          onChange={handleChangeName}
+          onChange={handleChangeInput}
         />
       </View>
 
@@ -182,8 +223,8 @@ function AddModal({visible, isSubmitting, admin, onSubmit, onClose}: Props) {
           label="Konfirmasi Password"
           value={formData.confirmPassword}
           name="confirmPassword"
-          error={errorName}
-          onChange={handleChangeName}
+          error={formError.password}
+          onChange={handleChangeInput}
         />
       </View>
     </Modal>

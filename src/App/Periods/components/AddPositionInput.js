@@ -14,7 +14,7 @@ type Props = {
   addData: any,
 };
 
-function AddPositionInput({data, addData, positions, defaultPosition}: Props) {
+function AddPositionInput({data, addData, positions}: Props) {
   const [quota, setQuota] = React.useState(1);
   const [positionID, setPositionID] = React.useState(undefined);
   const [name, setName] = React.useState(undefined);
@@ -75,94 +75,91 @@ function AddPositionInput({data, addData, positions, defaultPosition}: Props) {
         </View>
       </View>
 
-      {!data.isAllPositions ? (
-        <React.Fragment>
-          <View flex={1} marginBottom={16}>
-            <View marginRight={8}>
-              <Select
-                showSearch
-                style={{width: 200}}
-                placeholder="Pilih posisi"
-                optionFilterProp="children"
-                value={positionID}
-                onChange={handleChangeSelect}
-                filterOption={(input, option) => {
+      <React.Fragment>
+        <View flex={1} marginBottom={16}>
+          <View marginRight={8}>
+            <Select
+              showSearch
+              style={{width: 200}}
+              placeholder="Pilih posisi"
+              optionFilterProp="children"
+              value={positionID}
+              onChange={handleChangeSelect}
+              filterOption={(input, option) => {
+                return (
+                  option.children.toLowerCase().indexOf(input.toLowerCase()) >=
+                  0
+                );
+              }}>
+              {data.positionsData.map((item) => {
+                if (!addedPositionIDs.includes(item.id)) {
                   return (
-                    option.children
-                      .toLowerCase()
-                      .indexOf(input.toLowerCase()) >= 0
+                    <Select.Option key={item.id} value={item.id} ss={'aww'}>
+                      {item.name}
+                    </Select.Option>
                   );
-                }}>
-                {data.positionsData.map((item) => {
-                  if (!addedPositionIDs.includes(item.id)) {
-                    return (
-                      <Select.Option key={item.id} value={item.id} ss={'aww'}>
-                        {item.name}
-                      </Select.Option>
-                    );
-                  }
+                }
 
-                  return null;
-                })}
-              </Select>
-            </View>
-
-            <View marginRight={8}>
-              <FormInput
-                config={{
-                  inline: true,
-                }}
-                inputProps={{
-                  type: 'number',
-                  min: 1,
-                  max: 99,
-                }}
-                isRequired
-                value={quota}
-                onChange={handleChangeQuota}
-              />
-            </View>
-
-            <Button onClick={handleAddPosition}>Tambah</Button>
+                return null;
+              })}
+            </Select>
           </View>
 
-          <View>
-            <List
-              bordered
-              size="small"
-              dataSource={addedPositions}
-              renderItem={(item) => (
-                <List.Item>
-                  <View flex={1} flexJustifyContent="space-between">
-                    <View flex={1}>
-                      <View marginRight={16}>
-                        <Typography.Text>
-                          {data.positionsData.find(
-                            (position) => position.id === item.positionID
-                          ).name || ''}
-                        </Typography.Text>
-                      </View>
-                      <Badge
-                        count={item.quota}
-                        style={{backgroundColor: '#1890ff'}}
-                      />
-                    </View>
-                    <Button
-                      size="small"
-                      type="link"
-                      danger
-                      onClick={() =>
-                        handleDeleteSelectedPosition(item.positionID)
-                      }>
-                      <DeleteOutlined />
-                    </Button>
-                  </View>
-                </List.Item>
-              )}
+          <View marginRight={8}>
+            <FormInput
+              config={{
+                inline: true,
+              }}
+              inputProps={{
+                type: 'number',
+                min: 1,
+                max: 99,
+              }}
+              isRequired
+              value={quota}
+              onChange={handleChangeQuota}
             />
           </View>
-        </React.Fragment>
-      ) : null}
+
+          <Button onClick={handleAddPosition}>Tambah</Button>
+        </View>
+
+        <View>
+          <List
+            bordered
+            size="small"
+            dataSource={addedPositions}
+            renderItem={(item) => (
+              <List.Item>
+                <View flex={1} flexJustifyContent="space-between">
+                  <View flex={1}>
+                    <View marginRight={16}>
+                      <Typography.Text>
+                        {data.positionsData.find(
+                          (position) => position.id === item.positionID
+                        ).name || ''}
+                      </Typography.Text>
+                    </View>
+                    <Badge
+                      count={item.quota}
+                      style={{backgroundColor: '#1890ff'}}
+                    />
+                  </View>
+                  <Button
+                    size="small"
+                    type="link"
+                    danger
+                    onClick={() =>
+                      handleDeleteSelectedPosition(item.positionID)
+                    }>
+                    <DeleteOutlined />
+                  </Button>
+                </View>
+              </List.Item>
+            )}
+          />
+        </View>
+      </React.Fragment>
     </React.Fragment>
   );
 }

@@ -3,9 +3,9 @@ import * as React from 'react';
 import Header from '../../components/commons/Header';
 import View from '../../components/shared/View';
 import FormInput from '../../components/shared/FormInput';
-import {Button, Typography, message} from 'antd';
+import {Button, Typography, DatePicker, message} from 'antd';
 import styled from 'styled-components';
-import {capitalize, formatDate} from '../Utils';
+import {capitalize} from '../Utils';
 import AddPositionInput from './components/AddPositionInput';
 import {AppContext} from '../../contexts/AppContext';
 import {POSITIONS_API, TIMELINES_API, config} from '../config';
@@ -21,20 +21,14 @@ const FormWrapper = styled.div`
 const initFormData = () => ({
   title: '',
   type: '',
-  startDate: null,
-  endDate: null,
-  forms: ['C4UtF8dpfjuPOi6FmZ7L'],
+  startEndDate: null,
   positions: [],
-  prePositions: [],
-  isAllPositions: false,
 });
 
 const initFormError = () => ({
   title: '',
   type: '',
-  startDate: '',
-  endDate: '',
-  forms: '',
+  startEndDate: '',
   positions: '',
 });
 
@@ -51,8 +45,6 @@ function AddPeriodInput(props: Props) {
     if (id) {
       const getData = async () => {
         try {
-          // dispatchApp({type: 'FETCH_TIMELINES_INIT'});
-
           const response = await axios.get(TIMELINES_API.getSingle(id));
           const result = response.data;
 
@@ -61,29 +53,11 @@ function AddPeriodInput(props: Props) {
             ...state,
             title,
             type,
-            startDate: moment(startDate),
-            endDate: moment(endDate),
+            startEndDate: [moment(startDate), moment(endDate)],
             positions: positions,
           }));
-
-          console.log('ℹ️ result:=', result);
-
-          // if (result.success) {
-          //   console.log(result.data, 'TRASDSADSADSAD');
-          //   dispatchApp({
-          //     type: 'FETCH_TIMELINES_SUCCESS',
-          //     payload: {dataTimelines: result.data},
-          //   });
-          // } else {
-          //   throw new Error(result.errors);
-          // }
         } catch (error) {
           message.error('Terjadi error ketika memuat data');
-
-          // dispatchApp({
-          //   type: 'FETCH_TIMELINES_FAILURE',
-          //   payload: {error: error.message},
-          // });
         }
       };
 
@@ -134,41 +108,12 @@ function AddPeriodInput(props: Props) {
     }));
   };
 
-  const handleChangeStartDate = (date, dateString) => {
-    console.log('ℹ️ date & dateString:=', date, dateString);
+  const handleChangeStartEndDate = (date, dateString) => {
     setFormData((state) => ({
       ...state,
-      startDate: date,
+      startEndDate: date,
     }));
   };
-
-  const handleChangeEndDate = (date, dateString) => {
-    console.log('ℹ️ date & dateString:=', date, dateString);
-    setFormData((state) => ({
-      ...state,
-      endDate: date,
-    }));
-  };
-
-  const handleChangePosition = (data) => {
-    console.log(data, 'ASDSAKNDJSANDDKJSAIn');
-  };
-
-  function onChange(value) {
-    console.log(`selected ${value}`);
-  }
-
-  function onBlur() {
-    console.log('blur');
-  }
-
-  function onFocus() {
-    console.log('focus');
-  }
-
-  function onSearch(val) {
-    console.log('search:', val);
-  }
 
   const handleSubmit = async (timeLine: any, isEdit: boolean) => {
     try {
@@ -176,7 +121,16 @@ function AddPeriodInput(props: Props) {
       const URL = id ? TIMELINES_API.update(id) : TIMELINES_API.post;
       const method = id ? 'put' : 'post';
 
-      const response = await axios[method](URL, formData, {
+      const {title, type, startEndDate, positions} = formData;
+      const data = {
+        title,
+        type,
+        positions,
+        startDate: startEndDate[0],
+        endDate: startEndDate[1],
+      };
+
+      const response = await axios[method](URL, data, {
         headers: config.headerConfig,
       });
 
@@ -187,8 +141,6 @@ function AddPeriodInput(props: Props) {
           `Data telah berhasil ${id ? 'diperbarui' : 'ditambahkan'}`
         );
         history.push('/periods');
-        // handleFetchStudyPrograms();
-        // setShowModal(false);
       } else {
         throw new Error(result.errors);
       }
@@ -203,8 +155,6 @@ function AddPeriodInput(props: Props) {
     }
   };
 
-  console.log('ℹ️ formData:=', formData);
-
   const editedPositions = formData.positions;
 
   return (
@@ -217,7 +167,7 @@ function AddPeriodInput(props: Props) {
         }}
         rightContent={
           <Button
-            // disabled={appState.loading}
+            disabled={isSubmiting}
             size="large"
             type="primary"
             onClick={handleSubmit}>
@@ -287,27 +237,13 @@ function AddPeriodInput(props: Props) {
         <View marginBottom={16}>
           <FormInput
             inputProps={{
-              type: 'date',
+              type: 'date-range',
             }}
             isRequired
-            label="Tanggal mulai"
-            value={formData.startDate}
-            error={formError.startDate}
-            onChange={handleChangeStartDate}
-          />
-        </View>
-
-        <View marginBottom={16}>
-          <FormInput
-            inputProps={{
-              type: 'date',
-            }}
-            isRequired
-            showToday={false}
-            label="Tanggal berakhir"
-            value={formData.endDate}
-            error={formError.endDate}
-            onChange={handleChangeEndDate}
+            label="Tanggal Mulai dan Berakhir"
+            value={formData.startEndDate}
+            // error={formError.startDate}
+            onChange={handleChangeStartEndDate}
           />
         </View>
 
@@ -319,7 +255,6 @@ function AddPeriodInput(props: Props) {
             }}
             defaultPosition={formData.title !== '' ? formData.positions : false}
             addData={(dataPositions) => {
-              console.log(dataPositions, 'INI DATAPOSITIOn');
               setFormData((state) => ({
                 ...state,
                 positions: dataPositions,
