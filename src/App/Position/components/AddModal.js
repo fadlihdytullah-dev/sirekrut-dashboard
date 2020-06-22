@@ -29,7 +29,7 @@ type State = {
   nip: string,
 };
 
-const regexTitle = /^[a-zA-Z0-9 ]*$/;
+const regexName = /^[a-zA-Z0-9 ]*$/;
 
 const startGPA = 1;
 const endGPA = 4;
@@ -198,6 +198,17 @@ function AddModal({visible, position, isSubmitting, onSubmit, onClose}: Props) {
     }));
   };
 
+  const handleChangeName = (event: SyntheticInputEvent<>) => {
+    const value = event.target && event.target.value;
+
+    if (regexName.test(value)) {
+      setFormState((state) => ({
+        ...state,
+        name: value,
+      }));
+    }
+  };
+
   const handleChangeMinimumGPA = (value: number) => {
     setFormState((state) => ({
       ...state,
@@ -241,7 +252,7 @@ function AddModal({visible, position, isSubmitting, onSubmit, onClose}: Props) {
       maskClosable={false}
       style={{top: 40}}
       visible={visible}
-      title="Tambah Posisi"
+      title={`${position ? 'Edit' : 'Tambah'} Posisi`}
       okText="Submit"
       footer={[
         <Button
@@ -265,7 +276,7 @@ function AddModal({visible, position, isSubmitting, onSubmit, onClose}: Props) {
           label="Nama"
           value={formState.name}
           error={formError.name}
-          onChange={handleChangeInput}
+          onChange={handleChangeName}
         />
       </View>
 

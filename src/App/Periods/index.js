@@ -315,7 +315,7 @@ function PeriodsPage(props: Props) {
         render: (positions) => {
           const content = generatePositionList(positions);
           return (
-            <Popover title="Program Studi" content={content}>
+            <Popover title="Posisi" content={content}>
               <Button size="small" type="dashed">
                 Detail
               </Button>
