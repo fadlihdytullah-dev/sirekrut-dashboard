@@ -138,9 +138,13 @@ function Admin(props: Props) {
     }
   };
 
-  React.useEffect(() => {
-    handleFetchUser();
-  }, [handleFetchUser]);
+  React.useEffect(
+    () => {
+      handleFetchUser();
+    },
+    // eslint-disable-next-line
+    []
+  );
 
   return (
     <React.Fragment>
@@ -167,7 +171,17 @@ function Admin(props: Props) {
       />
 
       <View marginTop={24}>
-        {appState.isLoading ? (
+        <Button
+          type="dashed"
+          onClick={() => {
+            handleFetchUser();
+          }}>
+          Muat Ulang
+        </Button>
+      </View>
+
+      <View marginTop={24}>
+        {appState.loading ? (
           <Skeleton />
         ) : (
           <Table

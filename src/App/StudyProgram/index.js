@@ -298,6 +298,16 @@ function StudyProgramPage(props: Props) {
         onClose={handleCloseModal}
       />
 
+      <View marginTop={24}>
+        <Button
+          type="dashed"
+          onClick={() => {
+            handleFetchStudyPrograms();
+          }}>
+          Muat Ulang
+        </Button>
+      </View>
+
       <View marginTop={16}>
         {appState.loading ? (
           <Skeleton />
