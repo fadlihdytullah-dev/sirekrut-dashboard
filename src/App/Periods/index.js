@@ -109,6 +109,10 @@ function PeriodsPage(props: Props) {
     []
   );
 
+  const handleClickEdit = (id: string) => {
+    history.push(`/periods/edit/${id}`);
+  };
+
   const columns = React.useMemo(
     () => [
       {
@@ -175,7 +179,10 @@ function PeriodsPage(props: Props) {
                   Liat Pelamar
                 </Link>
               </Button>
-              <Button size="small" type="link" onClick={() => {}}>
+              <Button
+                size="small"
+                type="link"
+                onClick={() => handleClickEdit(record.id)}>
                 Edit
               </Button>
               <Popconfirm
@@ -193,7 +200,7 @@ function PeriodsPage(props: Props) {
         },
       },
     ],
-    [handleConfirmDelete]
+    [handleClickEdit, handleConfirmDelete]
   );
 
   const handleClickAddNew = () => {

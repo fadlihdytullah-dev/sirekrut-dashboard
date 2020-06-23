@@ -160,7 +160,7 @@ function AddPeriodInput(props: Props) {
   return (
     <React.Fragment>
       <Header
-        title="Tambah Periode Baru"
+        title={`${id ? 'Edit' : 'Tambah'} Periode Baru`}
         hasBack
         config={{
           path: '/periods',
@@ -171,7 +171,7 @@ function AddPeriodInput(props: Props) {
             size="large"
             type="primary"
             onClick={handleSubmit}>
-            Simpan
+            {id ? 'Update' : 'Simpan'}
           </Button>
         }
       />
@@ -247,21 +247,27 @@ function AddPeriodInput(props: Props) {
           />
         </View>
 
-        <View marginBottom={16}>
-          <AddPositionInput
-            positions={editedPositions}
-            data={{
-              positionsData: appState.positions,
-            }}
-            defaultPosition={formData.title !== '' ? formData.positions : false}
-            addData={(dataPositions) => {
-              setFormData((state) => ({
-                ...state,
-                positions: dataPositions,
-              }));
-            }}
-          />
-        </View>
+        {id ? (
+          <View />
+        ) : (
+          <View marginBottom={16}>
+            <AddPositionInput
+              positions={editedPositions}
+              data={{
+                positionsData: appState.positions,
+              }}
+              defaultPosition={
+                formData.title !== '' ? formData.positions : false
+              }
+              addData={(dataPositions) => {
+                setFormData((state) => ({
+                  ...state,
+                  positions: dataPositions,
+                }));
+              }}
+            />
+          </View>
+        )}
       </FormWrapper>
     </React.Fragment>
   );
