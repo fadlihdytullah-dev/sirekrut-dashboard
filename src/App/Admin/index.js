@@ -10,8 +10,6 @@ import {AppContext} from '../../contexts/AppContext';
 
 type Props = {};
 
-const regexPhone = /^[0-9]*$/;
-
 function Admin(props: Props) {
   const {appState, dispatchApp} = React.useContext(AppContext);
   const [showModal, setShowModal] = React.useState(false);

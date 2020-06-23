@@ -138,7 +138,11 @@ function FormInput({
         />
       )}
 
-      {error && <Typography.Text type="danger">{error}</Typography.Text>}
+      {error && (
+        <View>
+          <Typography.Text type="danger">{error}</Typography.Text>
+        </View>
+      )}
     </React.Fragment>
   );
 }

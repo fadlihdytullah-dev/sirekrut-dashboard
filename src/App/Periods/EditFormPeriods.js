@@ -3,15 +3,16 @@ import * as React from 'react';
 import Header from '../../components/commons/Header';
 import View from '../../components/shared/View';
 import FormInput from '../../components/shared/FormInput';
-import {Button, Typography, DatePicker, message} from 'antd';
+import {Button, Typography, message} from 'antd';
 import styled from 'styled-components';
-import {capitalize, formatDate} from '../Utils';
+import {capitalize} from '../Utils';
 import AddPositionInput from './components/AddPositionInput';
 import {AppContext} from '../../contexts/AppContext';
 import {POSITIONS_API, TIMELINES_API, config} from '../config';
 import {useHistory, useParams} from 'react-router-dom';
 import axios from 'axios';
 import moment from 'moment';
+import {isEmpty} from './../Utils';
 type Props = {};
 
 const FormWrapper = styled.div`
@@ -31,6 +32,8 @@ const initFormError = () => ({
   startEndDate: '',
   positions: '',
 });
+
+const regexAlphanumeric = /^[a-zA-Z0-9 ]*$/;
 
 function AddPeriodInput(props: Props) {
   const [formData, setFormData] = React.useState(initFormData());
@@ -98,14 +101,55 @@ function AddPeriodInput(props: Props) {
     []
   );
 
+  const validate = () => {
+    setFormError(initFormError());
+    let isValid = true;
+
+    if (isEmpty(formData.title)) {
+      setFormError((state) => ({
+        ...state,
+        title: 'Judul tidak boleh kosong',
+      }));
+      isValid = false;
+    }
+
+    if (isEmpty(formData.type)) {
+      setFormError((state) => ({
+        ...state,
+        type: 'Jenis tidak boleh kosong',
+      }));
+      isValid = false;
+    }
+
+    if (!formData.startEndDate) {
+      setFormError((state) => ({
+        ...state,
+        startEndDate: 'Tanggal tidak boleh kosong',
+      }));
+      isValid = false;
+    }
+
+    if (formData.positions.length === 0) {
+      setFormError((state) => ({
+        ...state,
+        positions: 'Posisi tidak boleh kosong',
+      }));
+      isValid = false;
+    }
+
+    return isValid;
+  };
+
   const handleChangeInput = (event: SyntheticInputEvent<>) => {
     const name = event.target && event.target.name;
     const value = event.target && event.target.value;
 
-    setFormData((state) => ({
-      ...state,
-      [name]: value,
-    }));
+    if (regexAlphanumeric.test(value)) {
+      setFormData((state) => ({
+        ...state,
+        [name]: value,
+      }));
+    }
   };
 
   const handleChangeStartEndDate = (date, dateString) => {
@@ -116,6 +160,10 @@ function AddPeriodInput(props: Props) {
   };
 
   const handleSubmit = async (timeLine: any, isEdit: boolean) => {
+    if (!validate()) {
+      return;
+    }
+
     try {
       setIsSubmitting(true);
       const URL = id ? TIMELINES_API.update(id) : TIMELINES_API.post;
@@ -146,8 +194,9 @@ function AddPeriodInput(props: Props) {
       }
     } catch (error) {
       if (error.response) {
-        message.error(error.response.data.errors);
       } else {
+        console.log('ℹ️ error:=');
+
         message.error(error.message);
       }
     } finally {
@@ -242,7 +291,7 @@ function AddPeriodInput(props: Props) {
             isRequired
             label="Tanggal Mulai dan Berakhir"
             value={formData.startEndDate}
-            // error={formError.startDate}
+            error={formError.startEndDate}
             onChange={handleChangeStartEndDate}
           />
         </View>
@@ -266,6 +315,13 @@ function AddPeriodInput(props: Props) {
                 }));
               }}
             />
+            {formError.positions && (
+              <View>
+                <Typography.Text type="danger">
+                  {formError.positions}
+                </Typography.Text>
+              </View>
+            )}
           </View>
         )}
       </FormWrapper>
