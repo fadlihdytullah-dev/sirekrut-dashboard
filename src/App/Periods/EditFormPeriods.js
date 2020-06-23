@@ -170,12 +170,13 @@ function AddPeriodInput(props: Props) {
       const method = id ? 'put' : 'post';
 
       const {title, type, startEndDate, positions} = formData;
-      const data = {
+      let data = {
         title,
         type,
         positions,
         startDate: startEndDate[0],
         endDate: startEndDate[1],
+        forms: ['forms'],
       };
 
       const response = await axios[method](URL, data, {
