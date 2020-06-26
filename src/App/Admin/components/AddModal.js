@@ -123,7 +123,7 @@ function AddModal({visible, isSubmitting, admin, onSubmit, onClose}: Props) {
       isValid = false;
     }
 
-    if (password.length <= 6 || confirmPassword.length <= 6) {
+    if (password.length < 6 || confirmPassword.length < 6) {
       setFormError((state) => ({
         ...state,
         password: 'Password minimal 6 karakter',
