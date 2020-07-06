@@ -1,10 +1,10 @@
 // @flow
 import * as React from 'react';
+import axios from 'axios';
 import {useHistory, Link} from 'react-router-dom';
+import {TIMELINES_API, config} from '../config';
+import {capitalize, formatDate} from './../Utils';
 import {AppContext} from '../../contexts/AppContext';
-// import AddModal from './components/AddModal';
-import Header from '../../components/commons/Header';
-import View from '../../components/shared/View';
 import {
   Button,
   Skeleton,
@@ -16,10 +16,8 @@ import {
   message,
   Badge,
 } from 'antd';
-import axios from 'axios';
-import {TIMELINES_API, config} from '../config';
-
-import {capitalize, formatDate} from './../Utils';
+import View from '../../components/shared/View';
+import Header from '../../components/commons/Header';
 
 type Props = {};
 
@@ -49,11 +47,9 @@ function PeriodsPage(props: Props) {
       dispatchApp({type: 'FETCH_TIMELINES_INIT'});
 
       const response = await axios.get(TIMELINES_API.getAll);
-      const result = response.data;
-      console.log(result.data);
 
+      const result = response.data;
       if (result.success) {
-        console.log(result.data, 'TRASDSADSADSAD');
         dispatchApp({
           type: 'FETCH_TIMELINES_SUCCESS',
           payload: {dataTimelines: result.data},
@@ -109,9 +105,13 @@ function PeriodsPage(props: Props) {
     []
   );
 
-  const handleClickEdit = (id: string) => {
-    history.push(`/periods/edit/${id}`);
-  };
+  const handleClickEdit = React.useCallback(
+    (id: string) => {
+      history.push(`/periods/edit/${id}`);
+    },
+    //eslint-disable-next-line
+    []
+  );
 
   const columns = React.useMemo(
     () => [

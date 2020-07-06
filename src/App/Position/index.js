@@ -1,10 +1,9 @@
 // @flow
 import * as React from 'react';
-import type {CompactStudyProgramType} from './../../types/App.flow';
+import axios from 'axios';
 import {AppContext} from '../../contexts/AppContext';
-import AddModal from './components/AddModal';
-import Header from '../../components/commons/Header';
-import View from '../../components/shared/View';
+import type {CompactStudyProgramType} from './../../types/App.flow';
+import {POSITIONS_API, STUDY_PROGRAMS_API, config} from './../config';
 import {
   Button,
   Skeleton,
@@ -17,11 +16,11 @@ import {
   Typography,
   message,
 } from 'antd';
-import {SearchOutlined} from '@ant-design/icons';
+import AddModal from './components/AddModal';
 import Highlighter from 'react-highlight-words';
-import axios from 'axios';
-import {POSITIONS_API, STUDY_PROGRAMS_API, config} from './../config';
-
+import View from '../../components/shared/View';
+import {SearchOutlined} from '@ant-design/icons';
+import Header from '../../components/commons/Header';
 import {getColumnSortProps, capitalize} from './../Utils';
 
 type Props = {};
@@ -119,7 +118,6 @@ function PositionPage(props: Props) {
       });
 
       const result = response.data;
-
       if (result.success) {
         message.success(
           `Data telah berhasil ${isEdit ? 'diperbarui' : 'ditambahkan'}`
@@ -160,7 +158,6 @@ function PositionPage(props: Props) {
         });
 
         const result = response.data;
-
         if (result.success) {
           message.success({content: 'Data telah berhasil dihapus', key});
           handleFetchPositions();

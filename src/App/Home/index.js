@@ -1,10 +1,9 @@
 // @flow
 import * as React from 'react';
-
-import ContentWrapper from '../../components/layouts/ContentWrapper';
 import {Typography} from 'antd';
 import View from '../../components/shared/View';
 import logo from './../../components/layouts/logo.png';
+import ContentWrapper from '../../components/layouts/ContentWrapper';
 
 function HomePage() {
   return (

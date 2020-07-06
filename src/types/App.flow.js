@@ -36,3 +36,26 @@ export type PositionInputType = {
   nip: string,
 };
 export type PositionsType = Array<Position>;
+
+export type UserType = {
+  email: string,
+  name: string,
+  nip: number,
+  userId: string,
+};
+export type UsersType = Array<UserType>;
+
+export type TimelineType = {
+  endDate: string,
+  startDate: string,
+  title: string,
+  type: string,
+  positions: Array<{
+    id: string,
+    name: string,
+    positionID: string,
+    quota: number,
+  }>,
+};
+
+export type TimelinesType = Array<TimelineType>;

@@ -1,12 +1,11 @@
 // @flow
 import * as React from 'react';
-
+import {config} from '../../config';
 import {Modal, Button} from 'antd';
+import {isEmpty} from '../../Utils';
+import View from '../../../components/shared/View';
 import FormInput from '../../../components/shared/FormInput';
 import FormInputSelect from '../../../components/shared/FormInputSelect';
-import View from '../../../components/shared/View';
-import {config} from '../../config';
-import {isEmpty} from '../../Utils';
 
 type Props = {
   visible: boolean,

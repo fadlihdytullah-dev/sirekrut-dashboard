@@ -1,18 +1,18 @@
 // @flow
 import * as React from 'react';
-import Header from '../../components/commons/Header';
-import View from '../../components/shared/View';
-import FormInput from '../../components/shared/FormInput';
-import {Button, Typography, message} from 'antd';
 import styled from 'styled-components';
-import {capitalize} from '../Utils';
-import AddPositionInput from './components/AddPositionInput';
-import {AppContext} from '../../contexts/AppContext';
-import {POSITIONS_API, TIMELINES_API, config} from '../config';
-import {useHistory, useParams} from 'react-router-dom';
 import axios from 'axios';
 import moment from 'moment';
-import {isEmpty} from './../Utils';
+import {useHistory, useParams} from 'react-router-dom';
+import {POSITIONS_API, TIMELINES_API, config} from '../config';
+import {AppContext} from '../../contexts/AppContext';
+import {isEmpty, capitalize} from './../Utils';
+import {Button, Typography, message} from 'antd';
+import View from '../../components/shared/View';
+import Header from '../../components/commons/Header';
+import FormInput from '../../components/shared/FormInput';
+import AddPositionInput from './components/AddPositionInput';
+
 type Props = {};
 
 const FormWrapper = styled.div`
@@ -73,8 +73,8 @@ function AddPeriodInput(props: Props) {
 
     try {
       const response = await axios.get(POSITIONS_API.getAll);
-      const result = response.data;
 
+      const result = response.data;
       if (result.success) {
         dispatchApp({
           type: 'FETCH_POSITIONS_SUCCESS',
@@ -174,8 +174,8 @@ function AddPeriodInput(props: Props) {
         title,
         type,
         positions,
-        startDate: startEndDate[0],
-        endDate: startEndDate[1],
+        startDate: startEndDate[0] || new Date().toString(),
+        endDate: startEndDate[1] || new Date().toString(),
         forms: ['forms'],
       };
 
@@ -196,8 +196,6 @@ function AddPeriodInput(props: Props) {
     } catch (error) {
       if (error.response) {
       } else {
-        console.log('ℹ️ error:=');
-
         message.error(error.message);
       }
     } finally {

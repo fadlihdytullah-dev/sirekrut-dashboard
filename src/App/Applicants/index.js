@@ -1,6 +1,9 @@
 // @flow
 import * as React from 'react';
-import Header from '../../components/commons/Header';
+import axios from 'axios';
+import {useLocation} from 'react-router-dom';
+import {SUBMISSONS_API, TIMELINES_API, POSITIONS_API, config} from '../config';
+import {AppContext} from '../../contexts/AppContext';
 import {
   Button,
   Table,
@@ -10,19 +13,16 @@ import {
   Popconfirm,
   Input,
 } from 'antd';
+import View from '../../components/shared/View';
 import Highlighter from 'react-highlight-words';
 import {SearchOutlined} from '@ant-design/icons';
-import FormInput from '../../components/shared/FormInput';
-import View from '../../components/shared/View';
-import ApplicantModalDataView from './components/ApplicantModalDataView';
-import ApplicantInputModal from './components/ApplicantInputModal';
+import Header from '../../components/commons/Header';
 import {EditOutlined, SaveOutlined} from '@ant-design/icons';
-import {useLocation} from 'react-router-dom';
-import {AppContext} from '../../contexts/AppContext';
-import axios from 'axios';
-import {SUBMISSONS_API, TIMELINES_API, POSITIONS_API, config} from '../config';
+import ApplicantInputModal from './components/ApplicantInputModal';
+import ApplicantModalDataView from './components/ApplicantModalDataView';
 
 type Props = {};
+
 const {Option} = Select;
 
 const initScore = () => ({
@@ -31,12 +31,12 @@ const initScore = () => ({
   psikotesScore: 0,
 });
 
+const regexPhone = /^[0-9]*$/;
+
 function ApplicantsPage(props: Props) {
   const {appState, dispatchApp} = React.useContext(AppContext);
   const [isEditing, setIsEditing] = React.useState(false);
   const [selectUser, setSelectUser] = React.useState([]);
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [searchKeyword, setSearchKeyword] = React.useState('');
   const [data, setData] = React.useState([]);
   const [score, setScore] = React.useState(initScore());
   const [activeTab, setActiveTab] = React.useState<
@@ -51,7 +51,6 @@ function ApplicantsPage(props: Props) {
   const [singleData, setSingleData] = React.useState({});
   const [searchText, setSearchText] = React.useState('');
   const [searchedColumn, setSearchedColumn] = React.useState('');
-  const regexPhone = /^[0-9]*$/;
   const location = useLocation();
 
   const searchInput = React.useRef(null);
@@ -138,11 +137,6 @@ function ApplicantsPage(props: Props) {
   const rowSelection = {
     onChange: (selectedRowKeys, selectedRows) => {
       setSelectUser(selectedRowKeys);
-      console.log(
-        `selectedRowKeys: ${selectedRowKeys}`,
-        'selectedRows: ',
-        selectedRows
-      );
     },
     getCheckboxProps: (record) => {
       return {
@@ -152,18 +146,9 @@ function ApplicantsPage(props: Props) {
   };
 
   const handleChangeInput = (event) => {
-    // const value = event.target && event.target.value;
-
-    // if (regexPhone.test(value)) {
-    //   setFormData((state) => ({
-    //     ...state,
-    //     nip: value,
-    //   }));
-    // }
     const name = event.target && event.target.name;
     const value = event.target && event.target.value;
     if (regexPhone.test(value)) {
-      console.log('ANJAYY');
       setScore((state) => ({
         ...state,
         [name]: parseInt(value),
@@ -171,48 +156,19 @@ function ApplicantsPage(props: Props) {
     }
   };
 
-  const handleUpdateStatus = async (statusId) => {
-    try {
-      const data = {
-        applicants: [],
-        updatedStatus: statusId,
-      };
-      setIsSubmitting(true);
-      const URL = SUBMISSONS_API.updateStatus;
-      const method = 'PUT';
-      const response = await axios[method](URL, data, {
-        headers: config.headerConfig,
-      });
-      const result = response.data;
-      if (result.success) {
-        message.success(`Data telah berhasil diperbarui `);
-      } else {
-        throw new Error(result.errors);
-      }
-    } catch (error) {
-      if (error.response) {
-        message.error(error.response.data.errors);
-      } else {
-        message.error(error.message);
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleSubmit = async (id) => {
+  const handleSubmit = async (id: string) => {
     try {
       const scoreData = {
         score,
       };
-      setIsSubmitting(true);
+
       const URL = SUBMISSONS_API.update(id);
       const method = 'put';
       const response = await axios[method](URL, scoreData, {
         headers: config.headerConfig,
       });
-      const result = response.data;
 
+      const result = response.data;
       if (result.success) {
         message.success(`Data telah berhasil diperbarui `);
       } else {
@@ -224,8 +180,6 @@ function ApplicantsPage(props: Props) {
       } else {
         message.error(error.message);
       }
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -235,12 +189,13 @@ function ApplicantsPage(props: Props) {
         applicants: selectUser,
         updatedStatus: statusID,
       };
-      setIsSubmitting(true);
+
       const URL = SUBMISSONS_API.updateStatus;
       const method = 'put';
       const response = await axios[method](URL, data, {
         headers: config.headerConfig,
       });
+
       const result = response.data;
       if (result.success) {
         message.success(`Data telah berhasil diperbarui `);
@@ -258,10 +213,9 @@ function ApplicantsPage(props: Props) {
       } else {
         message.error(error.message);
       }
-    } finally {
-      setIsSubmitting(false);
     }
   };
+
   const buttonEditScore = (record, scoreTitle) => {
     let disabled;
     if (isEditing) {
@@ -312,13 +266,14 @@ function ApplicantsPage(props: Props) {
         );
 
         return (
-          <a
+          <Button
+            type="link"
             onClick={() => {
               setShowModal(true);
               setSingleData(getSingleData[0]);
             }}>
             {text}
-          </a>
+          </Button>
         );
       },
     },
@@ -338,9 +293,7 @@ function ApplicantsPage(props: Props) {
             size="small"
             type="link"
             style={{display: 'inline-block'}}
-            onClick={() => {
-              console.log(record);
-            }}>
+            onClick={() => {}}>
             {record.isEditing['academicScore'] ? (
               <input
                 type="number"
@@ -419,7 +372,6 @@ function ApplicantsPage(props: Props) {
     title: 'Kontrak',
     key: 'contract',
     render: (record) => {
-      console.log(record.passed);
       if (record.passed === 2) {
         return (
           <span>
@@ -478,14 +430,6 @@ function ApplicantsPage(props: Props) {
     });
   };
 
-  const handleSearch = () => {
-    const newData = appState.submissions.filter((applicant) => {
-      return applicant.fullName == searchKeyword;
-    });
-    console.log(newData, 'this is new data');
-    setData(newData);
-  };
-
   const handleUpdateStatusAgreement = async (
     idUser,
     idStatus,
@@ -499,7 +443,7 @@ function ApplicantsPage(props: Props) {
         positionId,
         periodId,
       };
-      setIsSubmitting(true);
+
       const URL = SUBMISSONS_API.updateStatusAgreement;
       const method = 'put';
       const response = await axios[method](URL, data, {
@@ -518,8 +462,6 @@ function ApplicantsPage(props: Props) {
       } else {
         message.error(error.message);
       }
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -531,7 +473,6 @@ function ApplicantsPage(props: Props) {
       const result = response.data;
 
       if (result.success) {
-        console.log(result.data, 'TRASDSADSADSAD');
         dispatchApp({
           type: 'FETCH_TIMELINES_APPLICANT_SUCCESS',
           payload: {dataTimelines: result.data},
@@ -548,6 +489,7 @@ function ApplicantsPage(props: Props) {
       });
     }
   };
+
   const handleFetchSubmissions = async (statusSubmission, idPeriode) => {
     try {
       dispatchApp({type: 'FETCH_SUBMISSIONS_INIT'});
@@ -619,6 +561,7 @@ function ApplicantsPage(props: Props) {
   } else {
     columns = defaultColumns;
   }
+
   React.useEffect(() => {
     setData(appState.submissions);
   }, [appState.submissions]);

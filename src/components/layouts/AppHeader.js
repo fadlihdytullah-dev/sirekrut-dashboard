@@ -6,7 +6,6 @@ import {Link} from 'react-router-dom';
 import {Layout, Typography, Button, message} from 'antd';
 import logo from './logo.png';
 import View from '../shared/View';
-import {AppContext} from '../../contexts/AppContext';
 import {useLocation, useHistory} from 'react-router-dom';
 
 const {Header} = Layout;
@@ -45,12 +44,12 @@ type Props = {
 
 function AppHeader(props: Props) {
   const {pathname} = useLocation();
-  const {appState, dispatchApp} = React.useContext(AppContext);
   const history = useHistory();
   const handleLogout = () => {
     try {
       localStorage.removeItem('isLogin');
       localStorage.removeItem('token');
+      localStorage.removeItem('email');
     } catch (error) {
       message.error('Terjadi kesalahan saat logout');
     } finally {

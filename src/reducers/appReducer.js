@@ -1,11 +1,18 @@
 // @flow
-import type {StudyProgramsType, PositionsType} from './../types/App.flow';
+import type {
+  UsersType,
+  PositionsType,
+  TimelinesType,
+  StudyProgramsType,
+} from './../types/App.flow';
 
 type State = {
   loading: boolean,
   error: ?Object,
   studyPrograms: StudyProgramsType,
   positions: PositionsType,
+  users: UsersType,
+  dataTimelines: TimelinesType,
 };
 
 type ActionList =
@@ -14,11 +21,26 @@ type ActionList =
   | 'FETCH_STUDY_PROGRAMS_FAILURE'
   | 'FETCH_POSITIONS_INIT'
   | 'FETCH_POSITIONS_SUCCESS'
-  | 'FETCH_POSITIONS_FAILURE';
+  | 'FETCH_POSITIONS_FAILURE'
+  | 'FETCH_USERS_INIT'
+  | 'FETCH_USERS_SUCCESS'
+  | 'FETCH_USERS_FAILURE'
+  | 'USER_LOGIN_INIT'
+  | 'USER_LOGIN_SUCCESS'
+  | 'USER_LOGIN_FAILURE'
+  | 'FETCH_TIMELINES_FAILURE'
+  | 'FETCH_TIMELINES_APPLICANT_INIT'
+  | 'FETCH_TIMELINES_INIT'
+  | 'FETCH_TIMELINES_APPLICANT_SUCCESS'
+  | 'FETCH_TIMELINES_APPLICANT_FAILURE'
+  | 'FETCH_TIMELINES_SUCCESS'
+  | 'FETCH_SUBMISSIONS_INIT'
+  | 'SET_EDITING_SCORE_SUBMISSION'
+  | 'FETCH_SUBMISSIONS_FAILURE';
 
 type Action = {
   type: ActionList,
-  payload?: Object,
+  payload?: *,
 };
 
 export const initState = {
@@ -34,12 +56,6 @@ export const initState = {
 
 const appReducer = (state: State, action: Action): State => {
   switch (action.type) {
-    case 'SET_LOGOUT': {
-      return {
-        ...state,
-        isLogin: false,
-      };
-    }
     case 'FETCH_USERS_INIT': {
       return {
         ...state,

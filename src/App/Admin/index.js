@@ -1,12 +1,12 @@
 // @flow
 import * as React from 'react';
-import Header from '../../components/commons/Header';
-import View from '../../components/shared/View';
-import {Button, Table, Popconfirm, message, Skeleton} from 'antd';
-import {AUTH_API, config} from '../config';
 import axios from 'axios';
-import AddModal from './components/AddModal';
 import {AppContext} from '../../contexts/AppContext';
+import {AUTH_API, config} from '../config';
+import View from '../../components/shared/View';
+import Header from '../../components/commons/Header';
+import AddModal from './components/AddModal';
+import {Button, Table, Popconfirm, message, Skeleton} from 'antd';
 
 type Props = {};
 
@@ -23,9 +23,13 @@ function Admin(props: Props) {
       const result = response.data;
 
       if (result.success) {
+        // Remove current logged in user
+        const email = localStorage.getItem('email');
+        const updatedUsers = result.data.filter((item) => item.email !== email);
+
         dispatchApp({
           type: 'FETCH_USERS_SUCCESS',
-          payload: {users: result.data},
+          payload: {users: updatedUsers},
         });
       } else {
         throw new Error(result.errors);
@@ -78,18 +82,20 @@ function Admin(props: Props) {
   const handleDeleteUser = async (idUser) => {
     try {
       setIsSubmitting(true);
+
       const key = 'loading';
       message.loading({
         content: 'Menghapus data...',
         key,
       });
+
       const URL = AUTH_API.deleteUser(idUser);
       const method = 'delete';
       const response = await axios[method](URL, {
         headers: config.headerConfig,
       });
-      const result = response.data;
 
+      const result = response.data;
       if (result.success) {
         message.success(`Data telah berhasil dihapus `);
 
@@ -111,13 +117,14 @@ function Admin(props: Props) {
   const handleSubmit = async (data) => {
     try {
       setIsSubmitting(true);
+
       const URL = AUTH_API.register;
       const method = 'post';
       const response = await axios[method](URL, data, {
         headers: config.headerConfig,
       });
-      const result = response.data;
 
+      const result = response.data;
       if (result.success) {
         message.success(`Data telah berhasil diperbarui `);
         setShowModal(false);
@@ -144,11 +151,13 @@ function Admin(props: Props) {
     []
   );
 
+  const totalData = appState.users.length || 0;
+
   return (
     <React.Fragment>
       <Header
         title="Manajemen Admin"
-        subtitle={`Total data: ${appState.users.length || 0}`}
+        subtitle={`Total data: ${totalData}`}
         rightContent={
           <Button
             // disabled={appState.loading}

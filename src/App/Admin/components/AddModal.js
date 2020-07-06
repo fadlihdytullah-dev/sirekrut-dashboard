@@ -1,15 +1,15 @@
 // @flow
 import * as React from 'react';
-import {Modal, Button, Form} from 'antd';
-import FormInput from '../../../components/shared/FormInput';
-import View from '../../../components/shared/View';
+import {Modal, Button} from 'antd';
 import {isEmpty} from '../../Utils';
+import View from '../../../components/shared/View';
+import FormInput from '../../../components/shared/FormInput';
 
 type Props = {
   visible: boolean,
   admin: any,
   isSubmitting: boolean,
-  onSubmit: (data: any) => void,
+  onSubmit: (data: any) => Promise<void>,
   onClose: () => void,
 };
 

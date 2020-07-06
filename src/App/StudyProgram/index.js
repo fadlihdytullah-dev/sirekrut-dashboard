@@ -1,16 +1,16 @@
 // @flow
 import * as React from 'react';
-import {type StudyProgramType} from './../../types/App.flow';
+import axios from 'axios';
 import {AppContext} from '../../contexts/AppContext';
+import {STUDY_PROGRAMS_API, config} from '../config';
+import {type StudyProgramType} from './../../types/App.flow';
 import AddModal from './components/AddModal';
-import Header from '../../components/commons/Header';
 import View from '../../components/shared/View';
 import Highlighter from 'react-highlight-words';
-import {Table, Input, Button, Skeleton, Empty, Popconfirm, message} from 'antd';
 import {SearchOutlined} from '@ant-design/icons';
+import Header from '../../components/commons/Header';
 import {getColumnSortProps, capitalize} from './../Utils';
-import {STUDY_PROGRAMS_API, config} from '../config';
-import axios from 'axios';
+import {Table, Input, Button, Skeleton, Empty, Popconfirm, message} from 'antd';
 
 type Props = {};
 
@@ -30,8 +30,8 @@ function StudyProgramPage(props: Props) {
       dispatchApp({type: 'FETCH_STUDY_PROGRAMS_INIT'});
 
       const response = await axios.get(STUDY_PROGRAMS_API.getAll);
-      const result = response.data;
 
+      const result = response.data;
       if (result.success) {
         dispatchApp({
           type: 'FETCH_STUDY_PROGRAMS_SUCCESS',
@@ -73,7 +73,6 @@ function StudyProgramPage(props: Props) {
         });
 
         const result = response.data;
-
         if (result.success) {
           message.success({content: 'Data telah berhasil dihapus', key});
           handleFetchStudyPrograms();

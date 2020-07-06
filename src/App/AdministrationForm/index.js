@@ -1,13 +1,13 @@
 // @flow
 import * as React from 'react';
 import styled from 'styled-components';
-import Header from '../../components/commons/Header';
-import View from '../../components/shared/View';
-import {Typography, Radio, Button, Switch, Avatar, message} from 'antd';
-import {UserOutlined} from '@ant-design/icons';
-import FormInput from '../../components/shared/FormInput';
 import axios from 'axios';
+import {UserOutlined} from '@ant-design/icons';
+import View from '../../components/shared/View';
 import {FORM_CONF_API, config} from '../config';
+import Header from '../../components/commons/Header';
+import FormInput from '../../components/shared/FormInput';
+import {Typography, Radio, Button, Switch, Avatar, message} from 'antd';
 
 type Props = {};
 
@@ -37,6 +37,7 @@ function AdministrationFormPage(props: Props) {
   });
   const [formConf, setFormConf] = React.useState(initFormConf());
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+
   const handleFetchFormConfig = async () => {
     try {
       const response = await axios.get(FORM_CONF_API.getConfig);
@@ -53,6 +54,7 @@ function AdministrationFormPage(props: Props) {
       message.error(error.message);
     }
   };
+
   const handleSubmit = async () => {
     try {
       setIsSubmitting(true);

@@ -24,8 +24,6 @@ function App() {
 
   const {pathname} = location;
 
-  console.log('ℹ️ pathname:=', pathname);
-
   return (
     <React.Fragment>
       <Switch>

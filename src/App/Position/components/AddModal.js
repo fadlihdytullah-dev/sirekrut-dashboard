@@ -1,13 +1,13 @@
 // @flow
 import * as React from 'react';
+import {config} from '../../config';
+import {isEmpty, isBetween} from '../../Utils';
+import {AppContext} from '../../../contexts/AppContext';
+import {Modal, Button, Checkbox} from 'antd';
+import View from '../../../components/shared/View';
 import type {GraduateType} from './../../../types/App.flow';
 import FormInput from './../../../components/shared/FormInput';
 import FormInputSelect from './../../../components/shared/FormInputSelect';
-import View from '../../../components/shared/View';
-import {Modal, Button, Checkbox} from 'antd';
-import {AppContext} from '../../../contexts/AppContext';
-import {isEmpty, isBetween} from '../../Utils';
-import {config} from '../../config';
 
 type StudyPrograms = 'ALL' | ?Array<string>;
 

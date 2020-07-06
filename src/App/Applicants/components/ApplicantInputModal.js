@@ -1,11 +1,12 @@
 // @flow
 import * as React from 'react';
-import {Modal, Button, Form, Input, message} from 'antd';
 import axios from 'axios';
 import {SUBMISSONS_API, config} from '../../config';
 import View from '../../../components/shared/View';
+import {Modal, Button, Input, message} from 'antd';
 
 type Props = {
+  dataBiodata: any,
   visible: boolean,
   onClose: () => void,
 };
@@ -18,7 +19,6 @@ const initScore = () => ({
 
 function ApplicantInputModal(props: Props) {
   const [score, setScore] = React.useState(initScore());
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const handleChangeInput = (event) => {
     const name = event.target && event.target.name;
@@ -35,7 +35,7 @@ function ApplicantInputModal(props: Props) {
       const scoreData = {
         score,
       };
-      setIsSubmitting(true);
+
       const URL = SUBMISSONS_API.update(props.dataBiodata.id);
 
       const method = 'put';
@@ -59,8 +59,6 @@ function ApplicantInputModal(props: Props) {
       } else {
         message.error(error.message);
       }
-    } finally {
-      setIsSubmitting(false);
     }
   };
 

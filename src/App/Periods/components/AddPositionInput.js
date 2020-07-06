@@ -14,7 +14,7 @@ type Props = {
   addData: any,
 };
 
-function AddPositionInput({data, addData, positions, defaultPosition}: Props) {
+function AddPositionInput({data, addData, positions}: Props) {
   const [quota, setQuota] = React.useState(1);
   const [positionID, setPositionID] = React.useState(undefined);
   const [name, setName] = React.useState(undefined);
@@ -48,7 +48,8 @@ function AddPositionInput({data, addData, positions, defaultPosition}: Props) {
 
   const handleChangeSelect = (id) => {
     setPositionID(id);
-    const name = data.positionsData.find((position) => position.id === id).name;
+    const name =
+      data.positionsData.find((position) => position.id === id).name || '';
     setName(name);
   };
 

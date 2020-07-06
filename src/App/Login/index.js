@@ -1,12 +1,12 @@
 import * as React from 'react';
-import {Form, Input, Button, message} from 'antd';
 import styled from 'styled-components';
+import axios from 'axios';
+import {useHistory} from 'react-router-dom';
+import {AUTH_API} from '../config';
+import {AppContext} from '../../contexts/AppContext';
+import {Form, Input, Button, message} from 'antd';
 import Header from '../../components/commons/Header';
 import AppHeader from '../../components/layouts/AppHeader';
-import {useHistory} from 'react-router-dom';
-import {AppContext} from '../../contexts/AppContext';
-import {AUTH_API, config} from '../config';
-import axios from 'axios';
 
 type Props = {};
 
@@ -30,15 +30,17 @@ function Login(props: Props) {
   const handleLogin = async () => {
     try {
       setIsSubmitting(true);
+
       dispatchApp({type: 'USER_LOGIN_INIT'});
 
       const URL = AUTH_API.login;
       const response = await axios.post(URL, formData);
+
       const result = response.data;
       if (result.success) {
-        console.log(result.data, 'TRASDSADSADSAD');
         localStorage.setItem('token', result.data.token);
         localStorage.setItem('isLogin', true);
+        localStorage.setItem('email', formData.email);
         dispatchApp({
           type: 'USER_LOGIN_SUCCESS',
         });

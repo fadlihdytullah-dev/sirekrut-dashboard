@@ -4,6 +4,7 @@ import {Modal, Button, Typography, Avatar} from 'antd';
 import View from '../../../components/shared/View';
 
 type Props = {
+  dataBiodata: any,
   visible: boolean,
   onClose: () => void,
 };
@@ -20,7 +21,6 @@ const FieldContainer = (props: {label: string, content: string}) => (
 );
 
 function ApplicantModalDataView(props: Props) {
-  console.log('ℹ️ props:=', props);
   return (
     <React.Fragment>
       <Modal
@@ -100,6 +100,7 @@ function ApplicantModalDataView(props: Props) {
                 <a
                   href={props.dataBiodata && props.dataBiodata.cvFile}
                   target="_blank"
+                  rel="noopener noreferrer"
                   download={true}>
                   Download CV
                 </a>
@@ -114,6 +115,7 @@ function ApplicantModalDataView(props: Props) {
                     <a
                       href={props.dataBiodata && props.dataBiodata.toeflFile}
                       target="_blank"
+                      rel="noopener noreferrer"
                       download={true}>
                       Tes TOEFL/IELTS
                     </a>
@@ -125,6 +127,7 @@ function ApplicantModalDataView(props: Props) {
                     <a
                       href={props.dataBiodata && props.dataBiodata._360File}
                       target="_blank"
+                      rel="noopener noreferrer"
                       download={true}>
                       Tes 360
                     </a>
