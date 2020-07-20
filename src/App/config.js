@@ -22,6 +22,7 @@ export const AUTH_API = {
   register: `${BASE_URL}/register`,
   get: `${BASE_URL}/users`,
   deleteUser: (idUser: string) => `${BASE_URL}/users/${idUser}`,
+  changeUserStatus: (id: string) => `${BASE_URL}/users/${id}`,
 };
 
 export const STUDY_PROGRAMS_API = {

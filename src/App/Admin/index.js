@@ -6,7 +6,8 @@ import {AUTH_API, config} from '../config';
 import View from '../../components/shared/View';
 import Header from '../../components/commons/Header';
 import AddModal from './components/AddModal';
-import {Button, Table, Popconfirm, message, Skeleton} from 'antd';
+import {Button, Table, Popconfirm, message, Skeleton, Typography} from 'antd';
+import {capitalize} from '../Utils';
 
 type Props = {};
 
@@ -58,19 +59,32 @@ function Admin(props: Props) {
       dataIndex: 'email',
     },
     {
+      title: 'Status',
+      dataIndex: 'status',
+      render: (status) => (
+        <Typography.Text
+          type={`${(status === 'NONACTIVE' && 'secondary') || ''}`}>
+          {capitalize(status)}
+        </Typography.Text>
+      ),
+    },
+    {
       title: 'Aksi',
       key: 'action',
       render: (record) => {
         return (
           <span>
             <Popconfirm
-              title="Apakah Anda yakin ingin menghapus data ini?"
-              onConfirm={() => handleDeleteUser(record.id)}
+              title="Apakah Anda yakin ingin mengubah status user ini?"
+              onConfirm={() => handleChangeUserStatus(record.id)}
               onCancel={() => {}}
               okText="Iya"
               cancelText="Tidak">
-              <Button size="small" type="link" danger>
-                Delete
+              <Button
+                size="small"
+                type="link"
+                danger={record.status === 'ACTIVE'}>
+                {record.status === 'ACTIVE' ? 'Deactivate' : 'Activate'}
               </Button>
             </Popconfirm>
           </span>
@@ -79,25 +93,25 @@ function Admin(props: Props) {
     },
   ];
 
-  const handleDeleteUser = async (idUser) => {
+  const handleChangeUserStatus = async (id) => {
     try {
       setIsSubmitting(true);
 
       const key = 'loading';
       message.loading({
-        content: 'Menghapus data...',
+        content: 'Memperbarui data...',
         key,
       });
 
-      const URL = AUTH_API.deleteUser(idUser);
-      const method = 'delete';
+      const URL = AUTH_API.changeUserStatus(id);
+      const method = 'put';
       const response = await axios[method](URL, {
         headers: config.headerConfig,
       });
 
       const result = response.data;
       if (result.success) {
-        message.success(`Data telah berhasil dihapus `);
+        message.success(`Data telah berhasil diperbarui `);
 
         handleFetchUser();
       } else {
