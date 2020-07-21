@@ -21,6 +21,7 @@ import Header from '../../components/commons/Header';
 import {EditOutlined, SaveOutlined} from '@ant-design/icons';
 import ApplicantInputModal from './components/ApplicantInputModal';
 import ApplicantModalDataView from './components/ApplicantModalDataView';
+import PassedApplicantsTable from './components/PassedApplicantsTable';
 
 type Props = {};
 
@@ -705,8 +706,10 @@ function ApplicantsPage(props: Props) {
       dispatchApp({type: 'FETCH_SUBMISSIONS_INIT'});
       const response = await axios.get(
         SUBMISSONS_API.getAll.concat(
-          `?filter=status&filterValue=${statusSubmission}${
-            idPeriode ? `&periode=${idPeriode}` : ''
+          `?filter=status&filterValue=${
+            statusSubmission === 7 ? 6 : statusSubmission
+          }${idPeriode ? `&periode=${idPeriode}` : ''}${
+            statusSubmission === 7 ? '&determination=2' : ''
           }`
         )
       );
@@ -736,6 +739,7 @@ function ApplicantsPage(props: Props) {
           return promiseDone;
         };
         const positionsData = await fetchPosition();
+        console.log('positionsData', positionsData);
         dispatchApp({
           type: 'FETCH_SUBMISSIONS_SUCCESS',
           payload: {submissions: positionsData},
@@ -1008,17 +1012,13 @@ function ApplicantsPage(props: Props) {
                 Proses ke tahap selanjutnya
               </Button>
             ) : null}
-
-            {activeTab === 'PASSED' ? (
-              <Button onClick={() => {}}>Export</Button>
-            ) : null}
           </View>
         </View>
 
         {appState.loading ? (
           <Skeleton />
         ) : activeTab === 'PASSED' ? (
-          <div>Table</div>
+          <PassedApplicantsTable data={data} />
         ) : (
           <Table
             onRow={(record, rowIndex) => {
