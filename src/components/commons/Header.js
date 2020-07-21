@@ -2,7 +2,7 @@
 import * as React from 'react';
 import {ArrowLeftOutlined} from '@ant-design/icons';
 import {Link} from 'react-router-dom';
-import {Typography, Button} from 'antd';
+import {Typography} from 'antd';
 import View from '../shared/View';
 
 type Props = {

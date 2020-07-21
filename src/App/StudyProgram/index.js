@@ -10,7 +10,16 @@ import Highlighter from 'react-highlight-words';
 import {SearchOutlined} from '@ant-design/icons';
 import Header from '../../components/commons/Header';
 import {getColumnSortProps, capitalize} from './../Utils';
-import {Table, Input, Button, Skeleton, Empty, Popconfirm, message} from 'antd';
+import {
+  Table,
+  Input,
+  Button,
+  Skeleton,
+  Empty,
+  Popconfirm,
+  message,
+  Typography,
+} from 'antd';
 
 type Props = {};
 
@@ -58,23 +67,23 @@ function StudyProgramPage(props: Props) {
     []
   );
 
-  const handleConfirmDelete = React.useCallback(
+  const handleChangeStudyProgramStatus = React.useCallback(
     async (id: string) => {
       const key = 'loading';
 
       try {
         message.loading({
-          content: 'Menghapus data...',
+          content: 'Memperbarui data...',
           key,
         });
 
-        const response = await axios.delete(STUDY_PROGRAMS_API.delete(id), {
+        const response = await axios.put(STUDY_PROGRAMS_API.changeStatus(id), {
           headers: config.headerConfig,
         });
 
         const result = response.data;
         if (result.success) {
-          message.success({content: 'Data telah berhasil dihapus', key});
+          message.success({content: 'Data telah berhasil diperbarui', key});
           handleFetchStudyPrograms();
         } else {
           throw new Error(result.errors);
@@ -90,8 +99,6 @@ function StudyProgramPage(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
-
-  const handleCancelDelete = () => {};
 
   const handleSubmit = async (studyProgram: any, isEdit: boolean) => {
     try {
@@ -239,6 +246,16 @@ function StudyProgramPage(props: Props) {
         },
       },
       {
+        title: 'Status',
+        dataIndex: 'status',
+        render: (status) => (
+          <Typography.Text
+            type={`${(status === 'NONACTIVE' && 'secondary') || ''}`}>
+            {capitalize(status)}
+          </Typography.Text>
+        ),
+      },
+      {
         title: 'Aksi',
         key: 'action',
         render: (record) => {
@@ -251,13 +268,16 @@ function StudyProgramPage(props: Props) {
                 Edit
               </Button>
               <Popconfirm
-                title="Apakah Anda yakin ingin menghapus data ini?"
-                onConfirm={() => handleConfirmDelete(record.id)}
-                onCancel={handleCancelDelete}
+                title="Apakah Anda yakin ingin mengubah status data ini?"
+                onConfirm={() => handleChangeStudyProgramStatus(record.id)}
+                onCancel={() => {}}
                 okText="Iya"
                 cancelText="Tidak">
-                <Button size="small" type="link" danger>
-                  Delete
+                <Button
+                  size="small"
+                  type="link"
+                  danger={record.status === 'ACTIVE'}>
+                  {record.status === 'ACTIVE' ? 'Deactivate' : 'Activate'}
                 </Button>
               </Popconfirm>
             </span>
@@ -265,7 +285,11 @@ function StudyProgramPage(props: Props) {
         },
       },
     ],
-    [getColumnSearchProps, handleConfirmDelete, handleSelectedStudyProgram]
+    [
+      getColumnSearchProps,
+      handleChangeStudyProgramStatus,
+      handleSelectedStudyProgram,
+    ]
   );
 
   const handleCloseModal = () => {

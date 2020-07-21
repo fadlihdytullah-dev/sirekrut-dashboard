@@ -73,7 +73,9 @@ function ApplicantModalDataView(props: Props) {
               />
               <FieldContainer
                 label="Pendidikan Terakhir"
-                content={props.dataBiodata && props.dataBiodata.lastEducation}
+                content={
+                  (props.dataBiodata && props.dataBiodata.lastEducation) || ''
+                }
               />
               {props.dataBiodata && props.dataBiodata.toeflFile && (
                 <FieldContainer

@@ -7,6 +7,7 @@ export const POSITIONS_API = {
   post: `${BASE_URL}/positions`,
   update: (id: string) => `${BASE_URL}/positions/${id}`,
   delete: (id: string) => `${BASE_URL}/positions/${id}`,
+  changeStatus: (id: string) => `${BASE_URL}/positions/edit_status/${id}`,
 };
 
 export const SUBMISSONS_API = {
@@ -15,6 +16,7 @@ export const SUBMISSONS_API = {
   update: (id: string) => `${BASE_URL}/submission/${id}`,
   updateStatus: `${BASE_URL}/submissions-update`,
   updateStatusAgreement: `${BASE_URL}/submissions-update/agreement`,
+  updateStatusDetermination: `${BASE_URL}/submissions-update/determination`,
 };
 
 export const AUTH_API = {
@@ -22,7 +24,7 @@ export const AUTH_API = {
   register: `${BASE_URL}/register`,
   get: `${BASE_URL}/users`,
   deleteUser: (idUser: string) => `${BASE_URL}/users/${idUser}`,
-  changeUserStatus: (id: string) => `${BASE_URL}/users/${id}`,
+  changeStatus: (id: string) => `${BASE_URL}/users/${id}`,
 };
 
 export const STUDY_PROGRAMS_API = {
@@ -31,6 +33,7 @@ export const STUDY_PROGRAMS_API = {
   post: `${BASE_URL}/study_programs`,
   update: (id: string) => `${BASE_URL}/study_programs/${id}`,
   delete: (id: string) => `${BASE_URL}/study_programs/${id}`,
+  changeStatus: (id: string) => `${BASE_URL}/study_programs/edit_status/${id}`,
 };
 
 export const FORM_CONF_API = {
@@ -44,6 +47,7 @@ export const TIMELINES_API = {
   post: `${BASE_URL}/timelines`,
   update: (id: string) => `${BASE_URL}/timelines/${id}`,
   delete: (id: string) => `${BASE_URL}/timelines/${id}`,
+  changeStatus: (id: string) => `${BASE_URL}/timelines/edit_status/${id}`,
 };
 
 const AUTH_TOKEN = localStorage.getItem('token') || '';

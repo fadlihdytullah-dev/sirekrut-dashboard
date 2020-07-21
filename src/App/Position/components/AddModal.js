@@ -241,10 +241,12 @@ function AddModal({visible, position, isSubmitting, onSubmit, onClose}: Props) {
     key: item.id,
     value: item.id,
     label: item.name,
+    status: item.status,
   }));
 
   const filteredStudyPrograms = customStudyPrograms.filter(
-    (item) => !customStudyPrograms.includes(item.key)
+    (item) =>
+      !customStudyPrograms.includes(item.key) && item.status === 'ACTIVE'
   );
 
   return (

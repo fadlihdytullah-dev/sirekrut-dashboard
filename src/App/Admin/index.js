@@ -103,7 +103,7 @@ function Admin(props: Props) {
         key,
       });
 
-      const URL = AUTH_API.changeUserStatus(id);
+      const URL = AUTH_API.changeStatus(id);
       const method = 'put';
       const response = await axios[method](URL, {
         headers: config.headerConfig,

@@ -1,6 +1,7 @@
 // @flow
 export const capitalize = (str: string) => {
-  if (str.length === 0) return str;
+  if (!str) return '';
+  if (str && str.length === 0) return str;
 
   const chunks = str.split(' ');
   const capitalizeChunks = chunks.map((str) => {

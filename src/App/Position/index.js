@@ -143,23 +143,23 @@ function PositionPage(props: Props) {
     setSelectedPosition(null);
   };
 
-  const handleConfirmDelete = React.useCallback(
+  const handleChangePositionStatus = React.useCallback(
     async (id: string) => {
       const key = 'loading';
 
       try {
         message.loading({
-          content: 'Menghapus data...',
+          content: 'Memperbarui data...',
           key,
         });
 
-        const response = await axios.delete(POSITIONS_API.delete(id), {
+        const response = await axios.put(POSITIONS_API.changeStatus(id), {
           headers: config.headerConfig,
         });
 
         const result = response.data;
         if (result.success) {
-          message.success({content: 'Data telah berhasil dihapus', key});
+          message.success({content: 'Data telah berhasil diperbarui', key});
           handleFetchPositions();
         } else {
           throw new Error(result.errors);
@@ -312,6 +312,16 @@ function PositionPage(props: Props) {
         },
       },
       {
+        title: 'Status',
+        dataIndex: 'status',
+        render: (status) => (
+          <Typography.Text
+            type={`${(status === 'NONACTIVE' && 'secondary') || ''}`}>
+            {capitalize(status)}
+          </Typography.Text>
+        ),
+      },
+      {
         title: 'Aksi',
         key: 'action',
         render: (record) => {
@@ -324,13 +334,16 @@ function PositionPage(props: Props) {
                 Edit
               </Button>
               <Popconfirm
-                title="Apakah Anda yakin ingin menghapus data ini?"
-                onConfirm={() => handleConfirmDelete(record.id)}
-                onCancel={handleCancelDelete}
+                title="Apakah Anda yakin ingin mengubah status data ini?"
+                onConfirm={() => handleChangePositionStatus(record.id)}
+                onCancel={() => {}}
                 okText="Iya"
                 cancelText="Tidak">
-                <Button size="small" type="link" danger>
-                  Delete
+                <Button
+                  size="small"
+                  type="link"
+                  danger={record.status === 'ACTIVE'}>
+                  {record.status === 'ACTIVE' ? 'Deactivate' : 'Activate'}
                 </Button>
               </Popconfirm>
             </span>
@@ -338,7 +351,7 @@ function PositionPage(props: Props) {
         },
       },
     ],
-    [getColumnSearchProps, handleConfirmDelete, handleSelectedPosition]
+    [getColumnSearchProps, handleChangePositionStatus, handleSelectedPosition]
   );
 
   return (

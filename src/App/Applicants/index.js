@@ -12,6 +12,7 @@ import {
   Select,
   Popconfirm,
   Input,
+  Typography,
 } from 'antd';
 import View from '../../components/shared/View';
 import Highlighter from 'react-highlight-words';
@@ -26,9 +27,11 @@ type Props = {};
 const {Option} = Select;
 
 const initScore = () => ({
-  interviewScore: 0,
   academicScore: 0,
   psikotesScore: 0,
+  microteaching: 0,
+  interviewScore: 0,
+  orientation: 0,
 });
 
 const regexPhone = /^[0-9]*$/;
@@ -43,8 +46,11 @@ function ApplicantsPage(props: Props) {
     | 'APPLLICANTS'
     | 'ACADEMIC_SCORE'
     | 'PSIKOTEST_SCORE'
+    | 'MICROTEACHING_SCORE'
     | 'INTERVIEW_SCORE'
+    | 'ORIENTATION_SCORE'
     | 'AGREEMENT'
+    | 'PASSED'
   >('APPLLICANTS');
   const [showModal, setShowModal] = React.useState(false);
   const [showModalInput, setShowModalInput] = React.useState(false);
@@ -202,8 +208,11 @@ function ApplicantsPage(props: Props) {
         if (activeTab === 'APPLLICANTS') handleFetchSubmissions(0);
         if (activeTab === 'ACADEMIC_SCORE') handleFetchSubmissions(1);
         if (activeTab === 'PSIKOTEST_SCORE') handleFetchSubmissions(2);
-        if (activeTab === 'INTERVIEW_SCORE') handleFetchSubmissions(3);
-        if (activeTab === 'AGREEMENT') handleFetchSubmissions(4);
+        if (activeTab === 'MICROTEACHING_SCORE') handleFetchSubmissions(3);
+        if (activeTab === 'INTERVIEW_SCORE') handleFetchSubmissions(4);
+        if (activeTab === 'ORIENTATION_SCORE') handleFetchSubmissions(5);
+        if (activeTab === 'AGREEMENT') handleFetchSubmissions(6);
+        if (activeTab === 'PASSED') handleFetchSubmissions(7);
       } else {
         throw new Error(result.errors);
       }
@@ -241,9 +250,11 @@ function ApplicantsPage(props: Props) {
             handleSubmit(record.id);
             editScore(indexNumber, false, scoreTitle, score[scoreTitle]);
             setScore((state) => ({
-              interviewScore: 0,
               academicScore: 0,
               psikotesScore: 0,
+              microteaching: 0,
+              interviewScore: 0,
+              orientation: 0,
             }));
           } else {
             editScore(indexNumber, true, scoreTitle, record.score[scoreTitle]);
@@ -341,6 +352,33 @@ function ApplicantsPage(props: Props) {
     },
   };
 
+  const microteachingScoreColumn = {
+    title: 'Nilai Microteaching',
+    key: 'microteaching_score',
+    render: (record) => {
+      return (
+        <span>
+          <Button size="small" type="link">
+            {record.isEditing['microteachingScore'] ? (
+              <input
+                type="number"
+                name="microteachingScore"
+                style={{width: '30px'}}
+                onChange={handleChangeInput}
+                defaultValue={record.score.microteachingScore}
+              />
+            ) : (
+              record.score.microteachingScore
+            )}
+          </Button>
+          {activeTab === 'MICROTEACHING_SCORE'
+            ? buttonEditScore(record, 'microteachingScore')
+            : null}
+        </span>
+      );
+    },
+  };
+
   const interviewScoreColumn = {
     title: 'Nilai Wawancara',
     key: 'interview_score',
@@ -368,6 +406,33 @@ function ApplicantsPage(props: Props) {
     },
   };
 
+  const orientationScoreColumn = {
+    title: 'Nilai Orientasi',
+    key: 'orientation_score',
+    render: (record) => {
+      return (
+        <span>
+          <Button size="small" type="link">
+            {record.isEditing['orientationScore'] ? (
+              <input
+                type="number"
+                name="orientationScore"
+                style={{width: '30px'}}
+                onChange={handleChangeInput}
+                defaultValue={record.score.orientationScore}
+              />
+            ) : (
+              record.score.orientationScore
+            )}
+          </Button>
+          {activeTab === 'ORIENTATION_SCORE'
+            ? buttonEditScore(record, 'orientationScore')
+            : null}
+        </span>
+      );
+    },
+  };
+
   const agreementColumn = {
     title: 'Kontrak',
     key: 'contract',
@@ -375,18 +440,44 @@ function ApplicantsPage(props: Props) {
       if (record.passed === 2) {
         return (
           <span>
-            <Button size="small" type="dashed">
-              Lulus
-            </Button>
+            <Popconfirm
+              title="Apakah Anda yakin ingin membatalkan aksi sebelumnya?"
+              onConfirm={() => {
+                handleUpdateStatusAgreement(
+                  record.id,
+                  0,
+                  record.positionId,
+                  record.periodId
+                );
+              }}
+              okText="Iya"
+              cancelText="Tidak">
+              <Button size="small" type="dashed">
+                Menerima
+              </Button>
+            </Popconfirm>
           </span>
         );
       }
       if (record.passed === 1) {
         return (
           <span>
-            <Button size="small" type="dashed">
-              Tidak Lulus
-            </Button>
+            <Popconfirm
+              title="Apakah Anda yakin ingin membatalkan aksi sebelumnya?"
+              onConfirm={() => {
+                handleUpdateStatusAgreement(
+                  record.id,
+                  0,
+                  record.positionId,
+                  record.periodId
+                );
+              }}
+              okText="Iya"
+              cancelText="Tidak">
+              <Button size="small" type="dashed">
+                Menolak
+              </Button>
+            </Popconfirm>
           </span>
         );
       }
@@ -414,6 +505,90 @@ function ApplicantsPage(props: Props) {
               okText="Iya"
               cancelText="Tidak">
               <Button size="small" type="link">
+                Konfirmasi
+              </Button>
+            </Popconfirm>
+          </span>
+        );
+      }
+    },
+  };
+
+  const determinationColumn = {
+    title: 'Penetapan',
+    key: 'determination',
+    render: (record) => {
+      if (record.determination === 2) {
+        return (
+          <span>
+            <Popconfirm
+              title="Apakah Anda yakin ingin membatalkan aksi sebelumnya?"
+              onConfirm={() => {
+                handleUpdateStatusDetermination(
+                  record.id,
+                  0,
+                  record.positionId,
+                  record.periodId
+                );
+              }}
+              okText="Iya"
+              cancelText="Tidak">
+              <Button size="small" type="dashed">
+                Lulus
+              </Button>
+            </Popconfirm>
+          </span>
+        );
+      }
+      if (record.determination === 1) {
+        return (
+          <span>
+            <span>
+              <Popconfirm
+                title="Apakah Anda yakin ingin membatalkan aksi sebelumnya?"
+                onConfirm={() => {
+                  handleUpdateStatusDetermination(
+                    record.id,
+                    0,
+                    record.positionId,
+                    record.periodId
+                  );
+                }}
+                okText="Iya"
+                cancelText="Tidak">
+                <Button size="small" type="dashed">
+                  Mengundurkan Diri
+                </Button>
+              </Popconfirm>
+            </span>
+          </span>
+        );
+      }
+      if (record.determination === 0) {
+        return (
+          <span>
+            <Popconfirm
+              disabled={record.passed !== 2}
+              title="Apakah Anda yakin ingin menetapkan pelamar ini?"
+              onConfirm={() => {
+                handleUpdateStatusDetermination(
+                  record.id,
+                  2,
+                  record.positionId,
+                  record.periodId
+                );
+              }}
+              onCancel={() => {
+                handleUpdateStatusDetermination(
+                  record.id,
+                  1,
+                  record.positionId,
+                  record.periodId
+                );
+              }}
+              okText="Iya"
+              cancelText="Undur Diri">
+              <Button size="small" type="link" disabled={record.passed !== 2}>
                 Konfirmasi
               </Button>
             </Popconfirm>
@@ -452,7 +627,42 @@ function ApplicantsPage(props: Props) {
       const result = response.data;
       if (result.success) {
         message.success(`Data telah berhasil diperbarui`);
-        handleFetchSubmissions(4);
+        handleFetchSubmissions(6);
+      } else {
+        throw new Error(result.errors);
+      }
+    } catch (error) {
+      if (error.response) {
+        message.error(error.response.data.errors);
+      } else {
+        message.error(error.message);
+      }
+    }
+  };
+
+  const handleUpdateStatusDetermination = async (
+    idUser,
+    idStatus,
+    positionId,
+    periodId
+  ) => {
+    try {
+      const data = {
+        id: idUser,
+        updatedStatus: idStatus,
+        positionId,
+        periodId,
+      };
+
+      const URL = SUBMISSONS_API.updateStatusDetermination;
+      const method = 'put';
+      const response = await axios[method](URL, data, {
+        headers: config.headerConfig,
+      });
+      const result = response.data;
+      if (result.success) {
+        message.success(`Data telah berhasil diperbarui`);
+        handleFetchSubmissions(6);
       } else {
         throw new Error(result.errors);
       }
@@ -516,6 +726,8 @@ function ApplicantsPage(props: Props) {
                 interviewScore: false,
                 academicScore: false,
                 psikotesScore: false,
+                microteachingScore: false,
+                orientationScore: false,
               },
             };
             return item;
@@ -545,18 +757,36 @@ function ApplicantsPage(props: Props) {
     columns = defaultColumns.concat([academiScoreColumn]);
   } else if (activeTab === 'PSIKOTEST_SCORE') {
     columns = defaultColumns.concat([academiScoreColumn, psikotestScoreColumn]);
+  } else if (activeTab === 'MICROTEACHING_SCORE') {
+    columns = defaultColumns.concat([
+      academiScoreColumn,
+      psikotestScoreColumn,
+      microteachingScoreColumn,
+    ]);
   } else if (activeTab === 'INTERVIEW_SCORE') {
     columns = defaultColumns.concat([
       academiScoreColumn,
       psikotestScoreColumn,
+      microteachingScoreColumn,
       interviewScoreColumn,
+    ]);
+  } else if (activeTab === 'ORIENTATION_SCORE') {
+    columns = defaultColumns.concat([
+      academiScoreColumn,
+      psikotestScoreColumn,
+      microteachingScoreColumn,
+      interviewScoreColumn,
+      orientationScoreColumn,
     ]);
   } else if (activeTab === 'AGREEMENT') {
     columns = defaultColumns.concat([
       academiScoreColumn,
       psikotestScoreColumn,
+      microteachingScoreColumn,
       interviewScoreColumn,
+      orientationScoreColumn,
       agreementColumn,
+      determinationColumn,
     ]);
   } else {
     columns = defaultColumns;
@@ -583,11 +813,20 @@ function ApplicantsPage(props: Props) {
       if (activeTab === 'PSIKOTEST_SCORE') {
         handleFetchSubmissions(2, query);
       }
-      if (activeTab === 'INTERVIEW_SCORE') {
+      if (activeTab === 'MICROTEACHING_SCORE') {
         handleFetchSubmissions(3, query);
       }
-      if (activeTab === 'AGREEMENT') {
+      if (activeTab === 'INTERVIEW_SCORE') {
         handleFetchSubmissions(4, query);
+      }
+      if (activeTab === 'ORIENTATION_SCORE') {
+        handleFetchSubmissions(5, query);
+      }
+      if (activeTab === 'AGREEMENT') {
+        handleFetchSubmissions(6, query);
+      }
+      if (activeTab === 'PASSED') {
+        handleFetchSubmissions(7, query);
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -612,6 +851,7 @@ function ApplicantsPage(props: Props) {
       />
 
       <View marginY={24}>
+        <Typography.Text>Filter berdasarkan: </Typography.Text>
         <Select
           defaultValue={location.state ? location.state.data.periodID : 'ALL'}
           style={{width: '400px'}}
@@ -627,11 +867,20 @@ function ApplicantsPage(props: Props) {
               if (activeTab === 'PSIKOTEST_SCORE') {
                 handleFetchSubmissions(2, null);
               }
-              if (activeTab === 'INTERVIEW_SCORE') {
+              if (activeTab === 'MICROTEACHING_SCORE') {
                 handleFetchSubmissions(3, null);
               }
-              if (activeTab === 'AGREEMENT') {
+              if (activeTab === 'INTERVIEW_SCORE') {
                 handleFetchSubmissions(4, null);
+              }
+              if (activeTab === 'ORIENTATION_SCORE') {
+                handleFetchSubmissions(5, null);
+              }
+              if (activeTab === 'AGREEMENT') {
+                handleFetchSubmissions(6, null);
+              }
+              if (activeTab === 'PASSED') {
+                handleFetchSubmissions(7, null);
               }
             }
             if (activeTab === 'APPLLICANTS')
@@ -643,11 +892,20 @@ function ApplicantsPage(props: Props) {
             if (activeTab === 'PSIKOTEST_SCORE')
               handleFetchSubmissions(2, idPeriode === 'ALL' ? null : idPeriode);
 
-            if (activeTab === 'INTERVIEW_SCORE')
+            if (activeTab === 'MICROTEACHING_SCORE')
               handleFetchSubmissions(3, idPeriode === 'ALL' ? null : idPeriode);
 
-            if (activeTab === 'AGREEMENT')
+            if (activeTab === 'INTERVIEW_SCORE')
               handleFetchSubmissions(4, idPeriode === 'ALL' ? null : idPeriode);
+
+            if (activeTab === 'ORIENTATION_SCORE')
+              handleFetchSubmissions(5, idPeriode === 'ALL' ? null : idPeriode);
+
+            if (activeTab === 'AGREEMENT')
+              handleFetchSubmissions(6, idPeriode === 'ALL' ? null : idPeriode);
+
+            if (activeTab === 'PASSED')
+              handleFetchSubmissions(7, idPeriode === 'ALL' ? null : idPeriode);
           }}
           name="lastEducation">
           <Option value="ALL">Semua periode</Option>
@@ -656,7 +914,7 @@ function ApplicantsPage(props: Props) {
           ))}
         </Select>
       </View>
-      <View marginY={14} style={{width: '600px'}}>
+      <View marginY={14} style={{width: '100%'}}>
         <Button
           type={activeTab === 'APPLLICANTS' ? 'dashed' : 'link'}
           onClick={() => setActiveTab('APPLLICANTS')}>
@@ -673,14 +931,29 @@ function ApplicantsPage(props: Props) {
           Tes Psikotes
         </Button>
         <Button
+          type={activeTab === 'MICROTEACHING_SCORE' ? 'dashed' : 'link'}
+          onClick={() => setActiveTab('MICROTEACHING_SCORE')}>
+          Microteaching
+        </Button>
+        <Button
           type={activeTab === 'INTERVIEW_SCORE' ? 'dashed' : 'link'}
           onClick={() => setActiveTab('INTERVIEW_SCORE')}>
           Wawancara
         </Button>
         <Button
+          type={activeTab === 'ORIENTATION_SCORE' ? 'dashed' : 'link'}
+          onClick={() => setActiveTab('ORIENTATION_SCORE')}>
+          Orientasi
+        </Button>
+        <Button
           type={activeTab === 'AGREEMENT' ? 'dashed' : 'link'}
           onClick={() => setActiveTab('AGREEMENT')}>
-          Sudah Lulus
+          Hasil
+        </Button>
+        <Button
+          type={activeTab === 'PASSED' ? 'dashed' : 'link'}
+          onClick={() => setActiveTab('PASSED')}>
+          Lulus
         </Button>
       </View>
 
@@ -694,14 +967,19 @@ function ApplicantsPage(props: Props) {
                 if (activeTab === 'APPLLICANTS') handleFetchSubmissions(0);
                 if (activeTab === 'ACADEMIC_SCORE') handleFetchSubmissions(1);
                 if (activeTab === 'PSIKOTEST_SCORE') handleFetchSubmissions(2);
-                if (activeTab === 'INTERVIEW_SCORE') handleFetchSubmissions(3);
-                if (activeTab === 'AGREEMENT') handleFetchSubmissions(4);
+                if (activeTab === 'MICROTEACHING_SCORE')
+                  handleFetchSubmissions(3);
+                if (activeTab === 'INTERVIEW_SCORE') handleFetchSubmissions(4);
+                if (activeTab === 'ORIENTATION_SCORE')
+                  handleFetchSubmissions(5);
+                if (activeTab === 'AGREEMENT') handleFetchSubmissions(6);
+                if (activeTab === 'PASSED') handleFetchSubmissions(7);
               }}>
               Muat Ulang
             </Button>
           </View>
           <View marginBottom={16}>
-            {activeTab !== 'AGREEMENT' ? (
+            {activeTab !== 'AGREEMENT' && activeTab !== 'PASSED' ? (
               <Button
                 disabled={!selectUser.length ? true : false}
                 onClick={() => {
@@ -716,19 +994,31 @@ function ApplicantsPage(props: Props) {
                   if (activeTab === 'PSIKOTEST_SCORE') {
                     status = 3;
                   }
-                  if (activeTab === 'INTERVIEW_SCORE') {
+                  if (activeTab === 'MICROTEACHING_SCORE') {
                     status = 4;
+                  }
+                  if (activeTab === 'INTERVIEW_SCORE') {
+                    status = 5;
+                  }
+                  if (activeTab === 'ORIENTATION_SCORE') {
+                    status = 6;
                   }
                   handleUpdateStatusApplicant(status);
                 }}>
                 Proses ke tahap selanjutnya
               </Button>
             ) : null}
+
+            {activeTab === 'PASSED' ? (
+              <Button onClick={() => {}}>Export</Button>
+            ) : null}
           </View>
         </View>
 
         {appState.loading ? (
           <Skeleton />
+        ) : activeTab === 'PASSED' ? (
+          <div>Table</div>
         ) : (
           <Table
             onRow={(record, rowIndex) => {

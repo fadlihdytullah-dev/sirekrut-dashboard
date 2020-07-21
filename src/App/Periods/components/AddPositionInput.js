@@ -93,7 +93,10 @@ function AddPositionInput({data, addData, positions}: Props) {
                 );
               }}>
               {data.positionsData.map((item) => {
-                if (!addedPositionIDs.includes(item.id)) {
+                if (
+                  !addedPositionIDs.includes(item.id) &&
+                  item.status === 'ACTIVE'
+                ) {
                   return (
                     <Select.Option key={item.id} value={item.id} ss={'aww'}>
                       {item.name}
